@@ -1,4 +1,5 @@
 import random
+from datetime import datetime
 from typing import List, Set
 
 from classes import Injured, State
@@ -25,14 +26,16 @@ class Simulation:
         :param n_iterations: (int) number of iterations
         """
         i: int = 0
+        start_point: datetime = datetime.now()
+        print("START OF THE SIMULATION " + start_point.time().strftime("%H:%M:%S"), end="\n\n")
         print(self)
-        while i < n_iterations or \
-                sum(self.injured) != State.BLACK * len(self.injured):
+        while i < n_iterations and {injured.state for injured in self.injured} != {State.BLACK}:
             print(f"Simulation step {i + 1}")  # TODO: logging to file?
-            print(sum(self.injured))  # TODO: ??????
             self.step()
             print(self)
             i += 1
+        print("\nEND OF THE SIMULATION " + datetime.now().time().strftime("%H:%M:%S"), end="\n\n")
+        print("Time of the execution: " + str(datetime.now() - start_point))
 
     def __repr__(self):
         n_green: int = len({injured for injured in self.injured if injured.state == State.GREEN})
