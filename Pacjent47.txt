@@ -1,0 +1,30 @@
+Stan 2
+ ; Parametr; Jednostka; Wartoœæ
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Czêstoœæ oddechu; ([1/min] / nieobecna); nieobecna
+3; Têtno obwodowe; ([1/min] / nieobecne); nieobecne
+4; Czy pacjent spe³nia polecenia?; (tak/nie); nie
+5; Kolor segregacji; (nazwa koloru); czarny
+Opis: 
+Rodzic: Stan 1, przejœcie: czas - 80min
+
+Stan 1
+ ; Parametr; Jednostka; Wartoœæ
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Czêstoœæ oddechu; ([1/min] / nieobecna); 6
+3; Têtno obwodowe; ([1/min] / nieobecne); 117
+4; Czy pacjent spe³nia polecenia?; (tak/nie); nie
+5; Kolor segregacji; (nazwa koloru); czerwony
+Opis: Pacjent si³¹ wybuchu ciœniêty o przeszkodê terenow¹ ( mur, drzewo) Nieprzytomny, charcz¹cy, anizkoria prawostronna, krew wyp³ywaj¹ca z ust, zasinienia klatki piersiowej, brzucha.
+Czynnoœæ krytyczna: udro¿nienie dróg oddechowych ( odgiêcie g³owy, luksacja ¿uchwy, rurka UG) i transport w czasie do 80 minut od pierwszego kontaktu z ratownikiem do SOR-u z zapleczem chirurgicznym. Po przekroczeniu czasu NZK z asystoli¹.
+
+Stan 3
+ ; Parametr; Jednostka; Wartoœæ
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Czêstoœæ oddechu; ([1/min] / nieobecna); 20
+3; Têtno obwodowe; ([1/min] / nieobecne); 110
+4; Czy pacjent spe³nia polecenia?; (tak/nie); nie
+5; Kolor segregacji; (nazwa koloru); czerwony
+Opis: 
+Rodzic: Stan 1, przejœcie: interwencja - udro¿nienie dróg oddechowych
+
