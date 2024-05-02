@@ -1,0 +1,9 @@
+Stan 1
+ ; Parametr; Jednostka; Wartoœæ
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Czêstoœæ oddechu; ([1/min] / nieobecna); 12
+3; Têtno obwodowe; ([1/min] / nieobecne); 120
+4; Czy pacjent spe³nia polecenia?; (tak/nie); tak
+5; Kolor segregacji; (nazwa koloru); ¿ó³ty
+Opis: Pacjent lat 13 uczestnik imprezy masowej, pobity zg³asza dolegliwoœci bólowe koñczyny dolnej oraz klatki piersiowej, twierdzi ¿e nie jest w stanie siê poruszaæ. Koñczyna dolna z widocznym zasinieniem, deformacj¹ oraz obrzêkiem w obrêbie stawu kolanowego lewego. Wra¿enia ogólne pacjenta dobre, pulsacyjnie kolano bolesne, przy próbie poruszania siê  koñczyn¹ w stawie kolanowym s³yszalne „chrupanie”, pacjent nie jest w stanie ustaæ na chorej koñczynie. Dolegliwoœci bólowe klatki piersiowej nasilaj¹ce siê przy poruszaniu, nasilenie dolegliwoœci bólowych w obrêbie ³opatki prawej, klatka piersiowa bez widocznych deformacji. Os³uchowo bez zmian os³uchowych
+

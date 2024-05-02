@@ -1,0 +1,9 @@
+Stan 1
+ ; Parametr; Jednostka; Wartoœæ
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Czêstoœæ oddechu; ([1/min] / nieobecna); 12
+3; Têtno obwodowe; ([1/min] / nieobecne); 130
+4; Czy pacjent spe³nia polecenia?; (tak/nie); tak
+5; Kolor segregacji; (nazwa koloru); ¿ó³ty
+Opis: Mê¿czyzna lat 13 zg³asza problem z poruszaniem siê, na proœbê o opuszczenie strefy niebezpiecznej, zg³asza ból w obrêbie piszczeli prawej, widoczna deformacja, widoczny uraz g³owy nie wymagaj¹cy interwencji chirurgicznej.
+

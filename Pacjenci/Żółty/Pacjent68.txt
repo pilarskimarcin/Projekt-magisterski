@@ -1,0 +1,9 @@
+Stan 1
+ ; Parametr; Jednostka; Wartoœæ
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Czêstoœæ oddechu; ([1/min] / nieobecna); 12
+3; Têtno obwodowe; ([1/min] / nieobecne); 120
+4; Czy pacjent spe³nia polecenia?; (tak/nie); tak
+5; Kolor segregacji; (nazwa koloru); ¿ó³ty
+Opis: Mê¿czyzna lat 24 zg³asza problem z poruszaniem siê, na proœbê o opuszczenie strefy niebezpiecznej, zg³asza ból w obrêbie jamy brzusznej nasilaj¹cy siê podczas poruszania. Dolegliwoœci uniemo¿liwiaj¹ce przemieszczanie siê. Brzuch palpacyjnnie nie bolesny, miêkki, os³uchowo bez, perystaltyka ¿ywa s³yszalna
+

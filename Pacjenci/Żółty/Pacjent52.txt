@@ -1,0 +1,9 @@
+Stan 1
+ ; Parametr; Jednostka; Wartoœæ
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Czêstoœæ oddechu; ([1/min] / nieobecna); 14
+3; Têtno obwodowe; ([1/min] / nieobecne); 120
+4; Czy pacjent spe³nia polecenia?; (tak/nie); tak
+5; Kolor segregacji; (nazwa koloru); ¿ó³ty
+Opis: Pacjent lat 15, mimo nawo³ywania z proœb¹ o opuszczenie strefy niebezpiecznej nie wykonuje polecenia, podczas badania zg³asza dolegliwoœci bólowe koñczyny dolnej na wysokoœci piszczeli prawej. Widoczne przerwanie ci¹g³oœci skóry, wolno wyp³ywaj¹ca krew czerwona nie têtni¹ca, Obra¿enia ogólne pacjenta dobre, pacjent pobudzony, spe³niaj¹cy polecenia, po za³o¿eniu opaski uciskowej powy¿ej z³amania uspokaja siê.
+

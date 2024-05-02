@@ -1,0 +1,9 @@
+Stan 1
+ ; Parametr; Jednostka; Wartoœæ
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Czêstoœæ oddechu; ([1/min] / nieobecna); 12
+3; Têtno obwodowe; ([1/min] / nieobecne); 120
+4; Czy pacjent spe³nia polecenia?; (tak/nie); tak
+5; Kolor segregacji; (nazwa koloru); ¿ó³ty
+Opis: Kobieta lat 17 zg³asza problem z poruszaniem siê, na proœbê o opuszczenie strefy niebezpiecznej, zg³asza ból w obrêbie stawu kolanowego, dolegliwoœci uniemo¿liwiaj¹ samodzielne poruszanie siê, dolegliwoœci bólowe w obrêbie stawu barkowego (widoczna asymetria barku lewego w stosunku do prawego, bolesnoœæ palpacyjna).
+

@@ -1,0 +1,9 @@
+Stan 1
+ ; Parametr; Jednostka; Wartoœæ
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Czêstoœæ oddechu; ([1/min] / nieobecna); 12
+3; Têtno obwodowe; ([1/min] / nieobecne); 130
+4; Czy pacjent spe³nia polecenia?; (tak/nie); tak
+5; Kolor segregacji; (nazwa koloru); ¿ó³ty
+Opis: Mê¿czyzna lat 14 zg³asza problem z poruszaniem siê, na proœbê o opuszczenie strefy niebezpiecznej, zg³asza ból w obrêbie stawu skokowego (obrzêk, zasinienie, deformacja) brak przerwania ci¹g³oœci tkanki skórnej, widoczny uraz koñczyny górnej prawej (deformacja w obrêbie przedramienia) Pacjent bólowy. Skóra d³oni zaczerwieniona, gor¹ca, widoczne pêcherze.  Pacjent bólowy, trzês¹cy siê.
+

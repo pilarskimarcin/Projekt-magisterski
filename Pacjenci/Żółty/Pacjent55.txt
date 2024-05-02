@@ -1,0 +1,9 @@
+Stan 1
+ ; Parametr; Jednostka; Wartoœæ
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Czêstoœæ oddechu; ([1/min] / nieobecna); 12
+3; Têtno obwodowe; ([1/min] / nieobecne); 120
+4; Czy pacjent spe³nia polecenia?; (tak/nie); tak
+5; Kolor segregacji; (nazwa koloru); ¿ó³ty
+Opis: Pacjentka lat 17 przysz³a z mam¹, nie wie gdzie jest mama, boi siê o ni¹, zg³asza dolegliwoœci bólowe pleców na wysokoœci odcinka lêdŸwiowego, twierdzi ¿e nie czuje nóg mimo i¿ mo¿e nimi poruszaæ, okresowo krzycz¹ca nawo³uj¹ca za mam¹. Na g³owie widoczna niewielka rana, wolno krwawi¹ca, nie wymagaj¹ca zaopatrzenia chirurgicznego, Dolegliwoœci bólowe nasilaj¹ siê podczas próby zmiany pozycji, pacjentka wrzeszcz¹ca z bólu. Wra¿enia ogólne dobre, pacjentka staraj¹ca siê odnaleŸæ mamê, okresowo rozpaczliwie wo³aj¹ca za ni¹.  
+

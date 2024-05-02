@@ -14,13 +14,14 @@ TITLE = "Edytor tabeli - "
 # Table parameters
 COLUMNS_NUMBER: int = 3
 COLUMNS_HEADERS: List[str] = ["Parametr", "Jednostka", "Wartość"]
-ROWS_NUMBER: int = 4
 DEFAULT_TABLE: List[List[str]] = [
     ["Czy pacjent chodzi?", "(tak/nie)", ""],
     ["Częstość oddechu", "([1/min] / nieobecna)", ""],
     ["Tętno obwodowe", "([1/min] / nieobecne)", ""],
-    ["Czy pacjent spełnia polecenia?", "(tak/nie)", ""]
+    ["Czy pacjent spełnia polecenia?", "(tak/nie)", ""],
+    ["Kolor segregacji", "(nazwa koloru)", ""]
 ]
+ROWS_NUMBER: int = len(DEFAULT_TABLE)
 
 # Starting Qt
 app = Qt.QApplication(sys.argv)
@@ -179,7 +180,7 @@ class MainApp(Qt.QMainWindow):
 
     def open_table(self):
         self.current_file, _ = Qt.QFileDialog.getOpenFileName(
-            self, "Save the table", "", "Text files (*.txt)"
+            self, "Open the table", "", "Text files (*.txt)"
         )
         if self.current_file == "":
             return
@@ -208,17 +209,28 @@ class MainApp(Qt.QMainWindow):
                         line: List[str] = lines[i].split("; ")[1:]
                         for j in range(self.table.columnCount()):
                             self.table.setItem(i, j, Qt.QTableWidgetItem(line[j]))
-                    self.description.setText(lines[self.table.rowCount()][6:])  # Remove "Opis: "
+                    i += 1
+                    description: str = ""
+                    while i < len(lines) and not lines[i].startswith("Rodzic: "):
+                        if lines[i].startswith("Opis: "):
+                            lines[i] = lines[i][6:]  # Remove "Opis: "
+                        else:  # It's not the line with "Opis"
+                            description += "\n"
+                        description += lines[i]
+                        i += 1
+                    self.description.setText(description)
                     # Third element of the last line is the parent state's number, only the first character
-                    parent_num: int = int(lines[self.table.rowCount() + 1].split()[2][0])
-                    is_transition_time: bool
-                    if lines[self.table.rowCount() + 1].split()[4] == "czas":
-                        is_transition_time = True
-                        intervention_or_time_duration: int = int(lines[self.table.rowCount() + 1].split()[6][:-3])
-                    else:
-                        is_transition_time = False
-                        intervention_or_time_duration: str = lines[self.table.rowCount() + 1].split()[6]
-                    self.current_state_parent = (parent_num, is_transition_time, intervention_or_time_duration)
+                    if i < len(lines):
+                        parent_num: int = int(lines[i].split()[2][0])
+                        is_transition_time: bool
+                        if lines[i].split()[4] == "czas":
+                            is_transition_time = True
+                            intervention_or_time_duration: int = int(lines[i].split()[6][:-3])
+                        else:
+                            is_transition_time = False
+                            intervention_or_time_duration: str = lines[i].split()[6]
+                        self.current_state_parent = (parent_num, is_transition_time, intervention_or_time_duration)
+                    self.set_window_title()
                     Qt.QMessageBox(
                         Qt.QMessageBox.Icon.Information, " ",
                         "Stan pacjenta otwarty.\nNależy go zapisać po wprowadzeniu zmian",
@@ -266,9 +278,6 @@ class MainApp(Qt.QMainWindow):
         self.clear_table_contents()
         self.is_saved = False
         self.set_window_title()
-
-    # TODO:
-    #   - dodać przycisk otwierania
 
 
 if __name__ == '__main__':
