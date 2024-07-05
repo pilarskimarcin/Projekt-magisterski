@@ -84,12 +84,14 @@ class MainApp(Qt.QMainWindow):
         self.open_existing_state_button.clicked.connect(self.open_table)
 
     def set_window_title(self):
+        """Sets the title depending on whether it's an already saved file or a new one"""
         if self.current_file == "":
             self.setWindowTitle(TITLE + "nowy*")
         else:
             self.setWindowTitle(TITLE + self.current_file.split("/")[-1] + f" Stan {self.current_state_number}")
 
     def layout(self):
+        """Adds all elements to the layout"""
         self.main_layout.addWidget(Qt.QLabel("Tabela", self))
         self.table = Qt.QTableWidget(ROWS_NUMBER, COLUMNS_NUMBER, self)
         self.table.setHorizontalHeaderLabels(COLUMNS_HEADERS)
@@ -130,13 +132,13 @@ class MainApp(Qt.QMainWindow):
         self.table.insertRow(self.table.rowCount())
 
     def delete_selected_rows(self):
-        rows_to_remove: List[int] = [qmodelindex.row() for qmodelindex in self.table.selectedIndexes()]
+        rows_to_remove: List[int] = list({qmodelindex.row() for qmodelindex in self.table.selectedIndexes()})
         rows_to_remove.sort(reverse=True)
         for row in rows_to_remove:
             self.table.removeRow(row)
 
     def save_current_table(self):
-        # If it is saved, why save again?
+        # If it is saved, don't save again
         if self.is_saved:
             Qt.QMessageBox(
                 Qt.QMessageBox.Icon.Information, " ", "Stan już zapisany", Qt.QMessageBox.StandardButton.Ok, self
@@ -146,7 +148,7 @@ class MainApp(Qt.QMainWindow):
         # Choosing a file to save into
         if self.current_file == "":
             self.current_file, _ = Qt.QFileDialog.getSaveFileName(
-                self, "Zapisz tabelę", "", "Pliki tekstowe (*.txt)"
+                self, "Zapisz tabelę", "Profile pacjentów", "Pliki tekstowe (*.txt)"
             )
             if self.current_file == "":
                 return
@@ -179,11 +181,14 @@ class MainApp(Qt.QMainWindow):
         ).exec()
 
     def open_table(self):
+        # Choose a file to open
         self.current_file, _ = Qt.QFileDialog.getOpenFileName(
             self, "Open the table", "", "Text files (*.txt)"
         )
-        if self.current_file == "":
+        if self.current_file == "":  # Cancelled
             return
+
+        # Opening the file
         with open(self.current_file, "r+") as f:
             states: List[str] = f.read().split("\n\n")
             states.remove("")
@@ -191,12 +196,15 @@ class MainApp(Qt.QMainWindow):
             state_numbers: List[str] = [state.split("\n")[0][5:] for state in states]
             choice = Qt.QInputDialog(self)
             choice.setCancelButtonText("Anuluj")
+            # Choosing one of the states to edit
             results = choice.getItem(self, "Wybór stanu", "Wybierz jeden ze stanów tego pacjenta",
                                      state_numbers)
-            if not results[1]:
+            if not results[1]:  # Cancelled
                 return
             self.next_state_number = max([int(number) for number in state_numbers]) + 1
             self.current_state_number = int(results[0])
+
+            # Writing the remaining states back into the file
             for state in states:
                 if state.startswith("Stan " + results[0]):
                     states.remove(state)
@@ -219,6 +227,7 @@ class MainApp(Qt.QMainWindow):
                         description += lines[i]
                         i += 1
                     self.description.setText(description)
+
                     # Third element of the last line is the parent state's number, only the first character
                     if i < len(lines):
                         parent_num: int = int(lines[i].split()[2][0])
@@ -226,7 +235,7 @@ class MainApp(Qt.QMainWindow):
                         if lines[i].split()[4] == "czas":
                             is_transition_time = True
                             intervention_or_time_duration: int = int(lines[i].split()[6][:-3])
-                        else:
+                        else:  # Transition is the intervention
                             is_transition_time = False
                             intervention_or_time_duration: str = lines[i].split()[6]
                         self.current_state_parent = (parent_num, is_transition_time, intervention_or_time_duration)
@@ -238,16 +247,20 @@ class MainApp(Qt.QMainWindow):
                     ).exec()
 
     def add_new_state(self):
+        """Add a new state to the currently saved profile"""
+        # If not saved, must be saved first
         if not self.is_saved:
             Qt.QMessageBox(
                 Qt.QMessageBox.Icon.Information, " ", "Nie zapisano stanu", Qt.QMessageBox.StandardButton.Ok, self
             ).exec()
             return
+
+        # Choosing whether the transition is by time or intervention
         choice = Qt.QInputDialog(self)
         choice.setCancelButtonText("Anuluj")
         results = choice.getItem(self, "Wybór warunku", "Wybierz warunek przejścia między stanami",
                                  ["Czas", "Interwencja"])
-        if not results[1]:
+        if not results[1]:  # Cancelled
             return
         if results[0] == "Czas":
             results = choice.getInt(self, "Czas",
@@ -258,7 +271,7 @@ class MainApp(Qt.QMainWindow):
         else:  # Interwencja
             results = choice.getText(self, "Interwencja",
                                      "Interwencja, powodująca przejście do kolejnego stanu")
-            if not results[1]:
+            if not results[1]:  # Cancelled
                 return
             self.current_state_parent = (self.current_state_number, False, results[0])
         self.current_state_number = self.next_state_number
@@ -268,7 +281,8 @@ class MainApp(Qt.QMainWindow):
         self.set_window_title()
 
     def create_new_table(self):
-        if not self.is_saved:
+        """A brand-new profile"""
+        if not self.is_saved:  # If not saved yet, progress would be lost
             Qt.QMessageBox(
                 Qt.QMessageBox.Icon.Information, " ", "Nie zapisano stanu", Qt.QMessageBox.StandardButton.Ok, self
             ).exec()

@@ -1,0 +1,83 @@
+Oddzia造 - liczba miejsc
+1 22
+2 31
+3 9
+4 15
+5 15
+6 16
+7 22
+8 8
+9 20
+10 28
+11 6
+12 6
+13 48
+14 14
+15 20
+16 8
+17 48
+18 38
+19 13
+20 9
+21 37
+22 19
+23 32
+24 32
+25 25
+26 44
+27 20
+28 18
+29 20
+30 36
+31 18
+32 50
+33 25
+34 8
+35 31
+36 35
+37 40
+38 38
+39 52
+40 9
+41 13
+42 30
+43 27
+44 13
+45 30
+46 12
+47 1
+48 0
+
+ZRM: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23
+
+Profile - liczba poszkodowanych
+Czarny/Profil200 3
+Czarny/Profil201 3
+Czarny/Profil202 1
+Czarny/Profil203 3
+Czarny/Profil204 1
+Czerwony/Profil47 3
+草速y/Profil101 2
+草速y/Profil102 1
+草速y/Profil108 3
+草速y/Profil51 2
+草速y/Profil52 1
+草速y/Profil53 2
+草速y/Profil54 2
+草速y/Profil55 2
+草速y/Profil61 1
+草速y/Profil64 3
+草速y/Profil68 2
+草速y/Profil70 3
+草速y/Profil71 4
+草速y/Profil72 2
+草速y/Profil75 2
+草速y/Profil78 1
+草速y/Profil82 1
+草速y/Profil84 3
+草速y/Profil87 2
+草速y/Profil88 2
+草速y/Profil95 5
+
+Ca趾owita liczba poszkodowanych
+60
