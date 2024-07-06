@@ -46,6 +46,19 @@ def table_generic(data: pd.DataFrame) -> Qt.QTableWidget:
     return table_widget
 
 
+def clear_layout(layout: Qt.QLayout):
+    for child_index in range(layout.count())[::-1]:
+        item: Qt.QLayoutItem = layout.itemAt(child_index)
+        if item.widget():
+            item.widget().deleteLater()
+        elif item.layout():
+            clear_layout(item.layout())
+            item.layout().deleteLater()
+        else:
+            print(item)
+    return
+
+
 class MainApp(Qt.QMainWindow):
     """
     The class corresponding to the main window of the app
@@ -80,15 +93,7 @@ class MainApp(Qt.QMainWindow):
     def __init__(self):
         super(MainApp, self).__init__()
         self.setMinimumSize(MIN_WIDTH, MIN_HEIGHT)
-        self.chosen_SOR = {}
-        self.tab1_spin_boxes = []
-        self.chosen_ZRM = []
-        self.chosen_profiles = {}
-        self.victims_number = 0
-        self.tab3_spin_boxes = []
-        self.current_file = ""
-        self.is_saved = False
-        self.set_window_title()
+        self.clear_everything()
 
         # Size
         self.max_size = self.screen().availableSize()
@@ -102,12 +107,28 @@ class MainApp(Qt.QMainWindow):
         self.save_scenario_button.clicked.connect(self.save_scenario)
         self.open_scenario_button.clicked.connect(self.open_existing_scenario)
 
+    def clear_everything(self):
+        self.chosen_SOR = {}
+        self.tab1_spin_boxes = []
+        self.chosen_ZRM = []
+        self.chosen_profiles = {}
+        self.victims_number = 0
+        self.tab3_spin_boxes = []
+        self.current_file = ""
+        self.is_saved = False
+        self.set_window_title()
+
     def set_window_title(self):
         """Sets the title depending on whether it's an already saved file or a new one"""
         if self.current_file == "":
             self.setWindowTitle(TITLE + "nowy*")
         else:
             self.setWindowTitle(TITLE + self.current_file.split("/")[-1])
+
+    def update_three_tabs(self):
+        self.update_SOR()
+        self.update_ZRM()
+        self.update_profiles()
 
     def layout(self):
         """Adds all elements to the layout"""
@@ -140,9 +161,7 @@ class MainApp(Qt.QMainWindow):
         widget.setLayout(self.main_layout)
         self.main_layout.addWidget(tab_widget)
         self.setCentralWidget(widget)
-        self.update_SOR()
-        self.update_ZRM()
-        self.update_profiles()
+        self.update_three_tabs()
 
         # Buttons
         self.new_scenario_button = Qt.QPushButton("Nowy")
@@ -156,11 +175,7 @@ class MainApp(Qt.QMainWindow):
 
     def update_SOR(self):
         # Clearing everything in tab1
-        for child_index in range(self.tab1_layout.count())[::-1]:
-            if self.tab1_layout.itemAt(child_index).widget():
-                self.tab1_layout.itemAt(child_index).widget().deleteLater()
-            else:
-                self.tab1_layout.itemAt(child_index).layout().deleteLater()
+        clear_layout(self.tab1_layout)
         self.tab1_spin_boxes = []
 
         # Widget with all the contents of tab1
@@ -189,11 +204,7 @@ class MainApp(Qt.QMainWindow):
 
     def update_ZRM(self):
         # Clearing everything in tab2
-        for child_index in range(self.tab2_layout.count())[::-1]:
-            if self.tab2_layout.itemAt(child_index).widget():
-                self.tab2_layout.itemAt(child_index).widget().deleteLater()
-            else:
-                self.tab2_layout.itemAt(child_index).layout().deleteLater()
+        clear_layout(self.tab2_layout)
 
         # Widget with all the contents of tab2
         tab2_widget = Qt.QWidget()
@@ -213,11 +224,7 @@ class MainApp(Qt.QMainWindow):
 
     def update_profiles(self):
         # Clearing everything in tab3
-        for child_index in range(self.tab3_layout.count())[::-1]:
-            if self.tab3_layout.itemAt(child_index).widget():
-                self.tab3_layout.itemAt(child_index).widget().deleteLater()
-            else:
-                self.tab3_layout.itemAt(child_index).layout().deleteLater()
+        clear_layout(self.tab3_layout)
         self.tab3_spin_boxes = []
 
         # Widget with all the contents of tab2
@@ -347,7 +354,15 @@ class MainApp(Qt.QMainWindow):
 
     def new_scenario(self):
         """Create a new blank scenario"""
-        print("Not implemented yet")
+        if not self.is_saved:
+            result: int = Qt.QMessageBox.question(
+                self, "Błąd",
+                "Obecnie utworzony scenariusz nie został zapisany.\nCzy chcesz go zapisać przed utworzeniem nowego?"
+            )
+            if result == Qt.QMessageBox.StandardButton.Yes:
+                self.save_scenario()
+        self.clear_everything()
+        self.update_three_tabs()
 
     def save_scenario(self):
         """Save the scenario to a text file"""
@@ -410,6 +425,7 @@ class MainApp(Qt.QMainWindow):
             Qt.QMessageBox.StandardButton.Ok, self
         ).exec()
         self.set_window_title()
+        self.is_saved = True
         return
 
     def open_existing_scenario(self):
