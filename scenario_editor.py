@@ -352,15 +352,20 @@ class MainApp(Qt.QMainWindow):
 
         self.temp_window.show()
 
+    def emergency_save_scenario(self):
+        result: int = Qt.QMessageBox.question(
+            self, "Błąd",
+            "Obecnie utworzony scenariusz nie został zapisany.\nCzy chcesz go zapisać przed utworzeniem nowego?"
+        )
+        if result == Qt.QMessageBox.StandardButton.Yes:
+            self.save_scenario()
+
     def new_scenario(self):
         """Create a new blank scenario"""
-        if not self.is_saved:
-            result: int = Qt.QMessageBox.question(
-                self, "Błąd",
-                "Obecnie utworzony scenariusz nie został zapisany.\nCzy chcesz go zapisać przed utworzeniem nowego?"
-            )
-            if result == Qt.QMessageBox.StandardButton.Yes:
-                self.save_scenario()
+        # Check if not saved - let the user save
+        if (not self.is_saved and
+                (len(self.chosen_SOR) != 0 or len(self.chosen_ZRM) != 0 or len(self.chosen_profiles) != 0)):
+            self.emergency_save_scenario()
         self.clear_everything()
         self.update_three_tabs()
 
@@ -430,7 +435,33 @@ class MainApp(Qt.QMainWindow):
 
     def open_existing_scenario(self):
         """Open an existing scenario"""
-        print("Not yet implemented")
+        # Check if not saved - let the user save
+        if (not self.is_saved and
+                (len(self.chosen_SOR) != 0 or len(self.chosen_ZRM) != 0 or len(self.chosen_profiles) != 0)):
+            self.emergency_save_scenario()
+        self.clear_everything()
+        self.current_file, _ = Qt.QFileDialog.getOpenFileName(
+            self, "Otwórz scenariusz", "Scenariusze", "Pliki tekstowe (*.txt)"
+        )
+        if self.current_file == "":  # Cancelled
+            return
+        with open(self.current_file, "r") as f:
+            # Dividing the file into contents
+            parts: List[str] = f.read().split("\n\n")
+            # SOR
+            for line in parts[0].split("\n")[1:]:
+                SOR_id, beds_number = line.split()
+                self.chosen_SOR[int(SOR_id)] = int(beds_number)
+            # ZRM
+            self.chosen_ZRM = [int(number) for number in parts[1][5:].split(", ")]
+            # Profiles
+            for line in parts[2].split("\n")[1:]:
+                profile, amount = line.split()
+                self.chosen_profiles[profile] = int(amount)
+            self.victims_number = int(parts[3].split()[-1])
+        self.is_saved = True
+        self.set_window_title()
+        self.update_three_tabs()
 
 
 def load_SOR() -> pd.DataFrame:
