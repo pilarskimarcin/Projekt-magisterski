@@ -1,0 +1,21 @@
+Stan 1
+ ; Parametr; Jednostka; Wartość
+1; Czy pacjent chodzi?; (tak/nie); tak
+2; Częstość oddechu; ([1/min] / nieobecna); 40
+3; Tętno obwodowe; ([1/min] / nieobecne); 130
+4; Czy pacjent spełnia polecenia?; (tak/nie); nie
+5; Kolor segregacji; (nazwa koloru); czerwony
+6; Jednostka chorobowa; (identyfikator/y); 15.7, 47.1
+Opis: Przytomny pacjent z silną dusznością, bólem klatki piersiowej i krwiopluciem. Deskowaty zasiniony brzuch. Pobudzony. W szybkim badaniu urazowym wyczuwalne liczne niestabilne żebra, trzeszczenia podskórne w okolicy klatki piersiowej, szyi (krepitacje) Pacjent stratowany. Czynność krytyczna: niezależnie od podejmowanych działań medycznych ( np. odbarczenie odmy) NZK z asystolią po 20 minutach od pierwszego kontaktu z medykiem. USG: Brak slidingu opłucnej obustronnie nad całym obszarem płuc. Wolny płyn w każdym zachyłku
+
+Stan 2
+ ; Parametr; Jednostka; Wartość
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Częstość oddechu; ([1/min] / nieobecna); nieobecna
+3; Tętno obwodowe; ([1/min] / nieobecne); nieobecne
+4; Czy pacjent spełnia polecenia?; (tak/nie); nie
+5; Kolor segregacji; (nazwa koloru); czarny
+6; Jednostka chorobowa; (identyfikator/y); -
+Opis: 
+Rodzic: Stan 1, przejście: czas - 20min
+

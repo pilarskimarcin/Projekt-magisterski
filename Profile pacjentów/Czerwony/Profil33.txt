@@ -1,0 +1,32 @@
+Stan 1
+ ; Parametr; Jednostka; Wartość
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Częstość oddechu; ([1/min] / nieobecna); 40
+3; Tętno obwodowe; ([1/min] / nieobecne); 130
+4; Czy pacjent spełnia polecenia?; (tak/nie); nie
+5; Kolor segregacji; (nazwa koloru); czerwony
+6; Jednostka chorobowa; (identyfikator/y); 5.4, 15.7, 25.7
+Opis: W chwili badania pacjent przytomny, trzymający się kurczowo płotu, silnie pobudzony, złamanie otwarte, krwawiące, ręki prawej, rany cięte twarzy. Poszkodowany odrzucony przez falę uderzeniową wybuchu. Osłuchowo po stronie lewej cisza, wypuk bębenkowy. Czynność krytyczna prowadząca do poprawy stanu: Odbarczenie odmy prężnej w dowolnej przestrzeni międzyżebrowej lewej TYLKO przy pomocy igły dedykowanej do odmy lub fingertorakostomii w przeciągu pierwszych 30 min od kontaktu z pierwszym ratownikiem. Po upływie tego czasu – NZK z asystolią. USG – brak slidingu nad lewym płucem. Objaw stratosfery. 
+
+Stan 2
+ ; Parametr; Jednostka; Wartość
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Częstość oddechu; ([1/min] / nieobecna); nieobecna
+3; Tętno obwodowe; ([1/min] / nieobecne); nieobecne
+4; Czy pacjent spełnia polecenia?; (tak/nie); nie
+5; Kolor segregacji; (nazwa koloru); czarny
+6; Jednostka chorobowa; (identyfikator/y); -
+Opis: 
+Rodzic: Stan 1, przejście: czas - 30min
+
+Stan 3
+ ; Parametr; Jednostka; Wartość
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Częstość oddechu; ([1/min] / nieobecna); 20
+3; Tętno obwodowe; ([1/min] / nieobecne); 100
+4; Czy pacjent spełnia polecenia?; (tak/nie); tak
+5; Kolor segregacji; (nazwa koloru); czerwony
+6; Jednostka chorobowa; (identyfikator/y); 5.4, 25.7
+Opis: 
+Rodzic: Stan 1, przejście: interwencja - P(15.7)
+

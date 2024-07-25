@@ -5,5 +5,6 @@ Stan 1
 3; Têtno obwodowe; ([1/min] / nieobecne); 100
 4; Czy pacjent spe³nia polecenia?; (tak/nie); tak
 5; Kolor segregacji; (nazwa koloru); ¿ó³ty
+6; Jednostka chorobowa; (identyfikator/y); 15.2, 25.1
 Opis: Kobieta lat 45 zg³asza problem z poruszaniem siê, twierdzi ¿e nie jest wstanie przejœæ, podczas próby pionizacji twierdzi ze nie czuje nóg. Widoczny uraz g³owy, rana t³uczona
 

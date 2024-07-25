@@ -1,0 +1,32 @@
+Stan 1
+ ; Parametr; Jednostka; Wartość
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Częstość oddechu; ([1/min] / nieobecna); 26
+3; Tętno obwodowe; ([1/min] / nieobecne); 120
+4; Czy pacjent spełnia polecenia?; (tak/nie); nie
+5; Kolor segregacji; (nazwa koloru); czerwony
+6; Jednostka chorobowa; (identyfikator/y); 15.1, 21.1
+Opis: Nieprzytomny pacjent z masywnym urazem potylicy ( krwiaki okularowe) oraz treścią krwistą wypływającą z jamy ustnej -  leży na boku, charczy, krztusi się.  Czynności krytyczne do wykonania:  udrożnienie dróg oddechowych przyrządowo ( intubacja lub alternatywa) oraz transport do oddziału neurochirurgii. W przypadku braku zabezpieczenia dróg przyrządowo 30 min od pierwszego kontaktu z ratownikiem – zachłyśnięcie krwią i NZK (cały czas asystolia)  W przypadku transportu do SOR bez zaplecza neurochirurgii – NZK przy przekazaniu. USG: Bez patologii
+
+Stan 2
+ ; Parametr; Jednostka; Wartość
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Częstość oddechu; ([1/min] / nieobecna); nieobecna
+3; Tętno obwodowe; ([1/min] / nieobecne); nieobecne
+4; Czy pacjent spełnia polecenia?; (tak/nie); nie
+5; Kolor segregacji; (nazwa koloru); czarny
+6; Jednostka chorobowa; (identyfikator/y); -
+Opis: 
+Rodzic: Stan 1, przejście: czas - 30min
+
+Stan 3
+ ; Parametr; Jednostka; Wartość
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Częstość oddechu; ([1/min] / nieobecna); 16
+3; Tętno obwodowe; ([1/min] / nieobecne); 100
+4; Czy pacjent spełnia polecenia?; (tak/nie); nie
+5; Kolor segregacji; (nazwa koloru); czerwony
+6; Jednostka chorobowa; (identyfikator/y); 21.1
+Opis: 
+Rodzic: Stan 1, przejście: interwencja - P(15.1)
+

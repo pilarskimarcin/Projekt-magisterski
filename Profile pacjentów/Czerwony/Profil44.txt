@@ -1,0 +1,31 @@
+Stan 1
+ ; Parametr; Jednostka; Wartość
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Częstość oddechu; ([1/min] / nieobecna); 40
+3; Tętno obwodowe; ([1/min] / nieobecne); 124
+4; Czy pacjent spełnia polecenia?; (tak/nie); nie
+5; Kolor segregacji; (nazwa koloru); czerwony
+6; Jednostka chorobowa; (identyfikator/y); 1.1, 15.6
+Opis: W chwili badania pacjent leżący na ziemi, silnie pobudzony przytomny z oparzenia II stopnia twarzy. Osmolone dziurki od nosa oraz sadza na języku. Słyszalny wyraźnie świst krtaniowy. Czynność krytyczna prowadząca do poprawy stanu: konikopunkcja igłowa lub konikotomia metodą skalpel -bougi oraz analgosedacja. W przypadku braku udrożnienia dróg oddechowych metodą chirurgiczną – NZK z asystolią po 30 minutach od kontaktu z pierwszym ratownikiem. USG : bez patologii
+
+Stan 2
+ ; Parametr; Jednostka; Wartość
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Częstość oddechu; ([1/min] / nieobecna); nieobecna
+3; Tętno obwodowe; ([1/min] / nieobecne); nieobecne
+4; Czy pacjent spełnia polecenia?; (tak/nie); nie
+5; Kolor segregacji; (nazwa koloru); czarny
+6; Jednostka chorobowa; (identyfikator/y); -
+Opis: 
+Rodzic: Stan 1, przejście: czas - 30min
+
+Stan 3
+ ; Parametr; Jednostka; Wartość
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Częstość oddechu; ([1/min] / nieobecna); 20
+3; Tętno obwodowe; ([1/min] / nieobecne); 100
+4; Czy pacjent spełnia polecenia?; (tak/nie); nie
+5; Kolor segregacji; (nazwa koloru); czerwony
+6; Jednostka chorobowa; (identyfikator/y);  1.1
+Opis: 
+Rodzic: Stan 1, przejście: interwencja - P(15.6)

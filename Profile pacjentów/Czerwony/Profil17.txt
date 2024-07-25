@@ -1,0 +1,32 @@
+Stan 1
+ ; Parametr; Jednostka; Wartość
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Częstość oddechu; ([1/min] / nieobecna); 30
+3; Tętno obwodowe; ([1/min] / nieobecne); nieobecne
+4; Czy pacjent spełnia polecenia?; (tak/nie); nie
+5; Kolor segregacji; (nazwa koloru); czerwony
+6; Jednostka chorobowa; (identyfikator/y); 15.10, 22.2
+Opis: Pacjent przytomny, stratowana, (na ubraniu ślady butów) W szybkim badaniu urazowym niestabilna miednica.  Ocena neurologiczna – nie czuję nic od połowy brzucha w dół (przerwany rdzeń w odcinku piersiowym) Osłuchowo szmer pęcherzykowy obustronnie na całymi płucami.  Czynność krytyczna: Stabilizacja miednicy pasem miedniczym oraz rozpoznanie objawów wstrząsu neurogennego  (hipotensja, bradykardia, hipotermia) Przy braku stabilizacji miednicy NZK z asystolią po 70 min. USG: wolny płyn w zachyłku pęcherzowo-odbytniczym. 
+
+Stan 2
+ ; Parametr; Jednostka; Wartość
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Częstość oddechu; ([1/min] / nieobecna); nieobecna
+3; Tętno obwodowe; ([1/min] / nieobecne); nieobecne
+4; Czy pacjent spełnia polecenia?; (tak/nie); nie
+5; Kolor segregacji; (nazwa koloru); czarny
+6; Jednostka chorobowa; (identyfikator/y); -
+Opis: 
+Rodzic: Stan 1, przejście: czas - 70min
+
+Stan 3
+ ; Parametr; Jednostka; Wartość
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Częstość oddechu; ([1/min] / nieobecna); 30
+3; Tętno obwodowe; ([1/min] / nieobecne); nieobecne
+4; Czy pacjent spełnia polecenia?; (tak/nie); nie
+5; Kolor segregacji; (nazwa koloru); czerwony
+6; Jednostka chorobowa; (identyfikator/y); 22.2
+Opis: 
+Rodzic: Stan 1, przejście: interwencja - P(15.10)
+

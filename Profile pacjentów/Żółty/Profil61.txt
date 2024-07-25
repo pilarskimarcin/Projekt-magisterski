@@ -5,5 +5,6 @@ Stan 1
 3; Têtno obwodowe; ([1/min] / nieobecne); 120
 4; Czy pacjent spe³nia polecenia?; (tak/nie); tak
 5; Kolor segregacji; (nazwa koloru); ¿ó³ty
+6; Jednostka chorobowa; (identyfikator/y); 15.3
 Opis: Kobieta lat 15 zg³asza problem z poruszaniem siê, twierdzi ¿e nie jest w stanie przejœæ, podczas próby pionizacji twierdzi ze nie czuje nóg. Nie zg³asza dolegliwoœci bólowych, neguje asymetrie czucia, twierdzi ¿e nie ma si³. Nie jest w stanie ustaæ na nogach. 
 

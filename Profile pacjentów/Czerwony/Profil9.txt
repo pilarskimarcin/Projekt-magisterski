@@ -1,0 +1,32 @@
+Stan 1
+ ; Parametr; Jednostka; Wartość
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Częstość oddechu; ([1/min] / nieobecna); 30
+3; Tętno obwodowe; ([1/min] / nieobecne); nieobecne
+4; Czy pacjent spełnia polecenia?; (tak/nie); nie
+5; Kolor segregacji; (nazwa koloru); czerwony
+6; Jednostka chorobowa; (identyfikator/y); 5.4, 5.5, 15.13
+Opis: Splątana pacjentka z masywnie krwawiącą raną pachy lewej. Dodatkowo wbite powierzchniowo fragmenty drzewa lub metalu w okolicę czoła, skroni.  Krzyczy. Czynność krytyczna prowadząca do poprawy stanu : Wound packing pachy ( packing rany) Jeżeli nie zostanie wykonana czynność krytyczna po 40 min od chwili kontaktu z pierwszym medykiem - Nagłe Zatrzymanie Krążenia z asystolią. USG: bez patologii
+
+Stan 2
+ ; Parametr; Jednostka; Wartość
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Częstość oddechu; ([1/min] / nieobecna); nieobecna
+3; Tętno obwodowe; ([1/min] / nieobecne); nieobecne
+4; Czy pacjent spełnia polecenia?; (tak/nie); nie
+5; Kolor segregacji; (nazwa koloru); czarny
+6; Jednostka chorobowa; (identyfikator/y); -
+Opis: 
+Rodzic: Stan 1, przejście: czas - 40min
+
+Stan 3
+ ; Parametr; Jednostka; Wartość
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Częstość oddechu; ([1/min] / nieobecna); 25
+3; Tętno obwodowe; ([1/min] / nieobecne); nieobecne
+4; Czy pacjent spełnia polecenia?; (tak/nie); tak
+5; Kolor segregacji; (nazwa koloru); czerwony
+6; Jednostka chorobowa; (identyfikator/y); 5.4, 5.5
+Opis: 
+Rodzic: Stan 1, przejście: interwencja - P(15.13)
+

@@ -1,0 +1,21 @@
+Stan 1
+ ; Parametr; Jednostka; Wartość
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Częstość oddechu; ([1/min] / nieobecna); 35
+3; Tętno obwodowe; ([1/min] / nieobecne); nieobecne
+4; Czy pacjent spełnia polecenia?; (tak/nie); nie
+5; Kolor segregacji; (nazwa koloru); czerwony
+6; Jednostka chorobowa; (identyfikator/y); 15.5
+Opis: Przytomny pacjent z masywnie krwawiącą szarpaną raną pod obojczykiem(przerwana tętnica) Poza wspomnianymi obrażeniami brak innych. Czynność krytyczna: pomimo próby tamowania krwawienia dowolną techniką - NZK z asystolią po 30 minutach od pierwszego kontaktu z ratownikiem lub w momencie przekazania do SOR.  Zgon nie do uniknięcia.  Pacjent cały czas we wstrząsie . USG: bez patologii
+
+Stan 2
+ ; Parametr; Jednostka; Wartość
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Częstość oddechu; ([1/min] / nieobecna); nieobecna
+3; Tętno obwodowe; ([1/min] / nieobecne); nieobecne
+4; Czy pacjent spełnia polecenia?; (tak/nie); nie
+5; Kolor segregacji; (nazwa koloru); czarny
+6; Jednostka chorobowa; (identyfikator/y); -
+Opis: 
+Rodzic: Stan 1, przejście: czas - 30min
+

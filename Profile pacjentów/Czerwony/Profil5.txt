@@ -1,0 +1,32 @@
+Stan 1
+ ; Parametr; Jednostka; Wartość
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Częstość oddechu; ([1/min] / nieobecna); 34
+3; Tętno obwodowe; ([1/min] / nieobecne); nieobecne
+4; Czy pacjent spełnia polecenia?; (tak/nie); tak
+5; Kolor segregacji; (nazwa koloru); czerwony
+6; Jednostka chorobowa; (identyfikator/y); 5.4, 15.7, 15.14, 25.2
+Opis: Przygnieciony konstrukcją przytomny, logiczny pacjent z duża krwawiąca rana okolicy czołowej i ciemieniowej i dusznością. Złamanie zamknięte obu kości udowych ( zasinienie, niestabilne, trzeszczy, powiększony obwód ud) oraz odma prawostronnie.  Czynności krytyczne do wykonania: Założenie dwóch opasek uciskowych na złamane kończyny i odbarczenie odmy w przeciągu 50 minut od pierwszego kontaktu z medykiem. Po 50 min bez wykonania czynności krytycznych – NZK z asystolią. USG – brak objawu ślizgania opłucnej prawostronnie.
+
+Stan 2
+ ; Parametr; Jednostka; Wartość
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Częstość oddechu; ([1/min] / nieobecna); nieobecna
+3; Tętno obwodowe; ([1/min] / nieobecne); nieobecne
+4; Czy pacjent spełnia polecenia?; (tak/nie); nie
+5; Kolor segregacji; (nazwa koloru); czarny
+6; Jednostka chorobowa; (identyfikator/y); -
+Opis: 
+Rodzic: Stan 1, przejście: czas - 50min
+
+Stan 3
+ ; Parametr; Jednostka; Wartość
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Częstość oddechu; ([1/min] / nieobecna); 14
+3; Tętno obwodowe; ([1/min] / nieobecne); nieobecne
+4; Czy pacjent spełnia polecenia?; (tak/nie); tak
+5; Kolor segregacji; (nazwa koloru); czerwony
+6; Jednostka chorobowa; (identyfikator/y); 5.4, 25.2
+Opis: 
+Rodzic: Stan 1, przejście: interwencja - P(15.7), P(15.14)
+

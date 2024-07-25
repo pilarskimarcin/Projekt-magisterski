@@ -1,0 +1,32 @@
+Stan 1
+ ; Parametr; Jednostka; Wartość
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Częstość oddechu; ([1/min] / nieobecna); 36
+3; Tętno obwodowe; ([1/min] / nieobecne); 117
+4; Czy pacjent spełnia polecenia?; (tak/nie); nie
+5; Kolor segregacji; (nazwa koloru); czerwony
+6; Jednostka chorobowa; (identyfikator/y); 15.4
+Opis: Pacjent przytomny, charczący przyciska ręką dużą krwawiącą ranę szyi (przecięta tchawica eksplodującymi fragmentami sceny) Brak innych widocznych obrażeń. Czynność krytyczna: analgosedacja i próba intubacji na poziomie szyi aby zapobiec zachłystywaniu się krwią. USG: bez patologii 
+
+Stan 2
+ ; Parametr; Jednostka; Wartość
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Częstość oddechu; ([1/min] / nieobecna); nieobecna
+3; Tętno obwodowe; ([1/min] / nieobecne); nieobecne
+4; Czy pacjent spełnia polecenia?; (tak/nie); nie
+5; Kolor segregacji; (nazwa koloru); czarny
+6; Jednostka chorobowa; (identyfikator/y); -
+Opis: 
+Rodzic: Stan 1, przejście: czas - 30min
+
+Stan 3
+ ; Parametr; Jednostka; Wartość
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Częstość oddechu; ([1/min] / nieobecna); 25
+3; Tętno obwodowe; ([1/min] / nieobecne); 110
+4; Czy pacjent spełnia polecenia?; (tak/nie); nie
+5; Kolor segregacji; (nazwa koloru); czerwony
+6; Jednostka chorobowa; (identyfikator/y); 5.2
+Opis: 
+Rodzic: Stan 1, przejście: interwencja - P(15.4)
+

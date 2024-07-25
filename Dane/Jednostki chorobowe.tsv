@@ -1,0 +1,37 @@
+Lp.	Nazwa	Jednostka chorobowa
+1	Oparzenie 2 st. twarzy i dróg oddechowych	1.1
+2	Oparzenie 2 i 3 st. 60% powierzchni cia³a	1.2
+3	Rana ³uku brwiowego	5.1
+4	Rana tchawicy	5.2
+5	Oparzenia 2 stopnia	5.3
+6	Rany twarzy	5.4
+7	Rana pachy	5.5
+	Uraz czaszkowo-mózgowy	5.6
+8	Uraz ¿uchwy	6.1
+9	Niedro¿ne drogi oddechowe	15.1
+10	Rana t³uczona g³owy	15.2
+11	Brak si³	15.3
+12	Otwarta rana tchawicy	15.4
+13	Rana szarpana pod obojczykiem z przerwaniem têtnicy	15.5
+14	Oparzenie dróg oddechowych	15.6
+15	Odma prê¿na	15.7
+16	Rana na udzie prawym z przerwaniem têtnicy	15.8
+17	Obra¿enia wymagaj¹ce znieczulenia i uœpienia	15.9
+18	Przerwanie rdzenia krêgowego i niestabilna miednica	15.10
+19	Aktywnie krwawi¹ca amputacja gilotynowa rêki	15.11
+20	Niedobór cukru	15.12
+21	Masywnie krwawi¹ca rana pachy	15.13
+	Niestabilne z³amanie zamkniête	15.14
+	Masywny uraz potylicy	21.1
+23	Wstrz¹s neurogenny	22.2
+24	Uraz koñczyn dolnych	25.1
+25	Z³amanie koœci koñczyn dolnych	25.2
+26	Uraz krêgos³upa lêdŸwiowego	25.3
+27	Uraz koñczyn górnych	25.4
+28	Uraz biodra	25.5
+29	Zwichniêcie nadgarstka	25.6
+30	Z³amanie koœci koñczyn górnych	25.7
+31	Uraz miednicy	25.8
+32	Amputacja gilotynowa rêki	25.9
+33	Uszkodzenia œledziony	44.1
+34	Wolny p³yn w jednym z zachy³ków	47.1

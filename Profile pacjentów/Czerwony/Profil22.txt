@@ -1,0 +1,10 @@
+Stan 1
+ ; Parametr; Jednostka; Wartość
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Częstość oddechu; ([1/min] / nieobecna); 30
+3; Tętno obwodowe; ([1/min] / nieobecne); 123
+4; Czy pacjent spełnia polecenia?; (tak/nie); nie
+5; Kolor segregacji; (nazwa koloru); czerwony
+6; Jednostka chorobowa; (identyfikator/y); 1.2, 15.9
+Opis: Pacjent nieprzytomny z elementem ciała obcego wbitego w głowę. Oparzone w II i III stopniu ok. 60 % powierzchni ciała ( tłów – przód i tył łącznie z całą głową) Od pasa w dół -ok.   Ubranie poszarpane osmolone, zdarte.. Mężczyzna z firmy obsługującej fajerwerki. Czynność krytyczne: analgezja, sedacja ew. udrożnienie nadgłośniowe, intubacja, termoizolacja. Transport do oddziału oparzeniowego. USG: Bez patologii
+

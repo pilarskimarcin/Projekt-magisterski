@@ -7,7 +7,7 @@ from typing import List, Optional, Tuple, Union
 
 # Qt parameters
 FONT_SIZE: int = 13
-MIN_HEIGHT: int = 400
+MIN_HEIGHT: int = 600
 MIN_WIDTH: int = 700
 TITLE = "Edytor tabeli - "
 
@@ -19,9 +19,12 @@ DEFAULT_TABLE: List[List[str]] = [
     ["Częstość oddechu", "([1/min] / nieobecna)", ""],
     ["Tętno obwodowe", "([1/min] / nieobecne)", ""],
     ["Czy pacjent spełnia polecenia?", "(tak/nie)", ""],
-    ["Kolor segregacji", "(nazwa koloru)", ""]
+    ["Kolor segregacji", "(nazwa koloru)", ""],
+    ["Jednostka chorobowa", "(identyfikator/y)", ""]
 ]
 ROWS_NUMBER: int = len(DEFAULT_TABLE)
+
+PROFILES_DIRECTORY: str = "Profile pacjentów"
 
 # Starting Qt
 app = Qt.QApplication(sys.argv)
@@ -148,7 +151,7 @@ class MainApp(Qt.QMainWindow):
         # Choosing a file to save into
         if self.current_file == "":
             self.current_file, _ = Qt.QFileDialog.getSaveFileName(
-                self, "Zapisz tabelę", "Profile pacjentów", "Pliki tekstowe (*.txt)"
+                self, "Zapisz tabelę", PROFILES_DIRECTORY, "Pliki tekstowe (*.txt)"
             )
             if self.current_file == "":
                 return
@@ -183,7 +186,7 @@ class MainApp(Qt.QMainWindow):
     def open_table(self):
         # Choose a file to open
         self.current_file, _ = Qt.QFileDialog.getOpenFileName(
-            self, "Open the table", "", "Text files (*.txt)"
+            self, "Open the table", PROFILES_DIRECTORY, "Text files (*.txt)"
         )
         if self.current_file == "":  # Cancelled
             return

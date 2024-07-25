@@ -1,0 +1,32 @@
+Stan 1
+ ; Parametr; Jednostka; Wartość
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Częstość oddechu; ([1/min] / nieobecna); 30
+3; Tętno obwodowe; ([1/min] / nieobecne); nieobecne
+4; Czy pacjent spełnia polecenia?; (tak/nie); tak
+5; Kolor segregacji; (nazwa koloru); czerwony
+6; Jednostka chorobowa; (identyfikator/y); 5.3, 15.8, 47.1
+Opis: Przytomny pacjent z masywnie krwawiącą raną okolicy uda prawego po nabiciu się na płot podczas ucieczki. Potem upadek z wysokiego ogrodzenia na plecy. Dodatkowo oparzenia II stopnia twarzy i kończyn górnych. Czynność krytyczna prowadząca do poprawy stanu: Założenie opaski uciskowej powyżej krwawienia. Jeżeli nie zostanie wykonana czynność krytyczna po 20 min od chwili kontaktu z pierwszym medykiem – NZK z asystolią. USG – wolny płyn w zachyłku wątrobowo -nerkowym
+
+Stan 2
+ ; Parametr; Jednostka; Wartość
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Częstość oddechu; ([1/min] / nieobecna); nieobecna
+3; Tętno obwodowe; ([1/min] / nieobecne); nieobecne
+4; Czy pacjent spełnia polecenia?; (tak/nie); nie
+5; Kolor segregacji; (nazwa koloru); czarny
+6; Jednostka chorobowa; (identyfikator/y); -
+Opis: 
+Rodzic: Stan 1, przejście: czas - 20min
+
+Stan 3
+ ; Parametr; Jednostka; Wartość
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Częstość oddechu; ([1/min] / nieobecna); 20
+3; Tętno obwodowe; ([1/min] / nieobecne); nieobecne
+4; Czy pacjent spełnia polecenia?; (tak/nie); tak
+5; Kolor segregacji; (nazwa koloru); czerwony
+6; Jednostka chorobowa; (identyfikator/y); 5.3, 47.1
+Opis: 
+Rodzic: Stan 1, przejście: interwencja - P(15.8)
+

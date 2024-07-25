@@ -1,0 +1,32 @@
+Stan 1
+ ; Parametr; Jednostka; Wartość
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Częstość oddechu; ([1/min] / nieobecna); 25
+3; Tętno obwodowe; ([1/min] / nieobecne); 110
+4; Czy pacjent spełnia polecenia?; (tak/nie); nie
+5; Kolor segregacji; (nazwa koloru); czerwony
+6; Jednostka chorobowa; (identyfikator/y); 15.11, 15.12, 25.9
+Opis: Nieprzytomny pacjent  z krwawiącą aktywnie amputacją gilotynową ręki lewej powyżej nadgarstka. Odcięte eksplodującymi elementami sceny. Rany cięte twarzy. Na drugiej dłoni opaska diabetyk. Czynności krytyczne wpływająca na poprawę stanu: założenie opaski uciskowej powyżej amputacji oraz  pomiar glikemii z podażą glukozy dożylnie. Brak opaski skutkuje NZK z asystolią w 70 minucie od pierwszego kontaktu z medykiem. W przypadku nieoznaczenia glikemii pacjent cały czas nieprzytomny. Podaż glukozy – powrót przytomności. USG: bez patologii
+
+Stan 2
+ ; Parametr; Jednostka; Wartość
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Częstość oddechu; ([1/min] / nieobecna); nieobecna
+3; Tętno obwodowe; ([1/min] / nieobecne); nieobecne
+4; Czy pacjent spełnia polecenia?; (tak/nie); nie
+5; Kolor segregacji; (nazwa koloru); czarny
+6; Jednostka chorobowa; (identyfikator/y); -
+Opis: 
+Rodzic: Stan 1, przejście: czas - 70min
+
+Stan 3
+ ; Parametr; Jednostka; Wartość
+1; Czy pacjent chodzi?; (tak/nie); nie
+2; Częstość oddechu; ([1/min] / nieobecna); 20
+3; Tętno obwodowe; ([1/min] / nieobecne); 110
+4; Czy pacjent spełnia polecenia?; (tak/nie); tak
+5; Kolor segregacji; (nazwa koloru); czerwony
+6; Jednostka chorobowa; (identyfikator/y); 25.9
+Opis: 
+Rodzic: Stan 1, przejście: interwencja - P(15.11), P(15.12)
+

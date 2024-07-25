@@ -5,5 +5,6 @@ Stan 1
 3; Têtno obwodowe; ([1/min] / nieobecne); 120
 4; Czy pacjent spe³nia polecenia?; (tak/nie); tak
 5; Kolor segregacji; (nazwa koloru); ¿ó³ty
+6; Jednostka chorobowa; (identyfikator/y); 25.1, 25.4
 Opis: Kobieta lat 17 zg³asza problem z poruszaniem siê, na proœbê o opuszczenie strefy niebezpiecznej, zg³asza ból w obrêbie stawu kolanowego, dolegliwoœci uniemo¿liwiaj¹ samodzielne poruszanie siê, dolegliwoœci bólowe w obrêbie stawu barkowego (widoczna asymetria barku lewego w stosunku do prawego, bolesnoœæ palpacyjna).
 
