@@ -404,6 +404,14 @@ class MainApp(Qt.QMainWindow):
             if self.current_file == "":  # Cancelled
                 return
 
+        # Address of the incident
+        choice = Qt.QInputDialog(self)
+        choice.setCancelButtonText("Anuluj")
+        results = choice.getText(self, "Adres zdarzenia", "Podaj adres zdarzenia")
+        if not results[1]:  # Cancelled
+            return
+        address: str = results[0]
+
         # SOR
         saved_contents: str = "Oddziały - liczba miejsc\n"
         i: int = 0
@@ -420,7 +428,8 @@ class MainApp(Qt.QMainWindow):
         saved_contents += "\nProfile - liczba poszkodowanych\n"
         for k, v in self.chosen_profiles.items():
             saved_contents += f"{k} {v}\n"
-        saved_contents += f"\nCałkowita liczba poszkodowanych\n{self.victims_number}"
+        saved_contents += f"\nCałkowita liczba poszkodowanych: {self.victims_number}\n"
+        saved_contents += f"\nAdres: {address}"
 
         # Saving
         with open(self.current_file, "w") as f:
@@ -478,6 +487,8 @@ def load_profiles() -> List[str]:
     for folder in os.listdir(PROFILES_PATH):
         # To get each profile
         for profile in os.listdir(PROFILES_PATH + "/" + folder):
+            if profile.startswith("_"):  # Template
+                continue
             profile = profile[:-4]  # -= ".txt"
             data_profiles.append(f"{folder}/{profile}")  # To indicate the colour too
     return data_profiles

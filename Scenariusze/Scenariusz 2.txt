@@ -79,5 +79,6 @@ Czerwony/Profil47 3
 ¯ó³ty/Profil88 2
 ¯ó³ty/Profil95 5
 
-Ca³kowita liczba poszkodowanych
-60
+Ca³kowita liczba poszkodowanych: 60
+
+Adres: G³owackiego 91, 32-540 Trzebinia
