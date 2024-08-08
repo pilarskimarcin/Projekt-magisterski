@@ -1,50 +1,14 @@
-import random
-from datetime import datetime
-from typing import List, Set
+import time
 
-from classes import Injured, State
+# 1. START, zgłoszenie, zapisany czas rozpoczęcia ->
+time_of_the_report: float = time.time()
+# wysłanie zgodnie ze zgłoszeniem jednostek ->
+# TODO: przed timerem jeszcze wydzielić jakąś część poszkodowanych (losowo od 0,5 do 3/4) jako pocz. zgłoszenie i tyle
+#  wysłać najbliższych ambulansów, rozkaz wysłania + zacząć symulację, krok czasowy?
+# rozponanie ->
 
+# więcej jednostek ->
 
-class Simulation:
-    injured: Set[Injured]
+# pomaganie i transport ->
 
-    def __init__(self):
-        state_seq: List[State] = sorted(State)
-        self.injured = {Injured(random.choice(state_seq)) for _ in range(random.randint(10, 15))}
-
-    def step(self):
-        """
-        Simulation step
-        """
-        for injured in self.injured:
-            injured.change_state()
-
-    def run(self, n_iterations: int = 10):
-        """
-        Run the simulation for a specified amount of iterations or until all injured people have died (because there is
-        no point to continue, something clearly went wrong)
-        :param n_iterations: (int) number of iterations
-        """
-        i: int = 0
-        start_point: datetime = datetime.now()
-        print("START OF THE SIMULATION " + start_point.time().strftime("%H:%M:%S"), end="\n\n")
-        print(self)
-        while i < n_iterations and {injured.state for injured in self.injured} != {State.BLACK}:
-            print(f"Simulation step {i + 1}")  # TODO: logging to file?
-            self.step()
-            print(self)
-            i += 1
-        print("\nEND OF THE SIMULATION " + datetime.now().time().strftime("%H:%M:%S"), end="\n\n")
-        print("Time of the execution: " + str(datetime.now() - start_point))
-
-    def __repr__(self):
-        n_green: int = len({injured for injured in self.injured if injured.state == State.GREEN})
-        n_yellow: int = len({injured for injured in self.injured if injured.state == State.YELLOW})
-        n_red: int = len({injured for injured in self.injured if injured.state == State.RED})
-        n_black: int = len({injured for injured in self.injured if injured.state == State.BLACK})
-        return f"{n_black} Black injured, {n_red} Red injured, {n_yellow} Yellow injured, {n_green} Green injured"
-
-
-if __name__ == '__main__':
-    sim: Simulation = Simulation()
-    sim.run()
+# wszyscy w szpitalu, KONIEC, zapisanie czasu zakończenia
