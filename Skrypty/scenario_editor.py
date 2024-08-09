@@ -18,7 +18,7 @@ MIN_WIDTH: int = 500
 SOR_COLUMN_ID: str = "Lp."
 SOR_COLUMN_BEDS: str = "Liczba łóżek"
 ZRM_COLUMN_ID: str = "Lp."
-PROFILES_PATH: str = "Profile pacjentów"
+PROFILES_PATH: str = "../Profile pacjentów"
 TABLE_COLUMN_SCALE_FACTOR: float = 1.8
 TITLE: str = "Edytor scenariuszy - "
 
@@ -474,11 +474,11 @@ class MainApp(Qt.QMainWindow):
 
 
 def load_SOR() -> pd.DataFrame:
-    return pd.read_csv("Dane/SOR.tsv", encoding="cp1250", delimiter="\t")
+    return pd.read_csv("../Dane/SOR.tsv", encoding="cp1250", delimiter="\t")
 
 
 def load_ZRM() -> pd.DataFrame:
-    return pd.read_csv("Dane/ZRM.tsv", encoding="cp1250", delimiter="\t")
+    return pd.read_csv("../Dane/ZRM.tsv", encoding="cp1250", delimiter="\t")
 
 
 def load_profiles() -> List[str]:
