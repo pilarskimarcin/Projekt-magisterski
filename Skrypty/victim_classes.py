@@ -116,7 +116,7 @@ class State:
             timed_next_state_transition: Optional[Tuple[int, StateNumber]] = None,
             intervention_next_state_transition: Optional[Tuple[Procedure, StateNumber]] = None
     ):
-        self.AssertInitArgumentsAreLegal(number, respiratory_rate, pulse_rate)
+        self.CheckInitArguments(number, respiratory_rate, pulse_rate)
         self.number = number
         self.is_victim_walking = is_victim_walking
         self.respiratory_rate = respiratory_rate
@@ -129,10 +129,13 @@ class State:
         self.intervention_next_state_transition = intervention_next_state_transition
 
     @staticmethod
-    def AssertInitArgumentsAreLegal(number: int, respiratory_rate: int, pulse_rate: int):
-        assert number >= 1, "Numer stanu nie moze byc mniejszy niz 1"
-        assert respiratory_rate >= 0, "Czestotliwosc oddechu nie moze byc mniejsza niz 0"
-        assert pulse_rate >= 0, "Tetno nie moze byc mniejsze niz 0"
+    def CheckInitArguments(number: int, respiratory_rate: int, pulse_rate: int):
+        if number < 1:
+            raise ValueError("Numer stanu nie moze byc mniejszy niz 1")
+        if respiratory_rate < 0:
+            raise ValueError("Czestotliwosc oddechu nie moze byc mniejsza niz 0")
+        if pulse_rate < 0:
+            raise ValueError("Tetno nie moze byc mniejsze niz 0")
 
 
 class TriageColour(enum.Enum):
