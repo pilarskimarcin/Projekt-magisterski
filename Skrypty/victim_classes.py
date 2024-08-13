@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import annotations
 import csv
 import enum
@@ -54,12 +55,12 @@ RPM_DETERIORATION_INTERVAL_MINUTES: int = 30
 class Victim:
     id_: int
     current_state: State
-    states: Tuple[State]
+    states: Tuple[State, ...]
     hospital_admittance_time: Optional[float]
     initial_RPM_number: int
     current_RPM_number: int
 
-    def __init__(self, id_: int, states: Tuple[State]):
+    def __init__(self, id_: int, states: Tuple[State, ...]):
         self.id_ = id_
         self.states = states
         for state in self.states:
@@ -91,9 +92,11 @@ class Victim:
         ]
 
     def LowerRPM(self, time_from_simulation_start: int):
-        # TODO: zrobic LUT na te wartosci wszystkie z tablicy pogarszania, niech bierze po kluczu self.current_RPM, a
-        #  potem z listy i-ty element, i = time / INTERVAL?
-        raise NotImplementedError
+        if time_from_simulation_start % RPM_DETERIORATION_INTERVAL_MINUTES != 0:
+            raise ValueError(u"Czas w minutach od początku symulacji powinien być wielokrotnością " +
+                             str(RPM_DETERIORATION_INTERVAL_MINUTES))
+        index_of_time_interval: int = time_from_simulation_start // RPM_DETERIORATION_INTERVAL_MINUTES - 1
+        self.current_RPM_number = RPM_DETERIORATION_TABLE[self.initial_RPM_number][index_of_time_interval]
 
 
 class State:
@@ -131,11 +134,11 @@ class State:
     @staticmethod
     def CheckInitArguments(number: int, respiratory_rate: int, pulse_rate: int):
         if number < 1:
-            raise ValueError("Numer stanu nie moze byc mniejszy niz 1")
+            raise ValueError("Numer stanu nie może być mniejszy niż 1")
         if respiratory_rate < 0:
-            raise ValueError("Czestotliwosc oddechu nie moze byc mniejsza niz 0")
+            raise ValueError("Częstotliwość oddechu nie może być mniejsza niż 0")
         if pulse_rate < 0:
-            raise ValueError("Tetno nie moze byc mniejsze niz 0")
+            raise ValueError("Tętno nie może być mniejsze niż 0")
 
 
 class TriageColour(enum.Enum):
