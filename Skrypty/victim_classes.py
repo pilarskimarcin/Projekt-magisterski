@@ -82,16 +82,19 @@ class Victim:
 
     @staticmethod
     def GetScoreFromLookUpTables(value, look_up_table: Dict[Tuple[int, int], int]) -> int:
+        """Zwraca wynik przypisany parze liczb, między którymi znajduje się argument"""
         for (low, high), score in look_up_table.items():
             if low <= value <= high:
                 return score
 
     def GetBestMotorResponseScore(self) -> int:
+        """Zwraca wynik składowej odpowiedzi ruchowej oceny RPM"""
         return BEST_MOTOR_RESPONSE_SCORES[
             self.current_state.is_victim_walking, self.current_state.is_victim_following_orders
         ]
 
     def LowerRPM(self, time_from_simulation_start: int):
+        """Zmniejsza RPM zależnie od czasu, który upłynął od początku symulacji"""
         if time_from_simulation_start % RPM_DETERIORATION_INTERVAL_MINUTES != 0:
             raise ValueError(u"Czas w minutach od początku symulacji powinien być wielokrotnością " +
                              str(RPM_DETERIORATION_INTERVAL_MINUTES))
