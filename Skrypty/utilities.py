@@ -1,4 +1,7 @@
 from __future__ import annotations
+
+import csv
+
 from dotenv import load_dotenv
 import json
 from os import getenv
@@ -6,6 +9,11 @@ import requests
 from typing import List, Optional, Tuple
 
 load_dotenv()
+
+
+# Stałe
+PLACES_CSV_FILE: str = "../Dane/Miejsca.csv"
+PLACES_CSV_FILE_FIRST_ROW_NUMBER: int = 2
 
 
 class PlaceAddress:
@@ -29,9 +37,37 @@ class PlaceAddress:
         coordinates = response["results"][0]["location"]
         self.latitude = coordinates["lat"]
         self.longitude = coordinates["lng"]
+        self.SavePlaceToFile()
+
+    def SavePlaceToFile(self, target_csv_file: Optional[str] = None):
+        """Funkcja zapisująca dane o miejscu do pliku, jeśli nie są jeszcze zapisane"""
+        if not target_csv_file:
+            target_csv_file = PLACES_CSV_FILE
+        self.CheckIfCoordinatesPresent()
+        with open(target_csv_file, "r+") as csv_file:
+            places_csv_file = csv.reader(csv_file)
+            last_place_id: int = 0
+            for row in places_csv_file:
+                if places_csv_file.line_num < PLACES_CSV_FILE_FIRST_ROW_NUMBER:
+                    continue
+                if row == "":
+                    break
+                last_place_id = int(row[0])
+                if row[1] == self.address:
+                    return
+            csv_file.write("\n")
+            csv.writer(csv_file).writerow(
+                [last_place_id + 1, self.address, ";".join([str(self.latitude), str(self.longitude)])]
+            )
+
+    def CheckIfCoordinatesPresent(self):
+        if not self.latitude or not self.longitude:
+            self.Geocoding()
 
     def DistanceFromOtherPlace(self, other: PlaceAddress) -> Tuple[float, float]:
         """Funkcja obliczająca dystans w kilometrach i czas w minutach między dwoma miejscami"""
+        self.CheckIfCoordinatesPresent()
+        other.CheckIfCoordinatesPresent()
         url = "https://trueway-matrix.p.rapidapi.com/CalculateDrivingMatrix"
         querystring = {"origins": f"{str(self.latitude)},{str(self.longitude)}",
                        "destinations": f"{str(other.latitude)},{str(other.longitude)}"}
@@ -44,21 +80,7 @@ class PlaceAddress:
         self.SaveDistanceToFile(distance, duration)
         return distance, duration
 
-    def SavePlaceToFile(self):
-        """Funkcja zapisująca dane o miejscu do pliku"""
-        # TODO: Do .csv - kolumny id, adres, współrzędne
-        #  jeśli nie współrzędne, geocoding
-        #  odczytać plik i sprawdzić czy jest już taki adres (adres razem)
-        raise NotImplementedError
-
     def SaveDistanceToFile(self, distance: float, duration: float):
         """Funkcja zapisująca dane o dystansie między miejscami w pliku"""
         # TODO: JSON - od origin do destination - trzeba załadować najpierw jako słownik i zobaczyć czy już takie jest
-        raise NotImplementedError
-
-
-# TODO: testy
-if __name__ == '__main__':
-    coord1 = geocoding("Topolowa 16, 32-500 Chrzanów")
-    coord2 = geocoding("Chrzanowska 6, 32-541 Trzebinia")
-    distance_calculation(coord1, coord2)  # km, min
+        pass

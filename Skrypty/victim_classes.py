@@ -5,11 +5,13 @@ import enum
 import sys
 from typing import Dict, List, NamedTuple, Optional, Tuple
 
-# Wlasne typy
+# Własne typy
 StateNumber = int
 
-# Stale
-# sys.maxsize w ponizszych tablicach oznacza nieosiagalna gorna granice
+# Stałe
+RPM_DETERIORATION_TABLE_FIRST_ROW_NUMBER: int = 2
+RPM_DETERIORATION_INTERVAL_MINUTES: int = 30
+# sys.maxsize w poniższych tablicach oznacza nieosiągalną górną granicę
 RESPIRATORY_RATE_SCORES: Dict[Tuple[int, int], int] = {
     (0, 0): 0,
     (1, 9): 1,
@@ -33,23 +35,22 @@ BEST_MOTOR_RESPONSE_SCORES: Dict[Tuple[bool, bool], int] = {
 }
 
 
-def ConvertRowWithoutFirstElementToInt(row: List[str]) -> List[int]:
-    return [int(element) for element in row[1:]]
-
-
 def LoadDeteriorationTable() -> List[List[int]]:
     with open("../Dane/RPM_pogorszenie.tsv") as csv_file:
         temp_table: List[List[int]] = []
         csv_reader = csv.reader(csv_file, delimiter="\t")
         for row in csv_reader:
-            if csv_reader.line_num < 2:
+            if csv_reader.line_num < RPM_DETERIORATION_TABLE_FIRST_ROW_NUMBER:
                 continue
             temp_table.append(ConvertRowWithoutFirstElementToInt(row))
         return temp_table
 
 
 RPM_DETERIORATION_TABLE: List[List[int]] = LoadDeteriorationTable()
-RPM_DETERIORATION_INTERVAL_MINUTES: int = 30
+
+
+def ConvertRowWithoutFirstElementToInt(row: List[str]) -> List[int]:
+    return [int(element) for element in row[1:]]
 
 
 class Victim:
