@@ -1,12 +1,10 @@
 from __future__ import annotations
-
 import csv
-
 from dotenv import load_dotenv
 import json
 from os import getenv
 import requests
-from typing import List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 load_dotenv()
 
@@ -14,6 +12,9 @@ load_dotenv()
 # Stałe
 PLACES_CSV_FILE: str = "../Dane/Miejsca.csv"
 PLACES_CSV_FILE_FIRST_ROW_NUMBER: int = 2
+DISTANCES_JSON_FILE: str = "../Dane/Odległości.json"
+DISTANCE_KEY: str = "odległość [km]"
+DURATION_KEY: str = "czas podróży [min]"
 
 
 class PlaceAddress:
@@ -60,9 +61,12 @@ class PlaceAddress:
                 [last_place_id + 1, self.address, ";".join([str(self.latitude), str(self.longitude)])]
             )
 
-    def CheckIfCoordinatesPresent(self):
+    def CheckIfCoordinatesPresent(self, raise_error: bool = False):
         if not self.latitude or not self.longitude:
-            self.Geocoding()
+            if raise_error:
+                raise RuntimeError("Współrzędne nie zostały jeszcze zakodowane, nie można zapisać")
+            else:
+                self.Geocoding()
 
     def DistanceFromOtherPlace(self, other: PlaceAddress) -> Tuple[float, float]:
         """Funkcja obliczająca dystans w kilometrach i czas w minutach między dwoma miejscami"""
@@ -77,10 +81,39 @@ class PlaceAddress:
         destination_index: int = 0
         distance: float = response["distances"][origin_index][destination_index] / 1000
         duration: float = response["durations"][origin_index][destination_index] / 60
-        self.SaveDistanceToFile(distance, duration)
+        self.SaveDistanceToFile(distance, duration, other)
         return distance, duration
 
-    def SaveDistanceToFile(self, distance: float, duration: float):
+    def SaveDistanceToFile(
+            self, distance: float, duration: float, other: PlaceAddress, target_json_file: Optional[str] = None
+    ):
         """Funkcja zapisująca dane o dystansie między miejscami w pliku"""
-        # TODO: JSON - od origin do destination - trzeba załadować najpierw jako słownik i zobaczyć czy już takie jest
-        pass
+        if not target_json_file:
+            target_json_file = DISTANCES_JSON_FILE
+        with (open(target_json_file, "r+") as file):
+            file_contents: str = file.read()
+            saved_distances: Dict[str, Dict[str, Dict[str, float]]] = {}
+            if file_contents:
+                saved_distances = json.loads(file_contents)
+            for origin, info_for_origin in saved_distances.items():
+                if origin == self.address:
+                    for destination, info_for_origin_destination in info_for_origin.items():
+                        if destination == other.address:
+                            return
+            saved_distances = self.AddDistanceAndDurationToDictionary(saved_distances, other, distance, duration)
+            saved_distances[self.address][other.address][DISTANCE_KEY] = distance
+            saved_distances[self.address][other.address][DURATION_KEY] = duration
+            file.seek(0)
+            file.truncate()
+            json.dump(saved_distances, file, ensure_ascii=False, indent=2)
+
+    def AddDistanceAndDurationToDictionary(
+            self, dictionary: Dict[str, Dict[str, Dict[str, float]]], other: PlaceAddress, distance: float,
+            duration: float
+    ) -> Dict[str, Dict[str, Dict[str, float]]]:
+        other_distance_duration_dict: Dict[str, Dict[str, float]] = {other.address: {
+            DISTANCE_KEY: distance, DURATION_KEY: duration}
+        }
+        dictionary[self.address] = other_distance_duration_dict
+        return dictionary
+
