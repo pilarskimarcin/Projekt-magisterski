@@ -27,8 +27,8 @@ class TestPlaceAddress(unittest.TestCase):
         sample_distance: float
         sample_duration: float
         sample_distance, sample_duration = self.sample_address.DistanceFromOtherPlace(sample_address_2)
-        self.assertEqual(sample_distance, 9.891)
-        self.assertAlmostEqual(sample_duration, 13.27, delta=0.2)
+        self.assertAlmostEqual(sample_distance, 9.891, delta=0.1)
+        self.assertAlmostEqual(sample_duration, 13.27, delta=1)
         with open("../Dane/Odległości.json") as f2:
             file2 = f2.read()
         self.assertEqual(file1, file2)

@@ -35,6 +35,10 @@ BEST_MOTOR_RESPONSE_SCORES: Dict[Tuple[bool, bool], int] = {
 }
 
 
+def ConvertRowWithoutFirstElementToInt(row: List[str]) -> List[int]:
+    return [int(element) for element in row[1:]]
+
+
 def LoadDeteriorationTable() -> List[List[int]]:
     with open("../Dane/RPM_pogorszenie.tsv") as csv_file:
         temp_table: List[List[int]] = []
@@ -47,10 +51,6 @@ def LoadDeteriorationTable() -> List[List[int]]:
 
 
 RPM_DETERIORATION_TABLE: List[List[int]] = LoadDeteriorationTable()
-
-
-def ConvertRowWithoutFirstElementToInt(row: List[str]) -> List[int]:
-    return [int(element) for element in row[1:]]
 
 
 class Victim:
