@@ -3,6 +3,7 @@ import math
 import unittest
 
 from Skrypty import victim_classes as victim, zrm_classes as zrm
+from Testy import tests_victim_classes as test_victim
 
 
 class MyTestCase(unittest.TestCase):
@@ -15,13 +16,7 @@ class MyTestCase(unittest.TestCase):
         self.sample_address: zrm.PlaceAddress = zrm.PlaceAddress(
             "Chrzanowska", 6, "32-541", "Trzebinia"
         )
-        sample_state: victim.State = victim.State(
-            number=1, is_victim_walking=False, respiratory_rate=12, pulse_rate=120, is_victim_following_orders=True,
-            triage_colour=victim.TriageColour.YELLOW, health_problems_ids=(victim.HealthProblem(15, 3)),
-            description=u"Kobieta lat 15 zgłasza problem z poruszaniem się, twierdzi że nie jest w stanie przejść, "
-                        u"podczas próby pionizacji twierdzi ze nie czuje nóg. Nie zgłasza dolegliwości bólowych, neguje"
-                        u" asymetrie czucia, twierdzi że nie ma sił. Nie jest w stanie ustać na nogach."
-        )
+        sample_state: victim.State = test_victim.CreateSampleState()
         self.sample_victim: victim.Victim = victim.Victim(1, tuple([sample_state]))
 
     def test_Init(self):

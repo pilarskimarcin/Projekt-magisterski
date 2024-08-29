@@ -33,6 +33,7 @@ BEST_MOTOR_RESPONSE_SCORES: Dict[Tuple[bool, bool], int] = {
     (False, True): 3,
     (True, True): 4
 }
+EMERGENCY_DISCIPLINE_NUMBER: int = 15
 
 
 def ConvertRowWithoutFirstElementToInt(row: List[str]) -> List[int]:
@@ -68,6 +69,7 @@ class Victim:
             if state.number == 1:
                 self.current_state = state
         self.current_RPM_number = self.initial_RPM_number = self.CalculateRPM()
+        self.hospital_admittance_time = None
 
     def CalculateRPM(self) -> int:
         """Oblicza RPM na podstawie obecnego stanu pacjenta"""
@@ -96,11 +98,19 @@ class Victim:
 
     def LowerRPM(self, time_from_simulation_start: int):
         """Zmniejsza RPM zależnie od czasu, który upłynął od początku symulacji"""
+        if self.hospital_admittance_time:
+            return
         if time_from_simulation_start % RPM_DETERIORATION_INTERVAL_MINUTES != 0:
             raise ValueError(u"Czas w minutach od początku symulacji powinien być wielokrotnością " +
                              str(RPM_DETERIORATION_INTERVAL_MINUTES))
         index_of_time_interval: int = time_from_simulation_start // RPM_DETERIORATION_INTERVAL_MINUTES - 1
         self.current_RPM_number = RPM_DETERIORATION_TABLE[self.initial_RPM_number][index_of_time_interval]
+
+    def AdmitToHospital(self, time: float):
+        self.hospital_admittance_time = time
+
+    def GetCurrentHealthProblemIds(self) -> Tuple[int, ...]:
+        return self.current_state.GetAllHealthProblemIds()
 
 
 class State:
@@ -143,6 +153,15 @@ class State:
             raise ValueError("Częstotliwość oddechu nie może być mniejsza niż 0")
         if pulse_rate < 0:
             raise ValueError("Tętno nie może być mniejsze niż 0")
+
+    def GetAllHealthProblemIds(self) -> Tuple[int, ...]:
+        health_problem_ids: List[int] = sorted(
+            {health_problem.discipline for health_problem in self.health_problems_ids}
+        )
+        if EMERGENCY_DISCIPLINE_NUMBER in health_problem_ids:
+            health_problem_ids.remove(EMERGENCY_DISCIPLINE_NUMBER)
+            health_problem_ids.insert(0, EMERGENCY_DISCIPLINE_NUMBER)
+        return tuple(health_problem_ids)
 
 
 class TriageColour(enum.Enum):

@@ -5,6 +5,20 @@ import unittest
 from Skrypty import victim_classes as victim
 
 
+def CreateSampleState():
+    return victim.State(
+        number=1, is_victim_walking=False, respiratory_rate=12, pulse_rate=120, is_victim_following_orders=True,
+        triage_colour=victim.TriageColour.YELLOW,
+        health_problems_ids=(
+            victim.HealthProblem(15, 3), victim.HealthProblem(15, 2), victim.HealthProblem(6, 1),
+            victim.HealthProblem(5, 1)
+        ),
+        description=u"Kobieta lat 15 zgłasza problem z poruszaniem się, twierdzi że nie jest w stanie przejść, "
+                    u"podczas próby pionizacji twierdzi ze nie czuje nóg. Nie zgłasza dolegliwości bólowych, neguje"
+                    u" asymetrie czucia, twierdzi że nie ma sił. Nie jest w stanie ustać na nogach."
+    )
+
+
 class FunctionsTests(unittest.TestCase):
     def testLoadingDeteriorationTable(self):
         deterioration_table_length: int = 13
@@ -27,13 +41,7 @@ class VictimClassTests(unittest.TestCase):
     sample_victim: victim.Victim
 
     def setUp(self):
-        sample_state: victim.State = victim.State(
-            number=1, is_victim_walking=False, respiratory_rate=12, pulse_rate=120, is_victim_following_orders=True,
-            triage_colour=victim.TriageColour.YELLOW, health_problems_ids=(victim.HealthProblem(15, 3)),
-            description=u"Kobieta lat 15 zgłasza problem z poruszaniem się, twierdzi że nie jest w stanie przejść, "
-                        u"podczas próby pionizacji twierdzi ze nie czuje nóg. Nie zgłasza dolegliwości bólowych, neguje"
-                        u" asymetrie czucia, twierdzi że nie ma sił. Nie jest w stanie ustać na nogach."
-        )
+        sample_state: victim.State = CreateSampleState()
         self.sample_victim: victim.Victim = victim.Victim(1, tuple([sample_state]))
 
     def testCalculateRPM(self):
@@ -60,14 +68,24 @@ class VictimClassTests(unittest.TestCase):
     def testLowerRPM(self):
         sample_time_from_simulation_start: int = victim.RPM_DETERIORATION_INTERVAL_MINUTES + 1
         self.assertRaises(ValueError, self.sample_victim.LowerRPM, sample_time_from_simulation_start)
-        self.sample_victim.initial_RPM_number = 7
-        self.sample_victim.current_RPM_number = 7
+
+        self.sample_victim.initial_RPM_number = self.sample_victim.current_RPM_number = 7
         sample_time_from_simulation_start = victim.RPM_DETERIORATION_INTERVAL_MINUTES
         self.sample_victim.LowerRPM(sample_time_from_simulation_start)
         self.assertEqual(self.sample_victim.current_RPM_number, 6)
+
         sample_time_from_simulation_start += victim.RPM_DETERIORATION_INTERVAL_MINUTES * 5
         self.sample_victim.LowerRPM(sample_time_from_simulation_start)
         self.assertEqual(self.sample_victim.current_RPM_number, 1)
+
+    def testAdmitToHospital(self):
+        self.assertIsNone(self.sample_victim.hospital_admittance_time)
+        sample_time: float = 7.5
+        self.sample_victim.AdmitToHospital(sample_time)
+        self.assertEqual(self.sample_victim.hospital_admittance_time, sample_time)
+
+    def testGetCurrentHealthProblemIds(self):
+        self.assertEqual(self.sample_victim.GetCurrentHealthProblemIds(), tuple([15, 5, 6]))
 
 
 class StateClassTests(unittest.TestCase):
@@ -76,6 +94,10 @@ class StateClassTests(unittest.TestCase):
         self.assertRaises(ValueError, victim.State.CheckInitArguments, 1, 0, -1)
         self.assertRaises(ValueError, victim.State.CheckInitArguments, 1, -1, 0)
         self.assertRaises(ValueError, victim.State.CheckInitArguments, 0, 0, 0)
+
+    def testGetAllHealthProblemIds(self):
+        sample_state: victim.State = CreateSampleState()
+        self.assertEqual(sample_state.GetAllHealthProblemIds(), (15, 5, 6))
 
 
 if __name__ == '__main__':

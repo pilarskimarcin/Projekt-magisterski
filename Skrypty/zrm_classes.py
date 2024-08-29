@@ -23,7 +23,7 @@ class ZRM:
     type: ZRMType
     specialists: List[Specialist]
     origin_location: PlaceAddress
-    target_location: Optional[PlaceAddress]
+    target_location: Optional[PlaceAddress]  # TODO: zmienić na szpital albo miejsce wypadku
     transported_victim: Optional[Victim]
     time_until_destination_in_minutes: Optional[int]
     queue_of_next_targets: List[PlaceAddress]
