@@ -29,6 +29,16 @@ class PlaceAddress:
         self.latitude = latitude
         self.longitude = longitude
 
+    def __eq__(self, other: PlaceAddress):
+        return self.address == other.address and self.latitude == other.latitude and self.longitude == other.longitude
+
+    @classmethod
+    def FromString(cls, address_string: str) -> PlaceAddress:
+        address_parts: List[str] = address_string.split()
+        return PlaceAddress(
+            street=address_parts[0], number=int(address_parts[1]), postal_code=address_parts[2], city=address_parts[3]
+        )
+
     def Geocoding(self):
         """Funkcja kodująca adres na współrzędne geograficzne"""
         url = "https://trueway-geocoding.p.rapidapi.com/Geocode"

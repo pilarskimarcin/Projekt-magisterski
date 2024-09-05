@@ -18,6 +18,29 @@ class TestPlaceAddress(unittest.TestCase):
         self.assertIsNone(self.sample_address.latitude)
         self.assertIsNone(self.sample_address.longitude)
 
+    def testEquality(self):
+        sample_address: utilities.PlaceAddress = utilities.PlaceAddress(
+            "Topolowa", 16, "32-500", "Chrzanów"
+        )
+        self.assertTrue(sample_address == self.sample_address)
+
+    def testInequalityPartOfAddress(self):
+        sample_address: utilities.PlaceAddress = utilities.PlaceAddress(
+            "Topolowa", 17, "32-500", "Chrzanów"
+        )
+        self.assertTrue(sample_address != self.sample_address)
+
+    def testInequalityCoordinates(self):
+        sample_address: utilities.PlaceAddress = utilities.PlaceAddress(
+            "Topolowa", 16, "32-500", "Chrzanów"
+        )
+        sample_address.longitude = 7.5
+        self.assertTrue(sample_address != self.sample_address)
+
+    def testFromString(self):
+        sample_address_string: str = "Topolowa 16 32-500 Chrzanów"
+        self.assertEqual(utilities.PlaceAddress.FromString(sample_address_string), self.sample_address)
+
     def testDistanceFromOtherPlaceAndSaveToFile(self):
         sample_address_2: utilities.PlaceAddress = utilities.PlaceAddress(
             "Chrzanowska",  6, "32-541", "Trzebinia"
