@@ -499,11 +499,11 @@ class MainApp(Qt.QMainWindow):
 
 
 def LoadSOR() -> pd.DataFrame:
-    return pd.read_csv("../Dane/SOR.tsv", encoding="cp1250", delimiter="\t")
+    return pd.read_csv("../Dane/SOR.csv", encoding="utf-8", sep=";", index_col=0)
 
 
 def LoadZRM() -> pd.DataFrame:
-    return pd.read_csv("../Dane/ZRM.tsv", encoding="cp1250", delimiter="\t")
+    return pd.read_csv("../Dane/ZRM.csv", encoding="utf-8", sep=";", index_col=0)
 
 
 def LoadProfiles() -> List[str]:
