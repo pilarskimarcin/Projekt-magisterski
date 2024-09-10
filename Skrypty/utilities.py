@@ -8,7 +8,6 @@ from typing import Dict, List, Optional, Tuple
 
 load_dotenv()
 
-
 # Stałe
 PLACES_CSV_FILE: str = "../Dane/Miejsca.csv"
 PLACES_CSV_FILE_FIRST_ROW_NUMBER: int = 2
@@ -18,19 +17,24 @@ DURATION_KEY: str = "czas podróży [min]"
 
 
 class PlaceAddress:
-    address: str
+    address_for_api_requests: str
+    address_for_places_data: str
     latitude: Optional[float]
     longitude: Optional[float]
 
     def __init__(self, street: str, number: int, postal_code: str, city: str,
                  latitude: Optional[float] = None, longitude: Optional[float] = None):
-        address_parts: List[str] = [street, " ", str(number), ", ", postal_code, " ", city]
-        self.address = "".join(address_parts)
+        address_first_part: str = " ".join([street, str(number)])
+        address_second_part: str = " ".join([postal_code, city])
+        self.address_for_api_requests = ", ".join([address_first_part, address_second_part])
+        self.address_for_places_data = " ".join([address_first_part, address_second_part])
         self.latitude = latitude
         self.longitude = longitude
 
-    def __eq__(self, other: PlaceAddress):
-        return self.address == other.address and self.latitude == other.latitude and self.longitude == other.longitude
+    def __eq__(self, other):
+        if not isinstance(other, PlaceAddress):
+            return False
+        return vars(self) == vars(other)
 
     @classmethod
     def FromString(cls, address_string: str) -> PlaceAddress:
@@ -42,7 +46,7 @@ class PlaceAddress:
     def Geocoding(self):
         """Funkcja kodująca adres na współrzędne geograficzne"""
         url = "https://trueway-geocoding.p.rapidapi.com/Geocode"
-        querystring = {"address": self.address, "language": "pl", "country": "pl"}
+        querystring = {"address": self.address_for_api_requests, "language": "pl", "country": "pl"}
         headers = {"x-rapidapi-key": getenv("XRAPID_API_KEY"), "x-rapidapi-host": "trueway-geocoding.p.rapidapi.com"}
         response = requests.get(url, headers=headers, params=querystring).json()
         coordinates = response["results"][0]["location"]
@@ -64,11 +68,11 @@ class PlaceAddress:
                 if row == "":
                     break
                 last_place_id = int(row[0])
-                if row[1] == self.address:
+                if row[1] == self.address_for_api_requests:
                     return
             csv_file.write("\n")
             csv.writer(csv_file).writerow(
-                [last_place_id + 1, self.address, ";".join([str(self.latitude), str(self.longitude)])]
+                [last_place_id + 1, self.address_for_api_requests, ";".join([str(self.latitude), str(self.longitude)])]
             )
 
     def CheckIfCoordinatesPresent(self, raise_error: bool = False):
@@ -106,13 +110,13 @@ class PlaceAddress:
             if file_contents:
                 saved_distances = json.loads(file_contents)
             for origin, info_for_origin in saved_distances.items():
-                if origin == self.address:
+                if origin == self.address_for_api_requests:
                     for destination, info_for_origin_destination in info_for_origin.items():
-                        if destination == other.address:
+                        if destination == other.address_for_api_requests:
                             return
             saved_distances = self.AddDistanceAndDurationToDictionary(saved_distances, other, distance, duration)
-            saved_distances[self.address][other.address][DISTANCE_KEY] = distance
-            saved_distances[self.address][other.address][DURATION_KEY] = duration
+            saved_distances[self.address_for_api_requests][other.address_for_api_requests][DISTANCE_KEY] = distance
+            saved_distances[self.address_for_api_requests][other.address_for_api_requests][DURATION_KEY] = duration
             file.seek(0)
             file.truncate()
             json.dump(saved_distances, file, ensure_ascii=False, indent=2)
@@ -121,9 +125,15 @@ class PlaceAddress:
             self, dictionary: Dict[str, Dict[str, Dict[str, float]]], other: PlaceAddress, distance: float,
             duration: float
     ) -> Dict[str, Dict[str, Dict[str, float]]]:
-        other_distance_duration_dict: Dict[str, Dict[str, float]] = {other.address: {
+        other_distance_duration_dict: Dict[str, Dict[str, float]] = {other.address_for_api_requests: {
             DISTANCE_KEY: distance, DURATION_KEY: duration}
         }
-        dictionary[self.address] = other_distance_duration_dict
+        dictionary[self.address_for_api_requests] = other_distance_duration_dict
         return dictionary
 
+
+class TargetDestination:
+    address: PlaceAddress
+
+    def __init__(self, address: PlaceAddress):
+        self.address = address
