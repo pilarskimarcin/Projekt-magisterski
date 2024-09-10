@@ -142,11 +142,7 @@ class MainApp(Qt.QMainWindow):
         tab_widget.addTab(tab1, "Oddziały SOR")
         tab_widget.addTab(tab2, "ZRM")
         tab_widget.addTab(tab3, "Profile pacjentów")
-        self.main_layout = Qt.QVBoxLayout()
-        self.main_layout.addWidget(tab_widget)
-        widget: Qt.QWidget = Qt.QWidget()
-        widget.setLayout(self.main_layout)
-        self.setCentralWidget(widget)
+        self.CreateMainLayoutFromTabWidget(tab_widget)
         self.UpdateThreeTabs()
 
     @staticmethod
@@ -155,6 +151,13 @@ class MainApp(Qt.QMainWindow):
         tab_layout.addWidget(tab_scroll_widget)
         tab.setLayout(tab_layout)
         return tab
+
+    def CreateMainLayoutFromTabWidget(self, tab_widget: Qt.QTabWidget):
+        self.main_layout = Qt.QVBoxLayout()
+        self.main_layout.addWidget(tab_widget)
+        widget: Qt.QWidget = Qt.QWidget()
+        widget.setLayout(self.main_layout)
+        self.setCentralWidget(widget)
 
     def UpdateThreeTabs(self):
         self.UpdateSOR()

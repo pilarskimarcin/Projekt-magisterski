@@ -7,14 +7,15 @@ from Skrypty import utilities
 
 
 class TestPlaceAddress(unittest.TestCase):
+    sample_address: utilities.PlaceAddress
 
     def setUp(self):
-        self.sample_address: utilities.PlaceAddress = utilities.PlaceAddress(
+        self.sample_address = utilities.PlaceAddress(
             "Topolowa", 16, "32-500", "Chrzanów"
         )
 
     def testInit(self):
-        self.assertEqual(self.sample_address.address, "Topolowa 16, 32-500 Chrzanów")
+        self.assertEqual(self.sample_address.address_for_api_requests, "Topolowa 16, 32-500 Chrzanów")
         self.assertIsNone(self.sample_address.latitude)
         self.assertIsNone(self.sample_address.longitude)
 
