@@ -1,10 +1,10 @@
 Stan 1
- ; Parametr; Jednostka; Wartoœæ
+ ; Parametr; Jednostka; WartoÅ›Ä‡
 1; Czy pacjent chodzi?; (tak/nie); nie
-2; Czêstoœæ oddechu; ([1/min] / nieobecna); 14
-3; Têtno obwodowe; ([1/min] / nieobecne); 120
-4; Czy pacjent spe³nia polecenia?; (tak/nie); tak
-5; Kolor segregacji; (nazwa koloru); ¿ó³ty
+2; CzÄ™stoÅ›Ä‡ oddechu; ([1/min] / nieobecna); 14
+3; TÄ™tno obwodowe; ([1/min] / nieobecne); 120
+4; Czy pacjent speÅ‚nia polecenia?; (tak/nie); tak
+5; Kolor segregacji; (nazwa koloru); Å¼Ã³Å‚ty
 6; Jednostka chorobowa; (identyfikator/y); 25.2
-Opis: Pacjent lat 15, mimo nawo³ywania z proœb¹ o opuszczenie strefy niebezpiecznej nie wykonuje polecenia, podczas badania zg³asza dolegliwoœci bólowe koñczyny dolnej na wysokoœci piszczeli prawej. Widoczne przerwanie ci¹g³oœci skóry, wolno wyp³ywaj¹ca krew czerwona nie têtni¹ca, wra¿enia ogólne pacjenta dobre, pacjent pobudzony, spe³niaj¹cy polecenia, po za³o¿eniu opaski uciskowej powy¿ej z³amania uspokaja siê.
+Opis: Pacjent lat 15, mimo nawoÅ‚ywania z proÅ›bÄ… o opuszczenie strefy niebezpiecznej nie wykonuje polecenia, podczas badania zgÅ‚asza dolegliwoÅ›ci bÃ³lowe koÅ„czyny dolnej na wysokoÅ›ci piszczeli prawej. Widoczne przerwanie ciÄ…gÅ‚oÅ›ci skÃ³ry, wolno wypÅ‚ywajÄ…ca krew czerwona nie tÄ™tniÄ…ca, wraÅ¼enia ogÃ³lne pacjenta dobre, pacjent pobudzony, speÅ‚niajÄ…cy polecenia, po zaÅ‚oÅ¼eniu opaski uciskowej powyÅ¼ej zÅ‚amania uspokaja siÄ™.
 

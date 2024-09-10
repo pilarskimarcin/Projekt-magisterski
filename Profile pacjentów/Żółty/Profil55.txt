@@ -1,10 +1,10 @@
 Stan 1
- ; Parametr; Jednostka; Wartoœæ
+ ; Parametr; Jednostka; WartoÅ›Ä‡
 1; Czy pacjent chodzi?; (tak/nie); nie
-2; Czêstoœæ oddechu; ([1/min] / nieobecna); 12
-3; Têtno obwodowe; ([1/min] / nieobecne); 120
-4; Czy pacjent spe³nia polecenia?; (tak/nie); tak
-5; Kolor segregacji; (nazwa koloru); ¿ó³ty
+2; CzÄ™stoÅ›Ä‡ oddechu; ([1/min] / nieobecna); 12
+3; TÄ™tno obwodowe; ([1/min] / nieobecne); 120
+4; Czy pacjent speÅ‚nia polecenia?; (tak/nie); tak
+5; Kolor segregacji; (nazwa koloru); Å¼Ã³Å‚ty
 6; Jednostka chorobowa; (identyfikator/y); 25.3
-Opis: Pacjentka lat 17 przysz³a z mam¹, nie wie gdzie jest mama, boi siê o ni¹, zg³asza dolegliwoœci bólowe pleców na wysokoœci odcinka lêdŸwiowego, twierdzi ¿e nie czuje nóg mimo i¿ mo¿e nimi poruszaæ, okresowo krzycz¹ca nawo³uj¹ca za mam¹. Na g³owie widoczna niewielka rana, wolno krwawi¹ca, nie wymagaj¹ca zaopatrzenia chirurgicznego, Dolegliwoœci bólowe nasilaj¹ siê podczas próby zmiany pozycji, pacjentka wrzeszcz¹ca z bólu. Wra¿enia ogólne dobre, pacjentka staraj¹ca siê odnaleŸæ mamê, okresowo rozpaczliwie wo³aj¹ca za ni¹.  
+Opis: Pacjentka lat 17 przyszÅ‚a z mamÄ…, nie wie gdzie jest mama, boi siÄ™ o niÄ…, zgÅ‚asza dolegliwoÅ›ci bÃ³lowe plecÃ³w na wysokoÅ›ci odcinka lÄ™dÅºwiowego, twierdzi Å¼e nie czuje nÃ³g mimo iÅ¼ moÅ¼e nimi poruszaÄ‡, okresowo krzyczÄ…ca nawoÅ‚ujÄ…ca za mamÄ…. Na gÅ‚owie widoczna niewielka rana, wolno krwawiÄ…ca, nie wymagajÄ…ca zaopatrzenia chirurgicznego, DolegliwoÅ›ci bÃ³lowe nasilajÄ… siÄ™ podczas prÃ³by zmiany pozycji, pacjentka wrzeszczÄ…ca z bÃ³lu. WraÅ¼enia ogÃ³lne dobre, pacjentka starajÄ…ca siÄ™ odnaleÅºÄ‡ mamÄ™, okresowo rozpaczliwie woÅ‚ajÄ…ca za niÄ….  
 

@@ -1,10 +1,10 @@
 Stan 1
- ; Parametr; Jednostka; Wartoœæ
+ ; Parametr; Jednostka; WartoÅ›Ä‡
 1; Czy pacjent chodzi?; (tak/nie); nie
-2; Czêstoœæ oddechu; ([1/min] / nieobecna); 12
-3; Têtno obwodowe; ([1/min] / nieobecne); 130
-4; Czy pacjent spe³nia polecenia?; (tak/nie); tak
-5; Kolor segregacji; (nazwa koloru); ¿ó³ty
+2; CzÄ™stoÅ›Ä‡ oddechu; ([1/min] / nieobecna); 12
+3; TÄ™tno obwodowe; ([1/min] / nieobecne); 130
+4; Czy pacjent speÅ‚nia polecenia?; (tak/nie); tak
+5; Kolor segregacji; (nazwa koloru); Å¼Ã³Å‚ty
 6; Jednostka chorobowa; (identyfikator/y); 25.8
-Opis: Ch³opczyk lat 14 zg³asza dolegliwoœci bólowe w obrêbie miednicy, dolegliwoœci bólowe nasilaj¹ce siê podczas poruszania i próby zmiany pozycji, w badaniu urazowym – podczas próby zamkniêcia ksi¹¿ki s³ychaæ klikniêcie.
+Opis: ChÅ‚opczyk lat 14 zgÅ‚asza dolegliwoÅ›ci bÃ³lowe w obrÄ™bie miednicy, dolegliwoÅ›ci bÃ³lowe nasilajÄ…ce siÄ™ podczas poruszania i prÃ³by zmiany pozycji, w badaniu urazowym â€“ podczas prÃ³by zamkniÄ™cia ksiÄ…Å¼ki sÅ‚ychaÄ‡ klikniÄ™cie.
 

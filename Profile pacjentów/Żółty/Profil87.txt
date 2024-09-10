@@ -1,10 +1,10 @@
 Stan 1
- ; Parametr; Jednostka; Wartoœæ
+ ; Parametr; Jednostka; WartoÅ›Ä‡
 1; Czy pacjent chodzi?; (tak/nie); nie
-2; Czêstoœæ oddechu; ([1/min] / nieobecna); 12
-3; Têtno obwodowe; ([1/min] / nieobecne); 130
-4; Czy pacjent spe³nia polecenia?; (tak/nie); tak
-5; Kolor segregacji; (nazwa koloru); ¿ó³ty
+2; CzÄ™stoÅ›Ä‡ oddechu; ([1/min] / nieobecna); 12
+3; TÄ™tno obwodowe; ([1/min] / nieobecne); 130
+4; Czy pacjent speÅ‚nia polecenia?; (tak/nie); tak
+5; Kolor segregacji; (nazwa koloru); Å¼Ã³Å‚ty
 6; Jednostka chorobowa; (identyfikator/y); 25.1, 25.9
-Opis: Kobieta lat 18 zg³asza problem z poruszaniem siê, na proœbê o opuszczenie strefy niebezpiecznej, zg³asza ból w obrêbie stawu skokowego, dolegliwoœci uniemo¿liwiaj¹ samodzielne poruszanie siê (brak widocznych deformacji, palpacyjna bolesnoœæ, obrzêk), dolegliwoœci bólowe w obrêbie stawu barkowego ( widoczny asymetrie barku lewego w stosunku do prawego, bolesnoœæ palpacyjna).
+Opis: Kobieta lat 18 zgÅ‚asza problem z poruszaniem siÄ™, na proÅ›bÄ™ o opuszczenie strefy niebezpiecznej, zgÅ‚asza bÃ³l w obrÄ™bie stawu skokowego, dolegliwoÅ›ci uniemoÅ¼liwiajÄ… samodzielne poruszanie siÄ™ (brak widocznych deformacji, palpacyjna bolesnoÅ›Ä‡, obrzÄ™k), dolegliwoÅ›ci bÃ³lowe w obrÄ™bie stawu barkowego ( widoczny asymetrie barku lewego w stosunku do prawego, bolesnoÅ›Ä‡ palpacyjna).
 

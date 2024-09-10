@@ -1,10 +1,10 @@
 Stan 1
- ; Parametr; Jednostka; Wartoœæ
+ ; Parametr; Jednostka; WartoÅ›Ä‡
 1; Czy pacjent chodzi?; (tak/nie); nie
-2; Czêstoœæ oddechu; ([1/min] / nieobecna); 12
-3; Têtno obwodowe; ([1/min] / nieobecne); 120
-4; Czy pacjent spe³nia polecenia?; (tak/nie); tak
-5; Kolor segregacji; (nazwa koloru); ¿ó³ty
+2; CzÄ™stoÅ›Ä‡ oddechu; ([1/min] / nieobecna); 12
+3; TÄ™tno obwodowe; ([1/min] / nieobecne); 120
+4; Czy pacjent speÅ‚nia polecenia?; (tak/nie); tak
+5; Kolor segregacji; (nazwa koloru); Å¼Ã³Å‚ty
 6; Jednostka chorobowa; (identyfikator/y); 25.1, 6.1
-Opis: Pacjent lat 14 uczestnik imprezy masowej, pobity zg³asza dolegliwoœci bólowe koñczyny dolnej, twierdzi ¿e nie jest w stanie siê poruszaæ. Pacjent maj¹cy problem z mówieniem, mówi¹cy bardzo niewyraŸnie trzymaj¹cy ¿uchwê w rêku, za ka¿dym razem gdy chce coœ powiedzieæ pojêkuj¹cy z bólu, Koñczyna dolna bez widocznych deformacji, zasinieñ, nie wielki obrzêk w okolicy stawu skokowego, przy próbie obci¹¿enia stopa nie stabilna, pacjent nie jest w stanie ustaæ na niej. Ogólne wra¿enie, pacjent logiczny, próbuj¹cy wspó³pracowaæ
+Opis: Pacjent lat 14 uczestnik imprezy masowej, pobity zgÅ‚asza dolegliwoÅ›ci bÃ³lowe koÅ„czyny dolnej, twierdzi Å¼e nie jest w stanie siÄ™ poruszaÄ‡. Pacjent majÄ…cy problem z mÃ³wieniem, mÃ³wiÄ…cy bardzo niewyraÅºnie trzymajÄ…cy Å¼uchwÄ™ w rÄ™ku, za kaÅ¼dym razem gdy chce coÅ› powiedzieÄ‡ pojÄ™kujÄ…cy z bÃ³lu, KoÅ„czyna dolna bez widocznych deformacji, zasinieÅ„, nie wielki obrzÄ™k w okolicy stawu skokowego, przy prÃ³bie obciÄ…Å¼enia stopa nie stabilna, pacjent nie jest w stanie ustaÄ‡ na niej. OgÃ³lne wraÅ¼enie, pacjent logiczny, prÃ³bujÄ…cy wspÃ³Å‚pracowaÄ‡
 

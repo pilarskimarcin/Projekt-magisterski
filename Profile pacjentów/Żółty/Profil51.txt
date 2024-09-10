@@ -1,10 +1,10 @@
 Stan 1
- ; Parametr; Jednostka; Wartoœæ
+ ; Parametr; Jednostka; WartoÅ›Ä‡
 1; Czy pacjent chodzi?; (tak/nie); nie
-2; Czêstoœæ oddechu; ([1/min] / nieobecna); 12
-3; Têtno obwodowe; ([1/min] / nieobecne); 120
-4; Czy pacjent spe³nia polecenia?; (tak/nie); tak
-5; Kolor segregacji; (nazwa koloru); ¿ó³ty
+2; CzÄ™stoÅ›Ä‡ oddechu; ([1/min] / nieobecna); 12
+3; TÄ™tno obwodowe; ([1/min] / nieobecne); 120
+4; Czy pacjent speÅ‚nia polecenia?; (tak/nie); tak
+5; Kolor segregacji; (nazwa koloru); Å¼Ã³Å‚ty
 6; Jednostka chorobowa; (identyfikator/y); 25.1
-Opis: Pacjent lat 13 uczestnik imprezy masowej, pobity zg³asza dolegliwoœci bólowe koñczyny dolnej oraz klatki piersiowej, twierdzi ¿e nie jest w stanie siê poruszaæ. Koñczyna dolna z widocznym zasinieniem, deformacj¹ oraz obrzêkiem w obrêbie stawu kolanowego lewego. Wra¿enia ogólne pacjenta dobre, pulsacyjnie kolano bolesne, przy próbie poruszania siê  koñczyn¹ w stawie kolanowym s³yszalne „chrupanie”, pacjent nie jest w stanie ustaæ na chorej koñczynie. Dolegliwoœci bólowe klatki piersiowej nasilaj¹ce siê przy poruszaniu, nasilenie dolegliwoœci bólowych w obrêbie ³opatki prawej, klatka piersiowa bez widocznych deformacji. Os³uchowo bez zmian os³uchowych
+Opis: Pacjent lat 13 uczestnik imprezy masowej, pobity zgÅ‚asza dolegliwoÅ›ci bÃ³lowe koÅ„czyny dolnej oraz klatki piersiowej, twierdzi Å¼e nie jest w stanie siÄ™ poruszaÄ‡. KoÅ„czyna dolna z widocznym zasinieniem, deformacjÄ… oraz obrzÄ™kiem w obrÄ™bie stawu kolanowego lewego. WraÅ¼enia ogÃ³lne pacjenta dobre, pulsacyjnie kolano bolesne, przy prÃ³bie poruszania siÄ™  koÅ„czynÄ… w stawie kolanowym sÅ‚yszalne â€chrupanieâ€, pacjent nie jest w stanie ustaÄ‡ na chorej koÅ„czynie. DolegliwoÅ›ci bÃ³lowe klatki piersiowej nasilajÄ…ce siÄ™ przy poruszaniu, nasilenie dolegliwoÅ›ci bÃ³lowych w obrÄ™bie Å‚opatki prawej, klatka piersiowa bez widocznych deformacji. OsÅ‚uchowo bez zmian osÅ‚uchowych
 

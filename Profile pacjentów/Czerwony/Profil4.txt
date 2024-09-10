@@ -17,7 +17,7 @@ Stan 2
 5; Kolor segregacji; (nazwa koloru); czarny
 6; Jednostka chorobowa; (identyfikator/y); -
 Opis: 
-Rodzic: Stan 1, przejście: czas - 30min
+Rodzic: Stan 1, przejście: czas - 40min
 
 Stan 3
  ; Parametr; Jednostka; Wartość

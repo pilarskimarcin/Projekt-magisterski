@@ -1,10 +1,10 @@
 Stan 1
- ; Parametr; Jednostka; Wartoœæ
+ ; Parametr; Jednostka; WartoÅ›Ä‡
 1; Czy pacjent chodzi?; (tak/nie); nie
-2; Czêstoœæ oddechu; ([1/min] / nieobecna); 12
-3; Têtno obwodowe; ([1/min] / nieobecne); 120
-4; Czy pacjent spe³nia polecenia?; (tak/nie); tak
-5; Kolor segregacji; (nazwa koloru); ¿ó³ty
+2; CzÄ™stoÅ›Ä‡ oddechu; ([1/min] / nieobecna); 12
+3; TÄ™tno obwodowe; ([1/min] / nieobecne); 120
+4; Czy pacjent speÅ‚nia polecenia?; (tak/nie); tak
+5; Kolor segregacji; (nazwa koloru); Å¼Ã³Å‚ty
 6; Jednostka chorobowa; (identyfikator/y); 15.3
-Opis: Kobieta lat 15 zg³asza problem z poruszaniem siê, twierdzi ¿e nie jest w stanie przejœæ, podczas próby pionizacji twierdzi ze nie czuje nóg. Nie zg³asza dolegliwoœci bólowych, neguje asymetrie czucia, twierdzi ¿e nie ma si³. Nie jest w stanie ustaæ na nogach. 
+Opis: Kobieta lat 15 zgÅ‚asza problem z poruszaniem siÄ™, twierdzi Å¼e nie jest w stanie przejÅ›Ä‡, podczas prÃ³by pionizacji twierdzi ze nie czuje nÃ³g. Nie zgÅ‚asza dolegliwoÅ›ci bÃ³lowych, neguje asymetrie czucia, twierdzi Å¼e nie ma siÅ‚. Nie jest w stanie ustaÄ‡ na nogach. 
 

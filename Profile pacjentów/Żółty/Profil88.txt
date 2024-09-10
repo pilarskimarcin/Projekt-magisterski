@@ -1,10 +1,10 @@
 Stan 1
- ; Parametr; Jednostka; Wartoœæ
+ ; Parametr; Jednostka; WartoÅ›Ä‡
 1; Czy pacjent chodzi?; (tak/nie); nie
-2; Czêstoœæ oddechu; ([1/min] / nieobecna); 12
-3; Têtno obwodowe; ([1/min] / nieobecne); 130
-4; Czy pacjent spe³nia polecenia?; (tak/nie); tak
-5; Kolor segregacji; (nazwa koloru); ¿ó³ty
+2; CzÄ™stoÅ›Ä‡ oddechu; ([1/min] / nieobecna); 12
+3; TÄ™tno obwodowe; ([1/min] / nieobecne); 130
+4; Czy pacjent speÅ‚nia polecenia?; (tak/nie); tak
+5; Kolor segregacji; (nazwa koloru); Å¼Ã³Å‚ty
 6; Jednostka chorobowa; (identyfikator/y); 44.1
-Opis: Mê¿czyzna lat 24 zg³asza problem z poruszaniem siê, na proœbê o opuszczenie strefy niebezpiecznej, zg³asza ból w obrêbie jamy brzusznej nasilaj¹cy siê podczas poruszania. Dolegliwoœci uniemo¿liwiaj¹ce przemieszczanie siê. Brzuch pulsacyjnie nie bolesny, miêkki
+Opis: MÄ™Å¼czyzna lat 24 zgÅ‚asza problem z poruszaniem siÄ™, na proÅ›bÄ™ o opuszczenie strefy niebezpiecznej, zgÅ‚asza bÃ³l w obrÄ™bie jamy brzusznej nasilajÄ…cy siÄ™ podczas poruszania. DolegliwoÅ›ci uniemoÅ¼liwiajÄ…ce przemieszczanie siÄ™. Brzuch pulsacyjnie nie bolesny, miÄ™kki
 

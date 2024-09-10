@@ -1,33 +1,33 @@
 Stan 1
- ; Parametr; Jednostka; Wartoœæ
+ ; Parametr; Jednostka; WartoÅ›Ä‡
 1; Czy pacjent chodzi?; (tak/nie); nie
-2; Czêstoœæ oddechu; ([1/min] / nieobecna); 6
-3; Têtno obwodowe; ([1/min] / nieobecne); 117
-4; Czy pacjent spe³nia polecenia?; (tak/nie); nie
+2; CzÄ™stoÅ›Ä‡ oddechu; ([1/min] / nieobecna); 6
+3; TÄ™tno obwodowe; ([1/min] / nieobecne); 117
+4; Czy pacjent speÅ‚nia polecenia?; (tak/nie); nie
 5; Kolor segregacji; (nazwa koloru); czerwony
 6; Jednostka chorobowa; (identyfikator/y); 5.6, 15.1
-Opis: Pacjent si³¹ wybuchu ciœniêty o przeszkodê terenow¹ ( mur, drzewo) Nieprzytomny, charcz¹cy, anizkoria prawostronna, krew wyp³ywaj¹ca z ust, zasinienia klatki piersiowej, brzucha.
-Czynnoœæ krytyczna: udro¿nienie dróg oddechowych ( odgiêcie g³owy, luksacja ¿uchwy, rurka UG) i transport w czasie do 80 minut od pierwszego kontaktu z ratownikiem do SOR-u z zapleczem chirurgicznym. Po przekroczeniu czasu NZK z asystoli¹.
+Opis: Pacjent siÅ‚Ä… wybuchu ciÅ›niÄ™ty o przeszkodÄ™ terenowÄ… ( mur, drzewo) Nieprzytomny, charczÄ…cy, anizkoria prawostronna, krew wypÅ‚ywajÄ…ca z ust, zasinienia klatki piersiowej, brzucha.
+CzynnoÅ›Ä‡ krytyczna: udroÅ¼nienie drÃ³g oddechowych ( odgiÄ™cie gÅ‚owy, luksacja Å¼uchwy, rurka UG) i transport w czasie do 80 minut od pierwszego kontaktu z ratownikiem do SOR-u z zapleczem chirurgicznym. Po przekroczeniu czasu NZK z asystoliÄ….
 
 Stan 2
- ; Parametr; Jednostka; Wartoœæ
+ ; Parametr; Jednostka; WartoÅ›Ä‡
 1; Czy pacjent chodzi?; (tak/nie); nie
-2; Czêstoœæ oddechu; ([1/min] / nieobecna); nieobecna
-3; Têtno obwodowe; ([1/min] / nieobecne); nieobecne
-4; Czy pacjent spe³nia polecenia?; (tak/nie); nie
+2; CzÄ™stoÅ›Ä‡ oddechu; ([1/min] / nieobecna); nieobecna
+3; TÄ™tno obwodowe; ([1/min] / nieobecne); nieobecne
+4; Czy pacjent speÅ‚nia polecenia?; (tak/nie); nie
 5; Kolor segregacji; (nazwa koloru); czarny
 6; Jednostka chorobowa; (identyfikator/y); -
 Opis: 
-Rodzic: Stan 1, przejœcie: czas - 80min
+Rodzic: Stan 1, przejÅ›cie: czas - 80min
 
 Stan 3
- ; Parametr; Jednostka; Wartoœæ
+ ; Parametr; Jednostka; WartoÅ›Ä‡
 1; Czy pacjent chodzi?; (tak/nie); nie
-2; Czêstoœæ oddechu; ([1/min] / nieobecna); 20
-3; Têtno obwodowe; ([1/min] / nieobecne); 110
-4; Czy pacjent spe³nia polecenia?; (tak/nie); nie
+2; CzÄ™stoÅ›Ä‡ oddechu; ([1/min] / nieobecna); 20
+3; TÄ™tno obwodowe; ([1/min] / nieobecne); 110
+4; Czy pacjent speÅ‚nia polecenia?; (tak/nie); nie
 5; Kolor segregacji; (nazwa koloru); czerwony
 6; Jednostka chorobowa; (identyfikator/y); 22.1
 Opis: 
-Rodzic: Stan 1, przejœcie: interwencja - P(15.1)
+Rodzic: Stan 1, przejÅ›cie: interwencja - P(15.1)
 

@@ -1,11 +1,11 @@
 ﻿Lp.;Lp. szpitala;Szpital;Adres;Oddział;Dziedzina medyczna;Liczba łóżek
-1;1;Szpital Powiatowy w Chrzanowie;Topolowa  16 32-500 Chrzanów;Oddział chirurgii urazowo-ortopedycznej;25;22
-2;1;Szpital Powiatowy w Chrzanowie;Topolowa  16 32-500 Chrzanów;Oddział kardiologiczny;53;31
-3;1;Szpital Powiatowy w Chrzanowie;Topolowa  16 32-500 Chrzanów;Oddział anestezjologii i intensywnej terapii;1;9
-4;1;Szpital Powiatowy w Chrzanowie;Topolowa  16 32-500 Chrzanów;Oddział chirurgii naczyniowej;39, 37;15
-5;1;Szpital Powiatowy w Chrzanowie;Topolowa  16 32-500 Chrzanów;Oddział neurologiczny z pododziałem udarowym;22;15
-6;1;Szpital Powiatowy w Chrzanowie;Topolowa  16 32-500 Chrzanów;Szpitalny Oddział Ratunkowy;15;12
-7;1;Szpital Powiatowy w Chrzanowie;Topolowa  16 32-500 Chrzanów;Pododdział udarowy;22;16
+1;1;Szpital Powiatowy w Chrzanowie;Topolowa 16 32-500 Chrzanów;Oddział chirurgii urazowo-ortopedycznej;25;22
+2;1;Szpital Powiatowy w Chrzanowie;Topolowa 16 32-500 Chrzanów;Oddział kardiologiczny;53;31
+3;1;Szpital Powiatowy w Chrzanowie;Topolowa 16 32-500 Chrzanów;Oddział anestezjologii i intensywnej terapii;1;9
+4;1;Szpital Powiatowy w Chrzanowie;Topolowa 16 32-500 Chrzanów;Oddział chirurgii naczyniowej;39, 37;15
+5;1;Szpital Powiatowy w Chrzanowie;Topolowa 16 32-500 Chrzanów;Oddział neurologiczny z pododziałem udarowym;22;15
+6;1;Szpital Powiatowy w Chrzanowie;Topolowa 16 32-500 Chrzanów;Szpitalny Oddział Ratunkowy;15;12
+7;1;Szpital Powiatowy w Chrzanowie;Topolowa 16 32-500 Chrzanów;Pododdział udarowy;22;16
 8;2;Zespół Opieki Zdrowotnej w Oświęcimiu - Szpital Powiatowy im. św. Maksymiliana;Wysokie Brzegi 4 32-600 Oświęcim;Oddział chirurgii urazowo-ortopedycznej;25;22
 9;2;Zespół Opieki Zdrowotnej w Oświęcimiu - Szpital Powiatowy im. św. Maksymiliana;Wysokie Brzegi 4 32-600 Oświęcim;Oddział anestezjologii i intensywnej terapii;1;8
 10;2;Zespół Opieki Zdrowotnej w Oświęcimiu - Szpital Powiatowy im. św. Maksymiliana;Wysokie Brzegi 4 32-600 Oświęcim;Oddział neurologiczny;22, 33;20
@@ -24,36 +24,36 @@
 23;6;Uniwersytecki Szpital Dziecięcy w Krakowie;Wielicka 265 30-663 Kraków;Oddział anestezjologii i intensywnej terapii;1, 28;38
 24;6;Uniwersytecki Szpital Dziecięcy w Krakowie;Wielicka 265 30-663 Kraków;Oddział ortopedyczno-urazowy z centrum leczenia artrogrypozy;25, 3, 24, 28, 50, 60 ;13
 25;6;Uniwersytecki Szpital Dziecięcy w Krakowie;Wielicka 265 30-663 Kraków;Szpitalny Oddział Ratunkowy;15;9
-26;7;Szpital Wielospecjalistyczny w Jaworznie;ul. J. Chełmońskiego 28 43-600 Jaworzno  ;Oddział anestezjologii i intensywnej terapii;1;9
-27;7;Szpital Wielospecjalistyczny w Jaworznie;ul. J. Chełmońskiego 28 43-600 Jaworzno  ;Oddział chirurgii ogólnej, endokrynologicznej i onkologicznej;5, 44, 24;37
-28;7;Szpital Wielospecjalistyczny w Jaworznie;ul. J. Chełmońskiego 28 43-600 Jaworzno  ;Oddział chirurgii dziecięcej;3;19
-29;7;Szpital Wielospecjalistyczny w Jaworznie;ul. J. Chełmońskiego 28 43-600 Jaworzno  ;Oddział kardiologiczny;53;32
-30;7;Szpital Wielospecjalistyczny w Jaworznie;ul. J. Chełmońskiego 28 43-600 Jaworzno  ;Oddział neurologii;22;32
-31;7;Szpital Wielospecjalistyczny w Jaworznie;ul. J. Chełmońskiego 28 43-600 Jaworzno  ;Oddział chirurgii urazowo-ortopedycznej;25, 24;25
-32;7;Szpital Wielospecjalistyczny w Jaworznie;ul. J. Chełmońskiego 28 43-600 Jaworzno  ;Oddział chorób wewnętrznych;7, 24, 47;44
-33;7;Szpital Wielospecjalistyczny w Jaworznie;ul. J. Chełmońskiego 28 43-600 Jaworzno  ;Oddział pediatrii;28;20
-34;7;Szpital Wielospecjalistyczny w Jaworznie;ul. J. Chełmońskiego 28 43-600 Jaworzno  ;Szpitalny Oddział Ratunkowy;15;7
-35;8;SP ZOZ Szpital Nr 2 im. dr. Tadeusza Boczonia w Mysłowicach;ul. Bytomska 41 41-400 Mysłowice  ;Oddział chirurgii ogólnej;5;18
-36;8;SP ZOZ Szpital Nr 2 im. dr. Tadeusza Boczonia w Mysłowicach;ul. Bytomska 41 41-400 Mysłowice  ;Oddział chirurgii urazowo-ortopedycznej;25;20
-37;8;SP ZOZ Szpital Nr 2 im. dr. Tadeusza Boczonia w Mysłowicach;ul. Bytomska 41 41-400 Mysłowice  ;Oddział chorób wewnętrznych;7, 57;36
-38;9;Wojewódzki Szpital Specjalistyczny nr 5 im. Św. Barbary w Sosnowcu;Plac Medyków 1 41-200 Sosnowiec  ;Oddział anestezjologii i intensywnej terapii;1;18
-39;9;Wojewódzki Szpital Specjalistyczny nr 5 im. Św. Barbary w Sosnowcu;Plac Medyków 1 41-200 Sosnowiec  ;Kliniczny oddział chirurgii ogólnej, kolorektalnej i urazów wielonarządowych ;5, 40, 47, 25, 4, 24, 39, 37;50
-40;9;Wojewódzki Szpital Specjalistyczny nr 5 im. Św. Barbary w Sosnowcu;Plac Medyków 1 41-200 Sosnowiec  ;Oddział chirurgii naczyniowej;39, 37;25
-41;9;Wojewódzki Szpital Specjalistyczny nr 5 im. Św. Barbary w Sosnowcu;Plac Medyków 1 41-200 Sosnowiec  ;Oddział chirurgii szczękowo-twarzowej;6, 72, 24;8
-42;9;Wojewódzki Szpital Specjalistyczny nr 5 im. Św. Barbary w Sosnowcu;Plac Medyków 1 41-200 Sosnowiec  ;Oddział kardiologii ogólnej;53, 37, 12, 33, 78, 85, 90, 98, 4;31
-43;9;Wojewódzki Szpital Specjalistyczny nr 5 im. Św. Barbary w Sosnowcu;Plac Medyków 1 41-200 Sosnowiec  ;Oddział neurologii z pododdziałem udarowym;22, 33, 24, 37, 7;35
-44;9;Wojewódzki Szpital Specjalistyczny nr 5 im. Św. Barbary w Sosnowcu;Plac Medyków 1 41-200 Sosnowiec  ;Kliniczny oddział neurochirurgiczny;21, 24;40
-45;9;Wojewódzki Szpital Specjalistyczny nr 5 im. Św. Barbary w Sosnowcu;Plac Medyków 1 41-200 Sosnowiec  ;Kliniczny Oddz. Chirurgii Ortopedyczno-Urazowej, Onkologicznej i Rekonstrukcyjnej;24, 25, 56;38
-46;9;Wojewódzki Szpital Specjalistyczny nr 5 im. Św. Barbary w Sosnowcu;Plac Medyków 1 41-200 Sosnowiec  ;Oddział Chorób Wewnętrznych z Pododdziałem Diabetologii;7, 43, 47, 53, 24, 42;52
-47;9;Wojewódzki Szpital Specjalistyczny nr 5 im. Św. Barbary w Sosnowcu;Plac Medyków 1 41-200 Sosnowiec  ;Oddział Otolaryngologii i Onkologii Laryngologicznej;26;9
-48;9;Wojewódzki Szpital Specjalistyczny nr 5 im. Św. Barbary w Sosnowcu;Plac Medyków 1 41-200 Sosnowiec  ;Szpitalny Oddział Ratunkowy;15;8
-49;10;Górnośląskie Centrum Zdrowia Dziecka im. św. Jana Pawła II Samodzielny Publiczny Szpital Kliniczny Nr 6;ul. Medyków 16 40-752 Katowice  ;Oddział anestezjologii i intensywnej terapii;1;13
-50;10;Górnośląskie Centrum Zdrowia Dziecka im. św. Jana Pawła II Samodzielny Publiczny Szpital Kliniczny Nr 7;ul. Medyków 16 40-752 Katowice  ;Oddział chirurgii i urologii z pododdziałem leczenia krótkoterminowego;3, 35, 40, 41, 6;30
-51;10;Górnośląskie Centrum Zdrowia Dziecka im. św. Jana Pawła II Samodzielny Publiczny Szpital Kliniczny Nr 8;ul. Medyków 16 40-752 Katowice  ;Oddział kardiologii dziecięcej;54;27
-52;10;Górnośląskie Centrum Zdrowia Dziecka im. św. Jana Pawła II Samodzielny Publiczny Szpital Kliniczny Nr 9;ul. Medyków 16 40-752 Katowice  ;Oddział kardiochirurgii dziecięcej;12;13
-53;10;Górnośląskie Centrum Zdrowia Dziecka im. św. Jana Pawła II Samodzielny Publiczny Szpital Kliniczny Nr 10;ul. Medyków 16 40-752 Katowice  ;Oddział pediatrii i neurologii wieku rozwojowego;58, 28;30
-54;10;Górnośląskie Centrum Zdrowia Dziecka im. św. Jana Pawła II Samodzielny Publiczny Szpital Kliniczny Nr 11;ul. Medyków 16 40-752 Katowice  ;Oddział neurochirurgii;21;12
-55;10;Górnośląskie Centrum Zdrowia Dziecka im. św. Jana Pawła II Samodzielny Publiczny Szpital Kliniczny Nr 12;ul. Medyków 16 40-752 Katowice  ;Oddział chirurgii urazowo-ortopedycznej;25;12
-56;10;Górnośląskie Centrum Zdrowia Dziecka im. św. Jana Pawła II Samodzielny Publiczny Szpital Kliniczny Nr 13;ul. Medyków 16 40-752 Katowice  ;Oddział Pediatrii i Endokrynologii Dziecięcej z Pododdziałem Zaburzeń Rozwoju Płci ;28, 43, 44 ;30
-57;10;Górnośląskie Centrum Zdrowia Dziecka im. św. Jana Pawła II Samodzielny Publiczny Szpital Kliniczny Nr 14;ul. Medyków 16 40-752 Katowice  ;Szpitalny Oddział Ratunkowy;15;14
+26;7;Szpital Wielospecjalistyczny w Jaworznie;J. Chełmońskiego 28 43-600 Jaworzno;Oddział anestezjologii i intensywnej terapii;1;9
+27;7;Szpital Wielospecjalistyczny w Jaworznie;J. Chełmońskiego 28 43-600 Jaworzno;Oddział chirurgii ogólnej, endokrynologicznej i onkologicznej;5, 44, 24;37
+28;7;Szpital Wielospecjalistyczny w Jaworznie;J. Chełmońskiego 28 43-600 Jaworzno;Oddział chirurgii dziecięcej;3;19
+29;7;Szpital Wielospecjalistyczny w Jaworznie;J. Chełmońskiego 28 43-600 Jaworzno;Oddział kardiologiczny;53;32
+30;7;Szpital Wielospecjalistyczny w Jaworznie;J. Chełmońskiego 28 43-600 Jaworzno;Oddział neurologii;22;32
+31;7;Szpital Wielospecjalistyczny w Jaworznie;J. Chełmońskiego 28 43-600 Jaworzno;Oddział chirurgii urazowo-ortopedycznej;25, 24;25
+32;7;Szpital Wielospecjalistyczny w Jaworznie;J. Chełmońskiego 28 43-600 Jaworzno;Oddział chorób wewnętrznych;7, 24, 47;44
+33;7;Szpital Wielospecjalistyczny w Jaworznie;J. Chełmońskiego 28 43-600 Jaworzno;Oddział pediatrii;28;20
+34;7;Szpital Wielospecjalistyczny w Jaworznie;J. Chełmońskiego 28 43-600 Jaworzno;Szpitalny Oddział Ratunkowy;15;7
+35;8;SP ZOZ Szpital Nr 2 im. dr. Tadeusza Boczonia w Mysłowicach;Bytomska 41 41-400 Mysłowice;Oddział chirurgii ogólnej;5;18
+36;8;SP ZOZ Szpital Nr 2 im. dr. Tadeusza Boczonia w Mysłowicach;Bytomska 41 41-400 Mysłowice;Oddział chirurgii urazowo-ortopedycznej;25;20
+37;8;SP ZOZ Szpital Nr 2 im. dr. Tadeusza Boczonia w Mysłowicach;Bytomska 41 41-400 Mysłowice;Oddział chorób wewnętrznych;7, 57;36
+38;9;Wojewódzki Szpital Specjalistyczny nr 5 im. Św. Barbary w Sosnowcu;Plac Medyków 1 41-200 Sosnowiec;Oddział anestezjologii i intensywnej terapii;1;18
+39;9;Wojewódzki Szpital Specjalistyczny nr 5 im. Św. Barbary w Sosnowcu;Plac Medyków 1 41-200 Sosnowiec;Kliniczny oddział chirurgii ogólnej, kolorektalnej i urazów wielonarządowych ;5, 40, 47, 25, 4, 24, 39, 37;50
+40;9;Wojewódzki Szpital Specjalistyczny nr 5 im. Św. Barbary w Sosnowcu;Plac Medyków 1 41-200 Sosnowiec;Oddział chirurgii naczyniowej;39, 37;25
+41;9;Wojewódzki Szpital Specjalistyczny nr 5 im. Św. Barbary w Sosnowcu;Plac Medyków 1 41-200 Sosnowiec;Oddział chirurgii szczękowo-twarzowej;6, 72, 24;8
+42;9;Wojewódzki Szpital Specjalistyczny nr 5 im. Św. Barbary w Sosnowcu;Plac Medyków 1 41-200 Sosnowiec;Oddział kardiologii ogólnej;53, 37, 12, 33, 78, 85, 90, 98, 4;31
+43;9;Wojewódzki Szpital Specjalistyczny nr 5 im. Św. Barbary w Sosnowcu;Plac Medyków 1 41-200 Sosnowiec;Oddział neurologii z pododdziałem udarowym;22, 33, 24, 37, 7;35
+44;9;Wojewódzki Szpital Specjalistyczny nr 5 im. Św. Barbary w Sosnowcu;Plac Medyków 1 41-200 Sosnowiec;Kliniczny oddział neurochirurgiczny;21, 24;40
+45;9;Wojewódzki Szpital Specjalistyczny nr 5 im. Św. Barbary w Sosnowcu;Plac Medyków 1 41-200 Sosnowiec;Kliniczny Oddz. Chirurgii Ortopedyczno-Urazowej, Onkologicznej i Rekonstrukcyjnej;24, 25, 56;38
+46;9;Wojewódzki Szpital Specjalistyczny nr 5 im. Św. Barbary w Sosnowcu;Plac Medyków 1 41-200 Sosnowiec;Oddział Chorób Wewnętrznych z Pododdziałem Diabetologii;7, 43, 47, 53, 24, 42;52
+47;9;Wojewódzki Szpital Specjalistyczny nr 5 im. Św. Barbary w Sosnowcu;Plac Medyków 1 41-200 Sosnowiec;Oddział Otolaryngologii i Onkologii Laryngologicznej;26;9
+48;9;Wojewódzki Szpital Specjalistyczny nr 5 im. Św. Barbary w Sosnowcu;Plac Medyków 1 41-200 Sosnowiec;Szpitalny Oddział Ratunkowy;15;8
+49;10;Górnośląskie Centrum Zdrowia Dziecka im. św. Jana Pawła II Samodzielny Publiczny Szpital Kliniczny Nr 6;Medyków 16 40-752 Katowice;Oddział anestezjologii i intensywnej terapii;1;13
+50;10;Górnośląskie Centrum Zdrowia Dziecka im. św. Jana Pawła II Samodzielny Publiczny Szpital Kliniczny Nr 7;Medyków 16 40-752 Katowice;Oddział chirurgii i urologii z pododdziałem leczenia krótkoterminowego;3, 35, 40, 41, 6;30
+51;10;Górnośląskie Centrum Zdrowia Dziecka im. św. Jana Pawła II Samodzielny Publiczny Szpital Kliniczny Nr 8;Medyków 16 40-752 Katowice;Oddział kardiologii dziecięcej;54;27
+52;10;Górnośląskie Centrum Zdrowia Dziecka im. św. Jana Pawła II Samodzielny Publiczny Szpital Kliniczny Nr 9;Medyków 16 40-752 Katowice;Oddział kardiochirurgii dziecięcej;12;13
+53;10;Górnośląskie Centrum Zdrowia Dziecka im. św. Jana Pawła II Samodzielny Publiczny Szpital Kliniczny Nr 10;Medyków 16 40-752 Katowice;Oddział pediatrii i neurologii wieku rozwojowego;58, 28;30
+54;10;Górnośląskie Centrum Zdrowia Dziecka im. św. Jana Pawła II Samodzielny Publiczny Szpital Kliniczny Nr 11;Medyków 16 40-752 Katowice;Oddział neurochirurgii;21;12
+55;10;Górnośląskie Centrum Zdrowia Dziecka im. św. Jana Pawła II Samodzielny Publiczny Szpital Kliniczny Nr 12;Medyków 16 40-752 Katowice;Oddział chirurgii urazowo-ortopedycznej;25;12
+56;10;Górnośląskie Centrum Zdrowia Dziecka im. św. Jana Pawła II Samodzielny Publiczny Szpital Kliniczny Nr 13;Medyków 16 40-752 Katowice;Oddział Pediatrii i Endokrynologii Dziecięcej z Pododdziałem Zaburzeń Rozwoju Płci ;28, 43, 44 ;30
+57;10;Górnośląskie Centrum Zdrowia Dziecka im. św. Jana Pawła II Samodzielny Publiczny Szpital Kliniczny Nr 14;Medyków 16 40-752 Katowice;Szpitalny Oddział Ratunkowy;15;14
 ;;;

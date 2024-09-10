@@ -1,9 +1,9 @@
 Stan 1
- ; Parametr; Jednostka; Wartoœæ
+ ; Parametr; Jednostka; WartoÅ›Ä‡
 1; Czy pacjent chodzi?; (tak/nie); nie
-2; Czêstoœæ oddechu; ([1/min] / nieobecna); nieobecna
-3; Têtno obwodowe; ([1/min] / nieobecne); nieobecne
-4; Czy pacjent spe³nia polecenia?; (tak/nie); nie
+2; CzÄ™stoÅ›Ä‡ oddechu; ([1/min] / nieobecna); nieobecna
+3; TÄ™tno obwodowe; ([1/min] / nieobecne); nieobecne
+4; Czy pacjent speÅ‚nia polecenia?; (tak/nie); nie
 5; Kolor segregacji; (nazwa koloru); czarny
 Opis: 
 

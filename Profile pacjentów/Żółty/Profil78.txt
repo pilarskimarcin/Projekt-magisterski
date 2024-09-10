@@ -1,10 +1,10 @@
 Stan 1
- ; Parametr; Jednostka; Wartoœæ
+ ; Parametr; Jednostka; WartoÅ›Ä‡
 1; Czy pacjent chodzi?; (tak/nie); nie
-2; Czêstoœæ oddechu; ([1/min] / nieobecna); 12
-3; Têtno obwodowe; ([1/min] / nieobecne); 130
-4; Czy pacjent spe³nia polecenia?; (tak/nie); tak
-5; Kolor segregacji; (nazwa koloru); ¿ó³ty
+2; CzÄ™stoÅ›Ä‡ oddechu; ([1/min] / nieobecna); 12
+3; TÄ™tno obwodowe; ([1/min] / nieobecne); 130
+4; Czy pacjent speÅ‚nia polecenia?; (tak/nie); tak
+5; Kolor segregacji; (nazwa koloru); Å¼Ã³Å‚ty
 6; Jednostka chorobowa; (identyfikator/y); 25.2, 25.7
-Opis: Mê¿czyzna lat 14 zg³asza problem z poruszaniem siê, na proœbê o opuszczenie strefy niebezpiecznej, zg³asza ból w obrêbie stawu skokowego (obrzêk, zasinienie, deformacja) brak przerwania ci¹g³oœci tkanki skórnej, widoczny uraz koñczyny górnej prawej (deformacja w obrêbie przedramienia) Pacjent bólowy. Skóra d³oni zaczerwieniona, gor¹ca, widoczne pêcherze.  Pacjent bólowy, trzês¹cy siê.
+Opis: MÄ™Å¼czyzna lat 14 zgÅ‚asza problem z poruszaniem siÄ™, na proÅ›bÄ™ o opuszczenie strefy niebezpiecznej, zgÅ‚asza bÃ³l w obrÄ™bie stawu skokowego (obrzÄ™k, zasinienie, deformacja) brak przerwania ciÄ…gÅ‚oÅ›ci tkanki skÃ³rnej, widoczny uraz koÅ„czyny gÃ³rnej prawej (deformacja w obrÄ™bie przedramienia) Pacjent bÃ³lowy. SkÃ³ra dÅ‚oni zaczerwieniona, gorÄ…ca, widoczne pÄ™cherze.  Pacjent bÃ³lowy, trzÄ™sÄ…cy siÄ™.
 
