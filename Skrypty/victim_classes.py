@@ -3,7 +3,9 @@ from __future__ import annotations
 import csv
 import enum
 import sys
-from typing import Dict, List, NamedTuple, Optional, Tuple
+from typing import Dict, List, Literal, NamedTuple, Optional, Tuple
+
+from Skrypty.profiles_editor import DESCRIPTION_START, N_FIRST_LINES_TO_OMIT, STATE_TITLE, TIME_UNIT
 
 # Własne typy
 StateNumber = int
@@ -34,6 +36,8 @@ BEST_MOTOR_RESPONSE_SCORES: Dict[Tuple[bool, bool], int] = {
     (True, True): 4
 }
 EMERGENCY_DISCIPLINE_NUMBER: int = 15
+N_VICTIM_STATS_IN_FILE: int = 6
+INDEX_OF_STAT_IN_LINE: int = 3
 
 
 def ConvertRowWithoutFirstElementToInt(row: List[str]) -> List[int]:
@@ -41,9 +45,9 @@ def ConvertRowWithoutFirstElementToInt(row: List[str]) -> List[int]:
 
 
 def LoadDeteriorationTable() -> List[List[int]]:
-    with open("../Dane/RPM_pogorszenie.tsv") as csv_file:
+    with open("../Dane/RPM_pogorszenie.csv") as csv_file:
         temp_table: List[List[int]] = []
-        csv_reader = csv.reader(csv_file, delimiter="\t")
+        csv_reader = csv.reader(csv_file, delimiter=";")
         for row in csv_reader:
             if csv_reader.line_num < RPM_DETERIORATION_TABLE_FIRST_ROW_NUMBER:
                 continue
@@ -57,12 +61,12 @@ RPM_DETERIORATION_TABLE: List[List[int]] = LoadDeteriorationTable()
 class Victim:
     id_: int
     current_state: State
-    states: Tuple[State, ...]
+    states: List[State]
     hospital_admittance_time: Optional[float]
     initial_RPM_number: int
     current_RPM_number: int
 
-    def __init__(self, id_: int, states: Tuple[State, ...]):
+    def __init__(self, id_: int, states: List[State]):
         self.id_ = id_
         self.states = states
         for state in self.states:
@@ -70,6 +74,11 @@ class Victim:
                 self.current_state = state
         self.current_RPM_number = self.initial_RPM_number = self.CalculateRPM()
         self.hospital_admittance_time = None
+
+    def __eq__(self, other):
+        if not isinstance(other, Victim):
+            return False
+        return vars(self) == vars(other)
 
     def CalculateRPM(self) -> int:
         """Oblicza RPM na podstawie obecnego stanu pacjenta"""
@@ -96,21 +105,84 @@ class Victim:
             self.current_state.is_victim_walking, self.current_state.is_victim_following_orders
         ]
 
+    @classmethod
+    def FromString(cls, victim_string: str, victim_id: int) -> Victim:
+        states_strings: List[str] = victim_string.split("\n\n")
+        states_strings.remove("")
+        parsed_states: List[State] = []
+        transition_datas: List[TransitionData] = []
+        for state in states_strings:
+            lines: List[str] = state.split("\n")
+            parsed_state: State = State.FromString(lines)
+            parsed_states.append(parsed_state)
+            transition_data: TransitionData = cls.TryGetTransitionDataFromString(lines, parsed_state.number)
+            if transition_data:
+                transition_datas.append(transition_data)
+        for transition_data in transition_datas:
+            parsed_states = cls.SaveTransitionDataInProperState(transition_data, parsed_states)
+        return Victim(victim_id, parsed_states)
+
+    @staticmethod
+    def TryGetTransitionDataFromString(state_lines: List[str], current_state_number: StateNumber) \
+            -> Optional[TransitionData]:
+        state_lines_number: int = N_FIRST_LINES_TO_OMIT + N_VICTIM_STATS_IN_FILE + 1
+        if len(state_lines) > state_lines_number:
+            parent_state, transition = state_lines[state_lines_number].split(", ")
+            _, _, parent_state_number_string = parent_state.split()
+            _, transition_type, _, transition_condition_string = transition.split()
+            return TransitionData(
+                int(parent_state_number_string), current_state_number, transition_type, transition_condition_string
+            )
+        return None
+
+    @staticmethod
+    def SaveTransitionDataInProperState(transition_data: TransitionData, parsed_states: List[State]) -> List[State]:
+        for parsed_state in parsed_states:
+            if parsed_state.number == transition_data.parent_state_number:
+                if transition_data.transition_type == "czas":
+                    transition_time: int = int(transition_data.transition_condition[:-len(TIME_UNIT)])
+                    parsed_state.timed_next_state_transition = (
+                        transition_time, transition_data.child_state_number
+                    )
+                else:  # interwencja
+                    transition_procedure: Procedure = Procedure.FromString(transition_data.transition_condition)
+                    parsed_state.intervention_next_state_transition = (
+                        transition_procedure, transition_data.child_state_number
+                    )
+        return parsed_states
+
     def LowerRPM(self, time_from_simulation_start: int):
         """Zmniejsza RPM zależnie od czasu, który upłynął od początku symulacji"""
         if self.hospital_admittance_time:
             return
-        if time_from_simulation_start % RPM_DETERIORATION_INTERVAL_MINUTES != 0:
-            raise ValueError(u"Czas w minutach od początku symulacji powinien być wielokrotnością " +
-                             str(RPM_DETERIORATION_INTERVAL_MINUTES))
-        index_of_time_interval: int = time_from_simulation_start // RPM_DETERIORATION_INTERVAL_MINUTES - 1
-        self.current_RPM_number = RPM_DETERIORATION_TABLE[self.initial_RPM_number][index_of_time_interval]
+        if time_from_simulation_start % RPM_DETERIORATION_INTERVAL_MINUTES == 0:
+            index_of_time_interval: int = time_from_simulation_start // RPM_DETERIORATION_INTERVAL_MINUTES - 1
+            self.current_RPM_number = RPM_DETERIORATION_TABLE[self.initial_RPM_number][index_of_time_interval]
+        if self.current_state.timed_next_state_transition:
+            if time_from_simulation_start >= self.current_state.GetTimeOfDeterioration():
+                self.ChangeState(self.current_state.GetDeterioratedStateNumber())
+
+    def ChangeState(self, new_state_number: StateNumber):
+        for state in self.states:
+            if state.number == new_state_number:
+                self.current_state = state
+                return
+        else:
+            raise ValueError("Brak stanu o takim numerze")
 
     def AdmitToHospital(self, time: float):
         self.hospital_admittance_time = time
 
     def GetCurrentHealthProblemIds(self) -> Tuple[int, ...]:
         return self.current_state.GetAllHealthProblemIds()
+
+
+class TransitionData(NamedTuple):
+    """Reprezentuje przejście między stanami poszkodowanego"""
+    parent_state_number: StateNumber
+    child_state_number: StateNumber
+    transition_type: Literal["czas", "interwencja"]
+    transition_condition: str
 
 
 class State:
@@ -121,15 +193,15 @@ class State:
     pulse_rate: int
     is_victim_following_orders: bool
     triage_colour: TriageColour
-    health_problems_ids: Tuple[HealthProblem, ...]
+    health_problems_ids: List[HealthProblem]
     description: str
     timed_next_state_transition: Optional[Tuple[int, StateNumber]]
     intervention_next_state_transition: Optional[Tuple[Procedure, StateNumber]]
 
     def __init__(
-            self, number: int, is_victim_walking: bool, respiratory_rate: int, pulse_rate: int,
+            self, number: StateNumber, is_victim_walking: bool, respiratory_rate: int, pulse_rate: int,
             is_victim_following_orders: bool, triage_colour: TriageColour,
-            health_problems_ids: Tuple[HealthProblem, ...], description: str,
+            health_problems_ids: List[HealthProblem], description: str,
             timed_next_state_transition: Optional[Tuple[int, StateNumber]] = None,
             intervention_next_state_transition: Optional[Tuple[Procedure, StateNumber]] = None
     ):
@@ -146,13 +218,103 @@ class State:
         self.intervention_next_state_transition = intervention_next_state_transition
 
     @staticmethod
-    def CheckInitArguments(number: int, respiratory_rate: int, pulse_rate: int):
+    def CheckInitArguments(number: StateNumber, respiratory_rate: int, pulse_rate: int):
         if number < 1:
             raise ValueError("Numer stanu nie może być mniejszy niż 1")
         if respiratory_rate < 0:
             raise ValueError("Częstotliwość oddechu nie może być mniejsza niż 0")
         if pulse_rate < 0:
             raise ValueError("Tętno nie może być mniejsze niż 0")
+
+    def __eq__(self, other):
+        if not isinstance(other, State):
+            return False
+        return vars(self) == vars(other)
+
+    @classmethod
+    def FromString(cls, lines: List[str]) -> State:
+        state_title_line: str = lines[0]
+        state_number_string: str = state_title_line[len(STATE_TITLE):]
+        data_lines: List[str] = lines[N_FIRST_LINES_TO_OMIT:]
+        is_victim_walking: bool = cls.GetIsVictimWalkingFromString(data_lines)
+        respiratory_rate: int = cls.GetRespiratoryRateFromString(data_lines)
+        pulse_rate: int = cls.GetPulseRateFromString(data_lines)
+        is_victim_following_orders: bool = cls.GetIsVictimFollowingOrdersFromString(data_lines)
+        triage_colour: TriageColour = cls.GetTriageColourFromString(data_lines)
+        health_problem_ids: List[HealthProblem] = cls.GetHealthProblemIdsFromString(data_lines)
+        description: str = cls.GetDescriptionFromString(data_lines)
+        return State(
+            int(state_number_string), is_victim_walking, respiratory_rate, pulse_rate,
+            is_victim_following_orders, triage_colour, health_problem_ids,
+            description
+        )
+
+    @classmethod
+    def GetIsVictimWalkingFromString(cls, data_lines: List[str]) -> bool:
+        stat: str = data_lines[0].split("; ")[INDEX_OF_STAT_IN_LINE]
+        if stat == "nie":
+            return False
+        elif stat == "tak":
+            return True
+        else:
+            raise ValueError("Błąd w trakcie wczytywania profilu: nieprawidłowa wartość \"Czy pacjent chodzi?\"")
+
+    @classmethod
+    def GetRespiratoryRateFromString(cls, data_lines: List[str]) -> int:
+        stat: str = data_lines[1].split("; ")[INDEX_OF_STAT_IN_LINE]
+        if stat == "nieobecna":
+            return 0
+        else:
+            return int(stat)
+
+    @classmethod
+    def GetPulseRateFromString(cls, data_lines: List[str]) -> int:
+        stat: str = data_lines[2].split("; ")[INDEX_OF_STAT_IN_LINE]
+        if stat == "nieobecne":
+            return 0
+        else:
+            return int(stat)
+
+    @classmethod
+    def GetIsVictimFollowingOrdersFromString(cls, data_lines: List[str]) -> bool:
+        stat: str = data_lines[3].split("; ")[INDEX_OF_STAT_IN_LINE]
+        if stat == "nie":
+            return False
+        elif stat == "tak":
+            return True
+        else:
+            raise ValueError("Błąd w trakcie wczytywania profilu: nieprawidłowa wartość \"Czy pacjent chodzi?\"")
+
+    @classmethod
+    def GetTriageColourFromString(cls, data_lines: List[str]) -> TriageColour:
+        stat: str = data_lines[4].split("; ")[INDEX_OF_STAT_IN_LINE]
+        match stat:
+            case "czarny":
+                return TriageColour.BLACK
+            case "czerwony":
+                return TriageColour.RED
+            case "żółty":
+                return TriageColour.YELLOW
+            case _:
+                return TriageColour.GREEN
+
+    @classmethod
+    def GetHealthProblemIdsFromString(cls, data_lines: List[str]) -> List[HealthProblem]:
+        stat: str = data_lines[5].split("; ")[INDEX_OF_STAT_IN_LINE]
+        if "-" in stat:
+            return []
+        health_problems_strings: List[str] = stat.split(", ")
+        health_problem_ids: List[HealthProblem] = []
+        for health_problems_string in health_problems_strings:
+            discipline_string, number_string = health_problems_string.split(".")
+            health_problem_ids.append(
+                HealthProblem(int(discipline_string), int(number_string))
+            )
+        return health_problem_ids
+
+    @classmethod
+    def GetDescriptionFromString(cls, data_lines: List[str]) -> str:
+        return data_lines[6][len(DESCRIPTION_START):]
 
     def GetAllHealthProblemIds(self) -> Tuple[int, ...]:
         health_problem_ids: List[int] = sorted(
@@ -162,6 +324,18 @@ class State:
             health_problem_ids.remove(EMERGENCY_DISCIPLINE_NUMBER)
             health_problem_ids.insert(0, EMERGENCY_DISCIPLINE_NUMBER)
         return tuple(health_problem_ids)
+
+    def GetTimeOfDeterioration(self) -> int:
+        return self.timed_next_state_transition[0]
+
+    def GetDeterioratedStateNumber(self) -> StateNumber:
+        return self.timed_next_state_transition[1]
+
+    def GetInterventionNeededForImprovement(self) -> Procedure:
+        return self.intervention_next_state_transition[0]
+
+    def GetImprovedStateNumber(self) -> StateNumber:
+        return self.intervention_next_state_transition[1]
 
 
 class TriageColour(enum.Enum):
@@ -181,3 +355,10 @@ class HealthProblem(NamedTuple):
 class Procedure(NamedTuple):
     """Reprezentuje procedury - format P(X.Y) jest przeksztalcony na problem zdrowotny (HealthProblem) zawarty w polu"""
     health_problem: HealthProblem
+
+    @classmethod
+    def FromString(cls, transition_condition: str) -> Procedure:
+        transition_health_problem_numbers: str = transition_condition[2:-1]  # odrzucenie P(...)
+        discipline_string, number_string = transition_health_problem_numbers.split(".")
+        health_problem: HealthProblem = HealthProblem(int(discipline_string), int(number_string))
+        return Procedure(health_problem)
