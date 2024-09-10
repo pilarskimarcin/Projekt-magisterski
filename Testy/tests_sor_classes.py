@@ -2,8 +2,68 @@
 from typing import List
 import unittest
 
-from Skrypty import sor_classes as sor, victim_classes as victim
+from Skrypty import sor_classes as sor
+from Skrypty import utilities as util
+from Skrypty import victim_classes as victim
 from Testy import tests_victim_classes as victim_test
+
+
+def CreateSampleIncidentPlaceAddress() -> util.PlaceAddress:
+    return util.PlaceAddress("Magnoliowa", 10, "32-500", "Chrzanów")
+
+
+def CreateSampleVictims() -> List[victim.Victim]:
+    sample_state1: victim.State = victim.State(
+        number=1, is_victim_walking=False, respiratory_rate=12, pulse_rate=120, is_victim_following_orders=True,
+        triage_colour=victim.TriageColour.YELLOW,
+        health_problems_ids=[
+            victim.HealthProblem(25, 1), victim.HealthProblem(25, 4)
+        ],
+        description=u"Kobieta lat 17 zgłasza problem z poruszaniem się, na prośbę o opuszczenie strefy "
+                    u"niebezpiecznej, zgłasza ból w obrębie stawu kolanowego, dolegliwości uniemożliwiają "
+                    u"samodzielne poruszanie się, dolegliwości bólowe w obrębie stawu barkowego (widoczna "
+                    u"asymetria barku lewego w stosunku do prawego, bolesność palpacyjna)."
+    )
+    sample_state2: victim.State = victim.State(
+        number=1, is_victim_walking=False, respiratory_rate=12, pulse_rate=130, is_victim_following_orders=True,
+        triage_colour=victim.TriageColour.YELLOW,
+        health_problems_ids=[
+            victim.HealthProblem(25, 2)
+        ],
+        description=u"Mężczyzna lat 13 zgłasza problem z poruszaniem się, na prośbę o opuszczenie strefy "
+                    u"niebezpiecznej, zgłasza ból w obrębie piszczeli prawej, widoczna deformacja, widoczny uraz "
+                    u"głowy nie wymagający interwencji chirurgicznej."
+    )
+    return [
+        victim.Victim(1, [sample_state1]), victim.Victim(2, [sample_state1]),
+        victim.Victim(3, [sample_state2]), victim.Victim(4, [sample_state2]),
+    ]
+
+
+class IncidentPlaceTests(unittest.TestCase):
+    sample_incident_place: sor.IncidentPlace
+
+    def setUp(self):
+        self.sample_incident_place = sor.IncidentPlace(
+            CreateSampleIncidentPlaceAddress(),
+            CreateSampleVictims()
+        )
+
+    def testTryTakeVictimCorrectId(self):
+        sample_victim_id: int = 1
+        sample_victim: victim.Victim = CreateSampleVictims()[0]
+
+        self.assertEqual(
+            self.sample_incident_place.TryTakeVictim(sample_victim_id),
+            sample_victim
+        )
+
+    def testTryTakeVictimWrongId(self):
+        sample_victim_id: int = 5
+
+        self.assertIsNone(
+            self.sample_incident_place.TryTakeVictim(sample_victim_id)
+        )
 
 
 def AssertDepartmentTookInVictim(
@@ -16,17 +76,34 @@ def AssertDepartmentTookInVictim(
 
 
 class DepartmentTests(unittest.TestCase):
+    sample_department: sor.Department
+    sample_victim: victim.Victim
+    sample_time: float
 
     def setUp(self):
         self.sample_department = sor.Department(
             id_=4, name="Oddział chirurgii naczyniowej", medical_categories=[39, 37], current_beds_count=15
         )
         sample_state: victim.State = victim_test.CreateSampleState()
-        self.sample_victim: victim.Victim = victim.Victim(1, tuple([sample_state]))
-        self.sample_time: float = 65.0
+        self.sample_victim = victim.Victim(1, [sample_state])
+        self.sample_time = 65.0
 
     def testInit(self):
         self.assertEqual(self.sample_department.admitted_victims, [])
+
+    def testEquality(self):
+        sample_department: sor.Department = sor.Department(
+            id_=4, name="Oddział chirurgii naczyniowej", medical_categories=[39, 37], current_beds_count=15
+        )
+
+        self.assertEqual(sample_department, self.sample_department)
+
+    def testInequality(self):
+        sample_department: sor.Department = sor.Department(
+            id_=4, name="Oddział chirurgii naczyniowej", medical_categories=[39, 37], current_beds_count=14
+        )
+
+        self.assertNotEqual(sample_department, self.sample_department)
 
     def testTakeInVictim(self):
         sample_beds_amount: int = self.sample_department.current_beds_count
@@ -48,9 +125,11 @@ class DepartmentTests(unittest.TestCase):
 
 
 class HospitalTests(unittest.TestCase):
+    sample_departments: List[sor.Department]
+    sample_hospital: sor.Hospital
 
     def setUp(self):
-        sample_departments: List[sor.Department] = [
+        self.sample_departments = [
             sor.Department(id_=1, name="Oddział chirurgii urazowo-ortopedycznej", medical_categories=[25],
                            current_beds_count=22),
             sor.Department(id_=4, name="Oddział chirurgii naczyniowej", medical_categories=[39, 37],
@@ -62,8 +141,26 @@ class HospitalTests(unittest.TestCase):
         self.sample_hospital = sor.Hospital(
             id_=1, name="Szpital Powiatowy w Chrzanowie",
             address=sor.PlaceAddress("Topolowa", 16, "32-500", "Chrzanów"),
-            departments=sample_departments
+            departments=self.sample_departments
         )
+
+    def testEquality(self):
+        sample_hospital: sor.Hospital = sor.Hospital(
+            id_=1, name="Szpital Powiatowy w Chrzanowie",
+            address=sor.PlaceAddress("Topolowa", 16, "32-500", "Chrzanów"),
+            departments=self.sample_departments
+        )
+
+        self.assertEqual(sample_hospital, self.sample_hospital)
+
+    def testInequality(self):
+        sample_hospital: sor.Hospital = sor.Hospital(
+            id_=2, name="Szpital Powiatowy w Chrzanowie",
+            address=sor.PlaceAddress("Topolowa", 16, "32-500", "Chrzanów"),
+            departments=self.sample_departments
+        )
+
+        self.assertNotEqual(sample_hospital, self.sample_hospital)
 
     def testTryGetDepartment(self):
         self.assertEqual(self.sample_hospital.TryGetDepartment(15), self.sample_hospital.departments[2])
@@ -74,7 +171,7 @@ class HospitalTests(unittest.TestCase):
     def testTakeInVictimToOneOfDepartments(self):
         sample_department: sor.Department = self.sample_hospital.TryGetDepartment(victim.EMERGENCY_DISCIPLINE_NUMBER)
         sample_state: victim.State = victim_test.CreateSampleState()
-        sample_victim: victim.Victim = victim.Victim(1, tuple([sample_state]))
+        sample_victim: victim.Victim = victim.Victim(1, [sample_state])
         sample_time: float = 65.0
         sample_beds_amount: int = sample_department.current_beds_count
 
@@ -87,7 +184,7 @@ class HospitalTests(unittest.TestCase):
 
     def testNoFittingDepartments(self):
         sample_state: victim.State = victim_test.CreateSampleState()
-        sample_victim: victim.Victim = victim.Victim(1, tuple([sample_state]))
+        sample_victim: victim.Victim = victim.Victim(1, [sample_state])
         sample_time: float = 65.0
         self.sample_hospital.departments.pop()
 
