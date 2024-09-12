@@ -208,7 +208,8 @@ class VictimClassTests(unittest.TestCase):
 
 def CreateSampleStateLines() -> List[str]:
     sample_profile_file: str = "../Profile pacjentów/Czerwony/Profil4.txt"
-    sample_profile_text: str = open(sample_profile_file, encoding="utf-8").read()
+    with open(sample_profile_file, encoding="utf-8") as f:
+        sample_profile_text: str = f.read()
     sample_state_text: str = sample_profile_text.split("\n\n")[0]
     return sample_state_text.split("\n")
 
