@@ -1,0 +1,37 @@
+﻿Lp.;Nazwa;Jednostka chorobowa
+1;Oparzenie 2 st. twarzy i dróg oddechowych;1.1
+2;Oparzenie 2 i 3 st. 60% powierzchni ciała;1.2
+3;Rana łuku brwiowego;5.1
+4;Rana tchawicy;5.2
+5;Oparzenia 2 stopnia;5.3
+6;Rany twarzy;5.4
+7;Rana pachy;5.5
+;Uraz czaszkowo-mózgowy;5.6
+8;Uraz żuchwy;6.1
+9;Niedrożne drogi oddechowe;15.1
+10;Rana tłuczona głowy;15.2
+11;Brak sił;15.3
+12;Otwarta rana tchawicy;15.4
+13;Rana szarpana pod obojczykiem z przerwaniem tętnicy;15.5
+14;Oparzenie dróg oddechowych;15.6
+15;Odma prężna;15.7
+16;Rana na udzie prawym z przerwaniem tętnicy;15.8
+17;Obrażenia wymagające znieczulenia i uśpienia;15.9
+18;Przerwanie rdzenia kręgowego i niestabilna miednica;15.10
+19;Aktywnie krwawiąca amputacja gilotynowa ręki;15.11
+20;Niedobór cukru;15.12
+21;Masywnie krwawiąca rana pachy;15.13
+;Niestabilne złamanie zamknięte;15.14
+;Masywny uraz potylicy;21.1
+23;Wstrząs neurogenny;22.2
+24;Uraz kończyn dolnych;25.1
+25;Złamanie kości kończyn dolnych;25.2
+26;Uraz kręgosłupa lędźwiowego;25.3
+27;Uraz kończyn górnych;25.4
+28;Uraz biodra;25.5
+29;Zwichnięcie nadgarstka;25.6
+30;Złamanie kości kończyn górnych;25.7
+31;Uraz miednicy;25.8
+32;Amputacja gilotynowa ręki;25.9
+33;Uszkodzenia śledziony;44.1
+34;Wolny płyn w jednym z zachyłków;47.1
