@@ -9,13 +9,14 @@ from Skrypty import utilities as util
 from Skrypty import victim_classes as victim
 from Skrypty import zrm_classes as zrm
 from Testy import tests_sor_classes as tests_sor
+from Testy import tests_utilities as tests_util
 
 
 def CreateSampleScenarioData() -> Tuple[sor.Hospital, list[zrm.ZRM], list[victim.Victim], util.PlaceAddress]:
     sample_hospital: sor.Hospital = CreateSampleHospital()
     sample_teams: List[zrm.ZRM] = CreateSampleTeams()
     sample_victims: List[victim.Victim] = tests_sor.CreateSampleVictims()
-    sample_address2: util.PlaceAddress = tests_sor.CreateSampleIncidentPlaceAddress()
+    sample_address2: util.PlaceAddress = tests_util.CreateSampleAddressIncident()
     return sample_hospital, sample_teams, sample_victims, sample_address2
 
 
@@ -36,7 +37,7 @@ def CreateSampleHospital() -> sor.Hospital:
         sor.Department(id_=7, name="Pododdział udarowy", medical_categories=[22],
                        current_beds_count=5)
     ]
-    sample_address: util.PlaceAddress = util.PlaceAddress("Topolowa", 16, "32-500", "Chrzanów")
+    sample_address: util.PlaceAddress = tests_util.CreateSampleAddressHospital()
     return sor.Hospital(
         id_=1, name="Szpital Powiatowy w Chrzanowie",
         address=sample_address,
@@ -45,7 +46,7 @@ def CreateSampleHospital() -> sor.Hospital:
 
 
 def CreateSampleTeams() -> List[zrm.ZRM]:
-    sample_address: util.PlaceAddress = util.PlaceAddress("Topolowa", 16, "32-500", "Chrzanów")
+    sample_address: util.PlaceAddress = tests_util.CreateSampleAddressHospital()
     return [
         zrm.ZRM(id_="K01 47", dispatch="DM06-01", zrm_type=zrm.ZRMType.S, base_location=sample_address),
         zrm.ZRM(id_="K01 098", dispatch="DM06-01", zrm_type=zrm.ZRMType.P, base_location=sample_address)
@@ -137,7 +138,7 @@ class TestScenario(unittest.TestCase):
 
     def testParseAddress(self):
         sample_input: str = "Adres: Magnoliowa 10, 32-500 Chrzanów"
-        sample_address: util.PlaceAddress = tests_sor.CreateSampleIncidentPlaceAddress()
+        sample_address: util.PlaceAddress = tests_util.CreateSampleAddressIncident()
         self.sample_scenario.ParseAddress(sample_input)
 
         self.assertEqual(self.sample_scenario.address, sample_address)

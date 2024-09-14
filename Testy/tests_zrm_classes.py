@@ -5,7 +5,8 @@ import unittest
 from Skrypty import utilities as util
 from Skrypty import victim_classes as victim
 from Skrypty import zrm_classes as zrm
-from Testy import tests_victim_classes as test_victim
+from Testy import tests_utilities as tests_util
+from Testy import tests_victim_classes as tests_victim
 
 
 class SpecialistTests(unittest.TestCase):
@@ -25,21 +26,22 @@ class SpecialistTests(unittest.TestCase):
         self.assertNotEqual(sample_specialist, self.sample_specialist)
 
 
+def CreateSampleZRM() -> zrm.ZRM:
+    return zrm.ZRM(
+            "K01 47", "DM06-01", zrm.ZRMType.S,
+            tests_util.CreateSampleAddressHospital()
+    )
+
+
 class ZRMTests(unittest.TestCase):
     sample_zrm: zrm.ZRM
     sample_target_location: util.TargetDestination
     sample_victim: victim.Victim
 
     def setUp(self):
-        self.sample_zrm = zrm.ZRM(
-            "K01 47", "DM06-01", zrm.ZRMType.S,
-            util.PlaceAddress("Topolowa", 16, "32-500", "Chrzanów")
-        )
-        sample_address: util.PlaceAddress = util.PlaceAddress(
-            "Chrzanowska", 6, "32-541", "Trzebinia"
-        )
-        self.sample_target_location = util.TargetDestination(sample_address)
-        sample_state: victim.State = test_victim.CreateSampleState()
+        self.sample_zrm = CreateSampleZRM()
+        self.sample_target_location = util.TargetDestination(tests_util.CreateSampleAddressIncident())
+        sample_state: victim.State = tests_victim.CreateSampleState()
         self.sample_victim = victim.Victim(1, [sample_state])
 
     def testInit(self):
@@ -52,18 +54,13 @@ class ZRMTests(unittest.TestCase):
         )
 
     def testEquality(self):
-        sample_zrm: zrm.ZRM = zrm.ZRM(
-            "K01 47", "DM06-01", zrm.ZRMType.S,
-            util.PlaceAddress("Topolowa", 16, "32-500", "Chrzanów")
-        )
+        sample_zrm: zrm.ZRM = CreateSampleZRM()
 
         self.assertEqual(sample_zrm, self.sample_zrm)
 
     def testInequality(self):
-        sample_zrm: zrm.ZRM = zrm.ZRM(
-            "K01 48", "DM06-01", zrm.ZRMType.S,
-            util.PlaceAddress("Topolowa", 16, "32-500", "Chrzanów")
-        )
+        sample_zrm: zrm.ZRM = CreateSampleZRM()
+        sample_zrm.id_ = "K01 98"
 
         self.assertNotEqual(sample_zrm, self.sample_zrm)
 
@@ -88,7 +85,10 @@ class ZRMTests(unittest.TestCase):
     def testCalculateTimeForTheNextDestination(self):
         self.sample_zrm.target_location = self.sample_target_location
         self.sample_zrm.CalculateTimeForTheNextDestination()
-        self.assertEqual(self.sample_zrm.time_until_destination_in_minutes, math.ceil(8.49))
+        self.assertEqual(
+            self.sample_zrm.time_until_destination_in_minutes,
+            math.ceil(0.64*tests_util.CreateSampleDistanceAndDurationData()[1])
+        )
 
     def testDrive(self):
         self.sample_zrm.time_until_destination_in_minutes = 10
