@@ -1,4 +1,4 @@
-Oddzia³y - liczba miejsc
+OddziaÅ‚y - liczba miejsc
 1 10
 2 14
 3 2
@@ -10,9 +10,9 @@ Oddzia³y - liczba miejsc
 ZRM: 1, 2
 
 Profile - liczba poszkodowanych
-¯ó³ty/Profil70 2
-¯ó³ty/Profil95 2
+Å»Ã³Å‚ty/Profil70 2
+Å»Ã³Å‚ty/Profil95 2
 
-Ca³kowita liczba poszkodowanych: 4
+CaÅ‚kowita liczba poszkodowanych: 4
 
-Adres: Magnoliowa 10, 32-500 Chrzanów
+Adres: Magnoliowa 10, 32-500 ChrzanÃ³w
