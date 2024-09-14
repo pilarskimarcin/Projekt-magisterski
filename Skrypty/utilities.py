@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 import json
 from os import getenv
 import pandas as pd
+import re
 import requests
 from typing import Dict, List, Optional, Tuple
 
@@ -24,7 +25,7 @@ class PlaceAddress:
     latitude: Optional[float]
     longitude: Optional[float]
 
-    def __init__(self, street: str, number: int, postal_code: str, city: str,
+    def __init__(self, street: str, number: str, postal_code: str, city: str,
                  latitude: Optional[float] = None, longitude: Optional[float] = None):
         address_first_part: str = " ".join([street, str(number)])
         address_second_part: str = " ".join([postal_code, city])
@@ -42,10 +43,24 @@ class PlaceAddress:
 
     @classmethod
     def FromString(cls, address_string: str) -> PlaceAddress:
-        address_parts: List[str] = address_string.split()
+        address_parts: Tuple[str, str, str, str] = cls.DivideAddressIntoParts(address_string)
         return PlaceAddress(
-            street=address_parts[0], number=int(address_parts[1]), postal_code=address_parts[2], city=address_parts[3]
+            street=address_parts[0], number=address_parts[1], postal_code=address_parts[2], city=address_parts[3]
         )
+
+    @staticmethod
+    def DivideAddressIntoParts(address_string: str) -> Tuple[str, str, str, str]:
+        address_parts: List[str] = address_string.split()
+        for i, address_part in enumerate(address_parts):
+            if i < 1:
+                continue
+            if re.match(r"[0-9]{2}-[0-9]{3}", address_part) is not None:
+                street: str = " ".join(address_parts[:(i - 1)])
+                number: str = address_parts[i - 1]
+                postal_code: str = address_part
+                city: str = " ".join(address_parts[(i + 1):])
+                return street, number, postal_code, city
+        raise ValueError("Argument nie jest adresem")
 
     def Geocoding(self):
         """Funkcja kodująca adres na współrzędne geograficzne"""
