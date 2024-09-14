@@ -45,7 +45,7 @@ def ConvertRowWithoutFirstElementToInt(row: List[str]) -> List[int]:
 
 
 def LoadDeteriorationTable() -> List[List[int]]:
-    with open("../Dane/RPM_pogorszenie.csv") as csv_file:
+    with open("../Dane/RPM_pogorszenie.csv", encoding="utf-8") as csv_file:
         temp_table: List[List[int]] = []
         csv_reader = csv.reader(csv_file, delimiter=";")
         for row in csv_reader:
@@ -108,7 +108,8 @@ class Victim:
     @classmethod
     def FromString(cls, victim_string: str, victim_id: int) -> Victim:
         states_strings: List[str] = victim_string.split("\n\n")
-        states_strings.remove("")
+        if "" in states_strings:
+            states_strings.remove("")
         parsed_states: List[State] = []
         transition_datas: List[TransitionData] = []
         for state in states_strings:
@@ -127,9 +128,9 @@ class Victim:
             -> Optional[TransitionData]:
         state_lines_number: int = N_FIRST_LINES_TO_OMIT + N_VICTIM_STATS_IN_FILE + 1
         if len(state_lines) > state_lines_number:
-            parent_state, transition = state_lines[state_lines_number].split(", ")
+            parent_state, transition = state_lines[state_lines_number].split(", ", 1)
             _, _, parent_state_number_string = parent_state.split()
-            _, transition_type, _, transition_condition_string = transition.split()
+            _, transition_type, _, transition_condition_string = transition.split(maxsplit=3)
             return TransitionData(
                 int(parent_state_number_string), current_state_number, transition_type, transition_condition_string
             )
@@ -145,9 +146,14 @@ class Victim:
                         transition_time, transition_data.child_state_number
                     )
                 else:  # interwencja
-                    transition_procedure: Procedure = Procedure.FromString(transition_data.transition_condition)
+                    critical_health_problems_strings: List[str] = transition_data.transition_condition.split(", ")
+                    critical_health_problems: List[HealthProblem] = []
+                    for critical_health_problem_string in critical_health_problems_strings:
+                        critical_health_problems.append(
+                            HealthProblem.FromProcedureString(critical_health_problem_string)
+                        )
                     parsed_state.intervention_next_state_transition = (
-                        transition_procedure, transition_data.child_state_number
+                        critical_health_problems, transition_data.child_state_number
                     )
         return parsed_states
 
@@ -173,8 +179,8 @@ class Victim:
     def AdmitToHospital(self, time: float):
         self.hospital_admittance_time = time
 
-    def GetCurrentHealthProblemIds(self) -> Tuple[int, ...]:
-        return self.current_state.GetAllHealthProblemIds()
+    def GetCurrentHealthProblemIds(self) -> List[int]:
+        return self.current_state.GetAllHealthProblemDisciplines()
 
 
 class TransitionData(NamedTuple):
@@ -196,14 +202,14 @@ class State:
     health_problems_ids: List[HealthProblem]
     description: str
     timed_next_state_transition: Optional[Tuple[int, StateNumber]]
-    intervention_next_state_transition: Optional[Tuple[Procedure, StateNumber]]
+    intervention_next_state_transition: Optional[Tuple[List[HealthProblem], StateNumber]]
 
     def __init__(
             self, number: StateNumber, is_victim_walking: bool, respiratory_rate: int, pulse_rate: int,
             is_victim_following_orders: bool, triage_colour: TriageColour,
             health_problems_ids: List[HealthProblem], description: str,
             timed_next_state_transition: Optional[Tuple[int, StateNumber]] = None,
-            intervention_next_state_transition: Optional[Tuple[Procedure, StateNumber]] = None
+            intervention_next_state_transition: Optional[Tuple[List[HealthProblem], StateNumber]] = None
     ):
         self.CheckInitArguments(number, respiratory_rate, pulse_rate)
         self.number = number
@@ -316,14 +322,14 @@ class State:
     def GetDescriptionFromString(cls, data_lines: List[str]) -> str:
         return data_lines[6][len(DESCRIPTION_START):]
 
-    def GetAllHealthProblemIds(self) -> Tuple[int, ...]:
+    def GetAllHealthProblemDisciplines(self) -> List[int]:
         health_problem_ids: List[int] = sorted(
             {health_problem.discipline for health_problem in self.health_problems_ids}
         )
         if EMERGENCY_DISCIPLINE_NUMBER in health_problem_ids:
             health_problem_ids.remove(EMERGENCY_DISCIPLINE_NUMBER)
             health_problem_ids.insert(0, EMERGENCY_DISCIPLINE_NUMBER)
-        return tuple(health_problem_ids)
+        return health_problem_ids
 
     def GetTimeOfDeterioration(self) -> int:
         return self.timed_next_state_transition[0]
@@ -331,7 +337,7 @@ class State:
     def GetDeterioratedStateNumber(self) -> StateNumber:
         return self.timed_next_state_transition[1]
 
-    def GetInterventionNeededForImprovement(self) -> Procedure:
+    def GetCriticalHealthProblemNeededToBeFixedForImprovement(self) -> List[HealthProblem]:
         return self.intervention_next_state_transition[0]
 
     def GetImprovedStateNumber(self) -> StateNumber:
@@ -351,14 +357,29 @@ class HealthProblem(NamedTuple):
     discipline: int
     number: int
 
+    @classmethod
+    def FromProcedureString(cls, procedure_string) -> HealthProblem:
+        # TODO: co jeśli więcej niż 1 problem - trzeba sprawdzić polepszenie i wtedy z tego wziąć... wth
+        health_problem_numbers: str = procedure_string[2:-1]
+        discipline_string, number_string = health_problem_numbers.split(".")
+        return cls(int(discipline_string), int(number_string))
+
 
 class Procedure(NamedTuple):
     """Reprezentuje procedury - format P(X.Y) jest przeksztalcony na problem zdrowotny (HealthProblem) zawarty w polu"""
     health_problem: HealthProblem
+    time_needed_to_perform: int
 
     @classmethod
-    def FromString(cls, transition_condition: str) -> Procedure:
-        transition_health_problem_numbers: str = transition_condition[2:-1]  # odrzucenie P(...)
+    def FromString(cls, procedure_string: str, time_needed_to_perform: int) -> Procedure:
+        transition_health_problem_numbers: str = procedure_string[2:-1]  # odrzucenie P(...)
         discipline_string, number_string = transition_health_problem_numbers.split(".")
-        health_problem: HealthProblem = HealthProblem(int(discipline_string), int(number_string))
-        return Procedure(health_problem)
+        return cls.FromDisciplineAndNumber(
+            int(discipline_string), int(number_string), time_needed_to_perform
+        )
+
+    @classmethod
+    def FromDisciplineAndNumber(cls, discipline: int, number: int, time_needed_to_perform: int) -> Procedure:
+        return cls(
+            HealthProblem(discipline, number), time_needed_to_perform
+        )

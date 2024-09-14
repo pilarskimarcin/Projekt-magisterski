@@ -4,17 +4,17 @@ import unittest
 
 from Skrypty import victim_classes as victim
 
-SAMPLE_DESCRIPTION: str = (u"Nieprzytomny pacjent z masywnym urazem potylicy ( krwiaki okularowe) oraz treścią krwistą "
-                           u"wypływającą z jamy ustnej -  leży na boku, charczy, krztusi się.  Czynności krytyczne do "
-                           u"wykonania:  udrożnienie dróg oddechowych przyrządowo ( intubacja lub alternatywa) oraz "
-                           u"transport do oddziału neurochirurgii. W przypadku braku zabezpieczenia dróg przyrządowo "
-                           u"30 min od pierwszego kontaktu z ratownikiem – zachłyśnięcie krwią i NZK (cały czas "
-                           u"asystolia)  W przypadku transportu do SOR bez zaplecza neurochirurgii – NZK przy "
-                           u"przekazaniu. USG: Bez patologii")
+SAMPLE_DESCRIPTION: str = (u"Przygnieciony konstrukcją przytomny, logiczny pacjent z duża krwawiąca rana okolicy "
+                           u"czołowej i ciemieniowej i dusznością. Złamanie zamknięte obu kości udowych ( zasinienie, "
+                           u"niestabilne, trzeszczy, powiększony obwód ud) oraz odma prawostronnie.  Czynności "
+                           u"krytyczne do wykonania: Założenie dwóch opasek uciskowych na złamane kończyny i "
+                           u"odbarczenie odmy w przeciągu 50 minut od pierwszego kontaktu z medykiem. Po 50 min bez "
+                           u"wykonania czynności krytycznych – NZK z asystolią. USG – brak objawu ślizgania opłucnej "
+                           u"prawostronnie.")
 
 
 def CreateSampleVictim() -> victim.Victim:
-    """Profil poszkodowanego - Profil4.txt"""
+    """Profil poszkodowanego - Profil5.txt"""
     return victim.Victim(1, CreateStatesForSampleVictim())
 
 
@@ -28,9 +28,9 @@ def CreateStatesForSampleVictim() -> List[victim.State]:
             description=""
         ),
         victim.State(
-            number=3, is_victim_walking=False, respiratory_rate=16, pulse_rate=100, is_victim_following_orders=False,
+            number=3, is_victim_walking=False, respiratory_rate=14, pulse_rate=0, is_victim_following_orders=True,
             triage_colour=victim.TriageColour.RED,
-            health_problems_ids=[victim.HealthProblem(21, 1)],
+            health_problems_ids=[victim.HealthProblem(5, 4), victim.HealthProblem(25, 2)],
             description=""
         )
     ]
@@ -39,24 +39,54 @@ def CreateStatesForSampleVictim() -> List[victim.State]:
 
 def CreateSampleState(no_transitions: bool = False) -> victim.State:
     sample_state: victim.State = victim.State(
-        number=1, is_victim_walking=False, respiratory_rate=26, pulse_rate=120, is_victim_following_orders=False,
+        number=1, is_victim_walking=False, respiratory_rate=34, pulse_rate=0, is_victim_following_orders=True,
         triage_colour=victim.TriageColour.RED,
-        health_problems_ids=[
-            victim.HealthProblem(15, 1), victim.HealthProblem(21, 1)
-        ],
+        health_problems_ids=CreateSampleHealthProblems(),
         description=SAMPLE_DESCRIPTION,
-        timed_next_state_transition=(40, 2),
-        intervention_next_state_transition=(victim.Procedure(victim.HealthProblem(15, 1)), 3)
+        timed_next_state_transition=SampleTimedNextStateTransition(),
+        intervention_next_state_transition=(SampleCriticalHealthProblems(), 3)
     )
     if no_transitions:
         sample_state.timed_next_state_transition = sample_state.intervention_next_state_transition = None
     return sample_state
 
 
+def CreateSampleHealthProblems() -> List[victim.HealthProblem]:
+    sample_critical_health_problems: List[victim.HealthProblem] = SampleCriticalHealthProblems()
+    return [
+        victim.HealthProblem(5, 4), sample_critical_health_problems[0], sample_critical_health_problems[1],
+        victim.HealthProblem(25, 2)
+    ]
+
+
+def SampleTimedNextStateTransition() -> Tuple[int, int]:
+    return 50, 2
+
+
+def SampleCriticalHealthProblems() -> List[victim.HealthProblem]:
+    return [victim.HealthProblem(15, 7), victim.HealthProblem(15, 14)]
+
+
+def SampleHealthProblemDisciplines() -> List[int]:
+    return [15, 5, 25]
+
+
+def CreateSampleTransitionData() -> victim.TransitionData:
+    transition_time, transition_new_state = SampleTimedNextStateTransition()
+    return victim.TransitionData(
+        parent_state_number=1, child_state_number=transition_new_state, transition_type="czas",
+        transition_condition=f"{transition_time}min"
+    )
+
+
+def CreateDeteriorationTableLastRow() -> List[int]:
+    return [12, 12, 11, 11, 10, 10, 10, 10, 9, 9, 8, 8]
+
+
 class FunctionsTests(unittest.TestCase):
     def testLoadingDeteriorationTable(self):
         deterioration_table_length: int = 13
-        deterioration_table_last_row: List[int] = [12, 12, 11, 11, 10, 10, 10, 10, 9, 9, 8, 8]
+        deterioration_table_last_row: List[int] = CreateDeteriorationTableLastRow()
         deterioration_table = victim.LoadDeteriorationTable()
 
         self.assertEqual(len(deterioration_table), deterioration_table_length)
@@ -64,7 +94,7 @@ class FunctionsTests(unittest.TestCase):
 
     def testConvertRowWithoutFirstElementToInt(self):
         sample_string_row: List[str] = ['12', '12', '12', '11', '11', '10', '10', '10', '10', '9', '9', '8', '8']
-        sample_result_int_row: List[int] = [12, 12, 11, 11, 10, 10, 10, 10, 9, 9, 8, 8]
+        sample_result_int_row: List[int] = CreateDeteriorationTableLastRow()
 
         self.assertEqual(
             victim.ConvertRowWithoutFirstElementToInt(sample_string_row),
@@ -78,7 +108,7 @@ class VictimClassTests(unittest.TestCase):
 
     def setUp(self):
         self.sample_victim = CreateSampleVictim()
-        sample_profile_file: str = "../Profile pacjentów/Czerwony/Profil4.txt"
+        sample_profile_file: str = "../Profile pacjentów/Czerwony/Profil5.txt"
         with open(sample_profile_file, encoding="utf-8") as f:
             self.sample_profile_text = f.read()
 
@@ -94,7 +124,7 @@ class VictimClassTests(unittest.TestCase):
         self.assertNotEqual(sample_victim, self.sample_victim)
 
     def testCalculateRPM(self):
-        sample_victim_RPM: int = 7
+        sample_victim_RPM: int = 6
 
         self.assertEqual(self.sample_victim.CalculateRPM(), sample_victim_RPM)
 
@@ -113,7 +143,7 @@ class VictimClassTests(unittest.TestCase):
         )
 
     def testGetBestMotorResponseScore(self):
-        sample_victim_motor_best_response_score: int = 0
+        sample_victim_motor_best_response_score: int = 3
 
         self.assertEqual(self.sample_victim.GetBestMotorResponseScore(), sample_victim_motor_best_response_score)
 
@@ -127,9 +157,7 @@ class VictimClassTests(unittest.TestCase):
     def testTryGetTransitionDataFromStringSucceeded(self):
         sample_state_with_transition: str = self.sample_profile_text.split("\n\n")[1]
         sample_state_lines: List[str] = sample_state_with_transition.split("\n")
-        sample_transition_data: victim.TransitionData = victim.TransitionData(
-            parent_state_number=1, child_state_number=2, transition_type="czas", transition_condition="40min"
-        )
+        sample_transition_data: victim.TransitionData = CreateSampleTransitionData()
 
         self.assertEqual(
             victim.Victim.TryGetTransitionDataFromString(
@@ -149,9 +177,7 @@ class VictimClassTests(unittest.TestCase):
         )
 
     def testSaveTransitionDataInProperState(self):
-        sample_transition_data: victim.TransitionData = victim.TransitionData(
-            parent_state_number=1, child_state_number=2, transition_type="czas", transition_condition="40min"
-        )
+        sample_transition_data: victim.TransitionData = CreateSampleTransitionData()
         sample_states: List[victim.State] = CreateStatesForSampleVictim()
         sample_states[0].timed_next_state_transition = sample_states[0].intervention_next_state_transition = None
 
@@ -161,7 +187,7 @@ class VictimClassTests(unittest.TestCase):
 
         self.assertEqual(
             states_with_changes[0].timed_next_state_transition,
-            (40, 2)
+            SampleTimedNextStateTransition()
         )
 
     def testLowerRPMWrongInterval(self):
@@ -172,14 +198,14 @@ class VictimClassTests(unittest.TestCase):
         self.assertEqual(self.sample_victim.current_RPM_number, RPM_before)
 
     def testLowerRPMCorrectInterval(self):
-        RPM_number_after_one_interval: int = 6
+        RPM_number_after_one_interval: int = 4  # od 6
         sample_time_from_simulation_start = victim.RPM_DETERIORATION_INTERVAL_MINUTES
         self.sample_victim.LowerRPM(sample_time_from_simulation_start)
 
         self.assertEqual(self.sample_victim.current_RPM_number, RPM_number_after_one_interval)
 
     def testLowerRPMStateDeterioration(self):
-        time_needed_for_deterioration: int = 40
+        time_needed_for_deterioration: int = SampleTimedNextStateTransition()[0]
         self.sample_victim.LowerRPM(time_needed_for_deterioration)
 
         self.assertEqual(self.sample_victim.current_state.number, 2)
@@ -203,11 +229,11 @@ class VictimClassTests(unittest.TestCase):
         self.assertEqual(self.sample_victim.hospital_admittance_time, sample_time)
 
     def testGetCurrentHealthProblemIds(self):
-        self.assertEqual(self.sample_victim.GetCurrentHealthProblemIds(), tuple([15, 21]))
+        self.assertEqual(self.sample_victim.GetCurrentHealthProblemIds(), SampleHealthProblemDisciplines())
 
 
 def CreateSampleStateLines() -> List[str]:
-    sample_profile_file: str = "../Profile pacjentów/Czerwony/Profil4.txt"
+    sample_profile_file: str = "../Profile pacjentów/Czerwony/Profil5.txt"
     with open(sample_profile_file, encoding="utf-8") as f:
         sample_profile_text: str = f.read()
     sample_state_text: str = sample_profile_text.split("\n\n")[0]
@@ -230,16 +256,18 @@ class StateClassTests(unittest.TestCase):
 
     def testGetters(self):
         sample_state: victim.State = CreateSampleState()
+        transition_time, transition_new_state = SampleTimedNextStateTransition()
 
         self.assertTupleEqual(
             tuple1=(
-                sample_state.GetAllHealthProblemIds(), sample_state.GetTimeOfDeterioration(),
-                sample_state.GetDeterioratedStateNumber(), sample_state.GetInterventionNeededForImprovement(),
+                sample_state.GetAllHealthProblemDisciplines(), sample_state.GetTimeOfDeterioration(),
+                sample_state.GetDeterioratedStateNumber(),
+                sample_state.GetCriticalHealthProblemNeededToBeFixedForImprovement(),
                 sample_state.GetImprovedStateNumber()
             ),
             tuple2=(
-                (15, 21), 40,
-                2, victim.Procedure(victim.HealthProblem(15, 1)),
+                SampleHealthProblemDisciplines(), transition_time,
+                transition_new_state, SampleCriticalHealthProblems(),
                 3
             )
         )
@@ -256,24 +284,65 @@ class StateClassTests(unittest.TestCase):
         sample_state_lines: List[str] = CreateSampleStateLines()
         sample_state_data_lines: List[str] = sample_state_lines[victim.N_FIRST_LINES_TO_OMIT:]
         State = victim.State
+        sample_state: State = CreateSampleState()
 
-        self.assertEqual(State.GetIsVictimWalkingFromString(sample_state_data_lines), False)
-        self.assertEqual(State.GetRespiratoryRateFromString(sample_state_data_lines), 26)
-        self.assertEqual(State.GetPulseRateFromString(sample_state_data_lines), 120)
-        self.assertEqual(State.GetIsVictimFollowingOrdersFromString(sample_state_data_lines), False)
-        self.assertEqual(State.GetTriageColourFromString(sample_state_data_lines), victim.TriageColour.RED)
-        self.assertEqual(State.GetHealthProblemIdsFromString(sample_state_data_lines),
-                         [victim.HealthProblem(15, 1), victim.HealthProblem(21, 1)])
-        self.assertEqual(State.GetDescriptionFromString(sample_state_data_lines), SAMPLE_DESCRIPTION)
+        self.assertEqual(
+            State.GetIsVictimWalkingFromString(sample_state_data_lines),
+            sample_state.is_victim_walking
+        )
+        self.assertEqual(
+            State.GetRespiratoryRateFromString(sample_state_data_lines),
+            sample_state.respiratory_rate
+        )
+        self.assertEqual(
+            State.GetPulseRateFromString(sample_state_data_lines),
+            sample_state.pulse_rate
+        )
+        self.assertEqual(
+            State.GetIsVictimFollowingOrdersFromString(sample_state_data_lines),
+            sample_state.is_victim_following_orders
+        )
+        self.assertEqual(
+            State.GetTriageColourFromString(sample_state_data_lines),
+            sample_state.triage_colour
+        )
+        self.assertEqual(
+            State.GetHealthProblemIdsFromString(sample_state_data_lines),
+            sample_state.health_problems_ids
+        )
+        self.assertEqual(
+            State.GetDescriptionFromString(sample_state_data_lines),
+            SAMPLE_DESCRIPTION
+        )
+
+
+class HealthProblemClassTests(unittest.TestCase):
+    def testFromProcedureString(self):
+        sample_health_problem: victim.HealthProblem = victim.HealthProblem(15, 1)
+
+        self.assertEqual(victim.HealthProblem.FromProcedureString("P(15.1)"), sample_health_problem)
+
+
+def CreateSampleProcedure():
+    return victim.Procedure(
+        victim.HealthProblem(15, 1), 2
+    )
 
 
 class ProcedureClassTests(unittest.TestCase):
     def testFromString(self):
-        sample_procedure: victim.Procedure = victim.Procedure(
-            victim.HealthProblem(15, 1)
-        )
+        sample_procedure: victim.Procedure = CreateSampleProcedure()
+
         self.assertEqual(
-            victim.Procedure.FromString("P(15.1)"),
+            victim.Procedure.FromString("P(15.1)", 2),
+            sample_procedure
+        )
+
+    def testFromDisciplineAndNumber(self):
+        sample_procedure: victim.Procedure = CreateSampleProcedure()
+
+        self.assertEqual(
+            victim.Procedure.FromDisciplineAndNumber(15, 1, 2),
             sample_procedure
         )
 
