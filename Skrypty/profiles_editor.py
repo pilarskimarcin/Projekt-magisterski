@@ -199,7 +199,7 @@ class MainApp(Qt.QMainWindow):
         return saved_contents
 
     def SaveContentsIntoFile(self, saved_contents: str):
-        with open(self.current_file, "a") as f:
+        with open(self.current_file, "a", encoding="utf-8") as f:
             f.write(saved_contents)
         self.is_saved = True
 
@@ -294,7 +294,7 @@ class MainApp(Qt.QMainWindow):
         return filename
 
     def ChooseStateFromOpenedProfile(self) -> Optional[str]:
-        with open(self.current_file, "r+") as profile_file:
+        with open(self.current_file, "r+", encoding="utf-8") as profile_file:
             states: List[str] = self.GetStatesFromProfileFile(profile_file)
             state_numbers: List[str] = self.GetNumbersOfStates(states)
             chosen_state_number: Optional[int] = self.ChooseStateNumber(state_numbers)

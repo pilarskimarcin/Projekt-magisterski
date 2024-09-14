@@ -15,9 +15,7 @@ MIN_HEIGHT: int = 300
 MIN_WIDTH: int = 500
 
 # Stałe
-SOR_COLUMN_ID: str = "Lp."
 SOR_COLUMN_BEDS: str = "Liczba łóżek"
-ZRM_COLUMN_ID: str = "Lp."
 PROFILES_PATH: str = "../Profile pacjentów"
 TABLE_COLUMN_SCALE_FACTOR: float = 1.8
 TITLE: str = "Edytor scenariuszy - "
@@ -214,7 +212,7 @@ class MainApp(Qt.QMainWindow):
 
     def ConnectMainSignals(self):
         self.new_scenario_button.clicked.connect(self.CreateNewScenario)
-        self.save_scenario_button.clicked.connect(self.SaveScenario())
+        self.save_scenario_button.clicked.connect(self.SaveScenario)
         self.open_scenario_button.clicked.connect(self.OpenExistingScenario)
 
     def UpdateZRM(self):
@@ -292,7 +290,7 @@ class MainApp(Qt.QMainWindow):
             self.chosen_SOR_departments = {}
             selected_rows: List[int] = FindIndexesOfSelectedRowsInTable(table_SOR_departaments)
             # Domyślnie podane maksymalne możliwe liczby łóżek na oddziałach
-            SOR_ids: pd.Series = temp_data[SOR_COLUMN_ID]
+            SOR_ids: pd.Series = temp_data.index.to_series()
             SOR_beds_counts: pd.Series = temp_data[SOR_COLUMN_BEDS]
             for row_index in selected_rows:
                 self.chosen_SOR_departments[SOR_ids.iloc[row_index]] = SOR_beds_counts.iloc[row_index]
@@ -318,7 +316,7 @@ class MainApp(Qt.QMainWindow):
         def ChooseSelectedZRMRows():
             self.chosen_ZRM_teams = []
             selected_rows: List[int] = FindIndexesOfSelectedRowsInTable(table_ZRM_teams)
-            ZRM_ids: pd.Series = temp_data[ZRM_COLUMN_ID]
+            ZRM_ids: pd.Series = temp_data.index.to_series()
             for row_index in selected_rows:
                 self.chosen_ZRM_teams.append(ZRM_ids.iloc[row_index])
             self.temp_window.close()
@@ -361,8 +359,7 @@ class MainApp(Qt.QMainWindow):
         if (
                 not self.is_saved and (
                 len(self.chosen_SOR_departments) != 0 or len(self.chosen_ZRM_teams) != 0 or
-                len(self.chosen_profiles) != 0
-        )
+                len(self.chosen_profiles) != 0)
         ):
             result: int = Qt.QMessageBox.question(
                 self, "Błąd",
@@ -451,7 +448,7 @@ class MainApp(Qt.QMainWindow):
         return saved_contents
 
     def SaveContentsIntoFile(self, saved_contents: str):
-        with open(self.current_file, "w") as f:
+        with open(self.current_file, "w", encoding="utf-8") as f:
             f.write(saved_contents)
         Qt.QMessageBox(
             Qt.QMessageBox.Icon.Information, "Sukces", "Scenariusz zapisany prawidłowo",
@@ -469,7 +466,7 @@ class MainApp(Qt.QMainWindow):
         )
         if self.current_file == "":  # Cancelled
             return
-        with open(self.current_file, "r") as f:
+        with open(self.current_file, "r", encoding="utf-8") as f:
             departments_part: str
             teams_part: str
             victims_part: str

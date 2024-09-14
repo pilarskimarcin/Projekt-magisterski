@@ -20,7 +20,7 @@ class Scenario:
     address: PlaceAddress
 
     def __init__(self, scenario_filename: str):
-        with open(scenario_filename) as file:
+        with open(scenario_filename, encoding="utf-8") as file:
             content: str = file.read()
             departments_part: str
             teams_part: str
