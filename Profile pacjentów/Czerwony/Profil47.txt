@@ -6,8 +6,7 @@ Stan 1
 4; Czy pacjent spełnia polecenia?; (tak/nie); nie
 5; Kolor segregacji; (nazwa koloru); czerwony
 6; Jednostka chorobowa; (identyfikator/y); 5.6, 15.1
-Opis: Pacjent siłą wybuchu ciśnięty o przeszkodę terenową ( mur, drzewo) Nieprzytomny, charczący, anizkoria prawostronna, krew wypływająca z ust, zasinienia klatki piersiowej, brzucha.
-Czynność krytyczna: udrożnienie dróg oddechowych ( odgięcie głowy, luksacja żuchwy, rurka UG) i transport w czasie do 80 minut od pierwszego kontaktu z ratownikiem do SOR-u z zapleczem chirurgicznym. Po przekroczeniu czasu NZK z asystolią.
+Opis: Pacjent siłą wybuchu ciśnięty o przeszkodę terenową ( mur, drzewo) Nieprzytomny, charczący, anizkoria prawostronna, krew wypływająca z ust, zasinienia klatki piersiowej, brzucha. Czynność krytyczna: udrożnienie dróg oddechowych ( odgięcie głowy, luksacja żuchwy, rurka UG) i transport w czasie do 80 minut od pierwszego kontaktu z ratownikiem do SOR-u z zapleczem chirurgicznym. Po przekroczeniu czasu NZK z asystolią.
 
 Stan 2
  ; Parametr; Jednostka; Wartość
