@@ -144,7 +144,7 @@ class TestPlaceAddress(unittest.TestCase):
     def testDistanceFromOtherPlace(self):
         sample_address_2: utilities.PlaceAddress = CreateSampleAddressIncident()
         sample_distance, sample_duration = CreateSampleDistanceAndDurationData()
-        results = self.sample_address.DistanceAndDurationToOtherPlace(sample_address_2)
+        results = self.sample_address.CalculateDistanceAndDurationToOtherPlace(sample_address_2)
 
         self.assertAlmostEqual(results[0], sample_distance, delta=0.1)
         self.assertAlmostEqual(results[1], sample_duration, delta=1)
@@ -152,7 +152,7 @@ class TestPlaceAddress(unittest.TestCase):
     def testReadDistanceAndDurationFromFile(self):
         sample_address_2: utilities.PlaceAddress = CreateSampleAddressIncident()
         sample_distance, sample_duration = CreateSampleDistanceAndDurationData()
-        results = self.sample_address.DistanceAndDurationToOtherPlace(sample_address_2)
+        results = self.sample_address.CalculateDistanceAndDurationToOtherPlace(sample_address_2)
 
         self.assertAlmostEqual(results[0], sample_distance, delta=0.1)
         self.assertAlmostEqual(results[1], sample_duration, delta=0.1)

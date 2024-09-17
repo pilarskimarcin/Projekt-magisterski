@@ -65,6 +65,7 @@ class Victim:
     hospital_admittance_time: Optional[float]
     initial_RPM_number: int
     current_RPM_number: int
+    has_been_assessed: bool
 
     def __init__(self, id_: int, states: List[State]):
         self.id_ = id_
@@ -74,6 +75,7 @@ class Victim:
                 self.current_state = state
         self.current_RPM_number = self.initial_RPM_number = self.CalculateRPM()
         self.hospital_admittance_time = None
+        self.has_been_assessed = False
 
     def __eq__(self, other):
         if not isinstance(other, Victim):
@@ -181,6 +183,9 @@ class Victim:
 
     def GetCurrentHealthProblemIds(self) -> List[int]:
         return self.current_state.GetAllHealthProblemDisciplines()
+
+    def Assess(self):
+        self.has_been_assessed = True
 
 
 class TransitionData(NamedTuple):
@@ -371,11 +376,11 @@ class Procedure(NamedTuple):
     time_needed_to_perform: int
 
     @classmethod
-    def FromString(cls, procedure_string: str, time_needed_to_perform: int) -> Procedure:
+    def FromString(cls, procedure_string: str, time_needed_to_perform: str) -> Procedure:
         transition_health_problem_numbers: str = procedure_string[2:-1]  # odrzucenie P(...)
         discipline_string, number_string = transition_health_problem_numbers.split(".")
         return cls.FromDisciplineAndNumber(
-            int(discipline_string), int(number_string), time_needed_to_perform
+            int(discipline_string), int(number_string), int(time_needed_to_perform)
         )
 
     @classmethod

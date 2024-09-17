@@ -231,6 +231,11 @@ class VictimClassTests(unittest.TestCase):
     def testGetCurrentHealthProblemIds(self):
         self.assertEqual(self.sample_victim.GetCurrentHealthProblemIds(), SampleHealthProblemDisciplines())
 
+    def testAssess(self):
+        self.sample_victim.Assess()
+
+        self.assertEqual(self.sample_victim.has_been_assessed, True)
+
 
 def CreateSampleStateLines() -> List[str]:
     sample_profile_file: str = "../Profile pacjentów/Czerwony/Profil5.txt"
@@ -334,7 +339,7 @@ class ProcedureClassTests(unittest.TestCase):
         sample_procedure: victim.Procedure = CreateSampleProcedure()
 
         self.assertEqual(
-            victim.Procedure.FromString("P(15.1)", 2),
+            victim.Procedure.FromString("P(15.1)", "2"),
             sample_procedure
         )
 

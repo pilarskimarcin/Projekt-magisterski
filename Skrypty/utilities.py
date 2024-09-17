@@ -115,7 +115,7 @@ class PlaceAddress:
             return False
         return True
 
-    def DistanceAndDurationToOtherPlace(self, other: PlaceAddress) -> Tuple[float, float]:
+    def CalculateDistanceAndDurationToOtherPlace(self, other: PlaceAddress) -> Tuple[float, float]:
         """Funkcja obliczająca dystans w kilometrach i czas w minutach między dwoma miejscami"""
         if not self.AreCoordinatesPresent() or not other.AreCoordinatesPresent():
             raise RuntimeError("Współrzędne nie zostały jeszcze zakodowane, nie można obliczyć odległości")
