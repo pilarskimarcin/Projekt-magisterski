@@ -25,6 +25,21 @@ class SpecialistTests(unittest.TestCase):
 
         self.assertNotEqual(sample_specialist, self.sample_specialist)
 
+    def testStartPerformingProcedure(self):
+        sample_procedure: victim.Procedure = tests_victim.CreateSampleProcedure()
+        sample_victim: victim.Victim = tests_victim.CreateSampleVictim()
+        self.sample_specialist.StartPerformingProcedure(sample_procedure, sample_victim)
+
+        self.assertEqual(self.sample_specialist.stored_procedure, sample_procedure)
+        self.assertEqual(self.sample_specialist.target_victim, sample_victim)
+
+    def testContinuePerformingProcedureNoProcedure(self):
+        self.sample_specialist.ContinuePerformingProcedure()
+
+        self.assertIsNone(self.sample_specialist.stored_procedure)
+        self.assertIsNone(self.sample_specialist.target_victim)
+        self.assertIsNone(self.sample_specialist.time_until_procedure_is_finished)
+
 
 def CreateSampleZRM() -> zrm.ZRM:
     return zrm.ZRM(
@@ -75,16 +90,29 @@ class ZRMTests(unittest.TestCase):
 
     def testStartDriving(self):
         self.sample_zrm.StartDriving(self.sample_target_location)
+
         self.assertEqual(self.sample_zrm.target_location, self.sample_target_location)
+
+    def testStartDrivingNoSpecialists(self):
+        self.sample_zrm.SpecialistsLeaveTheVehicle()
+
+        self.assertRaises(RuntimeError, self.sample_zrm.StartDriving, self.sample_target_location)
+
+    def testStartDrivingIsAlreadyDriving(self):
+        self.sample_zrm.StartDriving(self.sample_target_location)
+
+        self.assertRaises(RuntimeError, self.sample_zrm.StartDriving, self.sample_target_location)
 
     def testStartDrivingWithVictim(self):
         self.sample_zrm.StartTransportingAVictim(self.sample_victim, self.sample_target_location)
+
         self.assertTrue(self.sample_zrm.IsTransportingAVictim())
         self.assertTrue(self.sample_zrm.IsDriving())
 
     def testCalculateTimeForTheNextDestination(self):
         self.sample_zrm.target_location = self.sample_target_location
         self.sample_zrm.CalculateTimeForTheNextDestination()
+
         self.assertEqual(
             self.sample_zrm.time_until_destination_in_minutes,
             math.ceil(0.64*tests_util.CreateSampleDistanceAndDurationData()[1])
@@ -93,11 +121,19 @@ class ZRMTests(unittest.TestCase):
     def testDrive(self):
         self.sample_zrm.time_until_destination_in_minutes = 10
         self.sample_zrm.DriveOrFinishDrivingAndReturnVictim()
+
         self.assertEqual(self.sample_zrm.time_until_destination_in_minutes, 9)
+
+    def testDriveNotDriving(self):
+        self.sample_zrm.time_until_destination_in_minutes = None
+
+        self.assertIsNone(self.sample_zrm.DriveOrFinishDrivingAndReturnVictim())
+        self.assertIsNone(self.sample_zrm.time_until_destination_in_minutes)
 
     def testFinishDrivingAndReturnVictimNoQueue(self):
         self.sample_zrm.StartTransportingAVictim(self.sample_victim, self.sample_target_location)
         self.sample_zrm.time_until_destination_in_minutes = 0
+
         self.assertIsNotNone(self.sample_zrm.DriveOrFinishDrivingAndReturnVictim())
         self.assertTupleEqual(
             tuple1=(self.sample_zrm.transported_victim, self.sample_zrm.origin_location,
@@ -109,6 +145,7 @@ class ZRMTests(unittest.TestCase):
         self.sample_zrm.StartTransportingAVictim(self.sample_victim, self.sample_target_location)
         self.sample_zrm.QueueNewTargetLocation(self.sample_target_location)
         self.sample_zrm.time_until_destination_in_minutes = 0
+
         self.assertIsNotNone(self.sample_zrm.DriveOrFinishDrivingAndReturnVictim())
         self.assertTupleEqual(
             tuple1=(self.sample_zrm.transported_victim, self.sample_zrm.origin_location,
@@ -117,9 +154,48 @@ class ZRMTests(unittest.TestCase):
         )
 
     def testQueueNewTargetLocation(self):
-        self.assertEqual(self.sample_zrm.queue_of_next_targets, [])
         self.sample_zrm.QueueNewTargetLocation(self.sample_target_location)
+
         self.assertEqual(self.sample_zrm.queue_of_next_targets, [self.sample_target_location])
+
+    def testSpecialistsLeaveTheVehicle(self):
+        self.sample_zrm.SpecialistsLeaveTheVehicle()
+
+        self.assertTrue(self.sample_zrm.are_specialists_outside)
+
+    def testTrySpecialistsComeBackToTheVehicleTrue(self):
+        self.sample_zrm.SpecialistsLeaveTheVehicle()
+
+        self.assertTrue(self.sample_zrm.TrySpecialistsComeBackToTheVehicle())
+        self.assertFalse(self.sample_zrm.are_specialists_outside)
+
+    def testTrySpecialistsComeBackToTheVehicleFalse(self):
+        self.sample_zrm.SpecialistsLeaveTheVehicle()
+        self.sample_zrm.specialists[0].StartPerformingProcedure(tests_victim.CreateSampleProcedure())
+
+        self.assertFalse(self.sample_zrm.TrySpecialistsComeBackToTheVehicle())
+
+    def testCheckIfSpecialistsCanComeBackTrue(self):
+        self.sample_zrm.SpecialistsLeaveTheVehicle()
+
+        self.assertTrue(self.sample_zrm.CheckIfSpecialistsCanComeBack())
+
+    def testCheckIfSpecialistsCanComeBackFalse(self):
+        self.sample_zrm.SpecialistsLeaveTheVehicle()
+        self.sample_zrm.specialists[0].StartPerformingProcedure(tests_victim.CreateSampleProcedure())
+
+        self.assertFalse(self.sample_zrm.CheckIfSpecialistsCanComeBack())
+
+    def testSpecialistsContinuePerformingProcedures(self):
+        self.sample_zrm.SpecialistsLeaveTheVehicle()
+        self.sample_zrm.specialists[0].StartPerformingProcedure(tests_victim.CreateSampleProcedure())
+        time_needed_to_perform: int = tests_victim.CreateSampleProcedure().time_needed_to_perform
+        self.sample_zrm.SpecialistsContinuePerformingProcedures()
+
+        self.assertEqual(
+            self.sample_zrm.specialists[0].time_until_procedure_is_finished,
+            time_needed_to_perform - 1
+        )
 
 
 if __name__ == '__main__':

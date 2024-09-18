@@ -62,10 +62,11 @@ class Victim:
     id_: int
     current_state: State
     states: List[State]
-    hospital_admittance_time: Optional[float]
+    hospital_admittance_time: Optional[int]
     initial_RPM_number: int
     current_RPM_number: int
     has_been_assessed: bool
+    procedures_performed_so_far: List[Procedure]
 
     def __init__(self, id_: int, states: List[State]):
         self.id_ = id_
@@ -76,6 +77,7 @@ class Victim:
         self.current_RPM_number = self.initial_RPM_number = self.CalculateRPM()
         self.hospital_admittance_time = None
         self.has_been_assessed = False
+        self.procedures_performed_so_far = []
 
     def __eq__(self, other):
         if not isinstance(other, Victim):
@@ -161,7 +163,7 @@ class Victim:
 
     def LowerRPM(self, time_from_simulation_start: int):
         """Zmniejsza RPM zależnie od czasu, który upłynął od początku symulacji"""
-        if self.hospital_admittance_time:
+        if self.HasBeenAdmittedToHospital():
             return
         if time_from_simulation_start % RPM_DETERIORATION_INTERVAL_MINUTES == 0:
             index_of_time_interval: int = time_from_simulation_start // RPM_DETERIORATION_INTERVAL_MINUTES - 1
@@ -174,11 +176,22 @@ class Victim:
         for state in self.states:
             if state.number == new_state_number:
                 self.current_state = state
+                self.procedures_performed_so_far = []
                 return
         else:
             raise ValueError("Brak stanu o takim numerze")
 
-    def AdmitToHospital(self, time: float):
+    def PerformProcedureOnMe(self, procedure: Procedure):
+        if procedure.health_problem in self.current_state.GetCriticalHealthProblemNeededToBeFixedForImprovement():
+            self.procedures_performed_so_far.append(procedure)
+            if [
+                procedure.health_problem for procedure in self.procedures_performed_so_far
+            ] == self.current_state.GetCriticalHealthProblemNeededToBeFixedForImprovement():
+                self.ChangeState(self.current_state.GetImprovedStateNumber())
+        else:
+            raise RuntimeError(f"Zła procedura {procedure.health_problem} użyta na poszkodowanym {self.id_}")
+
+    def AdmitToHospital(self, time: int):
         self.hospital_admittance_time = time
 
     def GetCurrentHealthProblemIds(self) -> List[int]:
@@ -186,6 +199,12 @@ class Victim:
 
     def Assess(self):
         self.has_been_assessed = True
+
+    def IsDead(self):
+        return self.current_state.triage_colour == TriageColour.BLACK
+
+    def HasBeenAdmittedToHospital(self):
+        return self.hospital_admittance_time is not None
 
 
 class TransitionData(NamedTuple):
@@ -364,7 +383,6 @@ class HealthProblem(NamedTuple):
 
     @classmethod
     def FromProcedureString(cls, procedure_string) -> HealthProblem:
-        # TODO: co jeśli więcej niż 1 problem - trzeba sprawdzić polepszenie i wtedy z tego wziąć... wth
         health_problem_numbers: str = procedure_string[2:-1]
         discipline_string, number_string = health_problem_numbers.split(".")
         return cls(int(discipline_string), int(number_string))

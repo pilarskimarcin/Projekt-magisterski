@@ -112,6 +112,14 @@ class VictimClassTests(unittest.TestCase):
         with open(sample_profile_file, encoding="utf-8") as f:
             self.sample_profile_text = f.read()
 
+    def testInit(self):
+        self.assertEqual(self.sample_victim.id_, 1)
+        self.assertEqual(self.sample_victim.current_state, CreateSampleState())
+        self.assertEqual(self.sample_victim.current_RPM_number, 6)
+        self.assertEqual(self.sample_victim.initial_RPM_number, 6)
+        self.assertEqual(self.sample_victim.hospital_admittance_time, None)
+        self.assertEqual(self.sample_victim.has_been_assessed, False)
+
     def testEquality(self):
         sample_victim: victim.Victim = CreateSampleVictim()
 
@@ -197,6 +205,14 @@ class VictimClassTests(unittest.TestCase):
 
         self.assertEqual(self.sample_victim.current_RPM_number, RPM_before)
 
+    def testLowerRPMAdmittedToTheHospital(self):
+        RPM_before: int = self.sample_victim.current_RPM_number
+        sample_time_from_simulation_start: int = victim.RPM_DETERIORATION_INTERVAL_MINUTES
+        self.sample_victim.AdmitToHospital(sample_time_from_simulation_start)
+        self.sample_victim.LowerRPM(sample_time_from_simulation_start)
+
+        self.assertEqual(self.sample_victim.current_RPM_number, RPM_before)
+
     def testLowerRPMCorrectInterval(self):
         RPM_number_after_one_interval: int = 4  # od 6
         sample_time_from_simulation_start = victim.RPM_DETERIORATION_INTERVAL_MINUTES
@@ -220,13 +236,15 @@ class VictimClassTests(unittest.TestCase):
         self.sample_victim.ChangeState(new_state_number)
 
         self.assertEqual(self.sample_victim.current_state.number, new_state_number)
+        self.assertEqual(self.sample_victim.procedures_performed_so_far, [])
 
     def testAdmitToHospital(self):
         self.assertIsNone(self.sample_victim.hospital_admittance_time)
-        sample_time: float = 7.5
+        sample_time: int = 7
         self.sample_victim.AdmitToHospital(sample_time)
 
         self.assertEqual(self.sample_victim.hospital_admittance_time, sample_time)
+        self.assertEqual(self.sample_victim.HasBeenAdmittedToHospital(), True)
 
     def testGetCurrentHealthProblemIds(self):
         self.assertEqual(self.sample_victim.GetCurrentHealthProblemIds(), SampleHealthProblemDisciplines())
@@ -235,6 +253,29 @@ class VictimClassTests(unittest.TestCase):
         self.sample_victim.Assess()
 
         self.assertEqual(self.sample_victim.has_been_assessed, True)
+
+    def testIsDeadFalse(self):
+        self.assertEqual(self.sample_victim.IsDead(), False)
+
+    def testIsDeadTrue(self):
+        self.sample_victim.current_state.triage_colour = victim.TriageColour.BLACK
+
+        self.assertEqual(self.sample_victim.IsDead(), True)
+
+    def testPerformProcedureOnMeAllNeededOnes(self):
+        health_problems = SampleCriticalHealthProblems()
+        self.sample_victim.PerformProcedureOnMe(victim.Procedure(health_problems[0], 1))
+        self.sample_victim.PerformProcedureOnMe(victim.Procedure(health_problems[1], 1))
+
+        self.assertEqual(self.sample_victim.current_state.number, 3)
+
+    def testPerformProcedureOnMeOnlyOneProcedure(self):
+        health_problems = SampleCriticalHealthProblems()
+        sample_procedure: victim.Procedure = victim.Procedure(health_problems[0], 1)
+        self.sample_victim.PerformProcedureOnMe(sample_procedure)
+
+        self.assertEqual(self.sample_victim.procedures_performed_so_far, [sample_procedure])
+        self.assertEqual(self.sample_victim.current_state.number, 1)
 
 
 def CreateSampleStateLines() -> List[str]:

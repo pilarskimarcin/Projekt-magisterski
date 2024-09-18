@@ -5,21 +5,37 @@ import math
 from typing import List, Optional
 
 from Skrypty.sor_classes import IncidentPlace
-from Skrypty.victim_classes import Victim
+from Skrypty.victim_classes import Procedure, Victim
 from Skrypty.utilities import PlaceAddress, TargetDestination
 
 
 class Specialist:
     """Klasa reprezentująca specjalistów z ZRMu"""
     origin_zrm_id: str
+    time_until_procedure_is_finished: Optional[int]
+    stored_procedure: Optional[Procedure]
+    target_victim: Optional[Victim]
 
     def __init__(self, origin_zrm_id: str):
         self.origin_zrm_id = origin_zrm_id
+        self.time_until_procedure_is_finished = self.stored_procedure = self.target_victim = None
 
     def __eq__(self, other):
         if not isinstance(other, Specialist):
             return False
         return vars(self) == vars(other)
+
+    def StartPerformingProcedure(self, procedure: Procedure, target_victim: Victim = None):
+        self.target_victim = target_victim
+        self.stored_procedure = procedure
+        self.time_until_procedure_is_finished = procedure.time_needed_to_perform
+
+    def ContinuePerformingProcedure(self):
+        if self.time_until_procedure_is_finished is not None:
+            self.time_until_procedure_is_finished -= 1
+            if self.time_until_procedure_is_finished == 0:
+                self.time_until_procedure_is_finished = None
+                self.target_victim.PerformProcedureOnMe(self.stored_procedure)
 
 
 class ZRM:
@@ -33,6 +49,7 @@ class ZRM:
     transported_victim: Optional[Victim]
     time_until_destination_in_minutes: Optional[int]
     queue_of_next_targets: List[TargetDestination]
+    are_specialists_outside: bool
 
     def __init__(self, id_: str, dispatch: str, zrm_type: ZRMType, base_location: PlaceAddress):
         self.id_ = id_
@@ -42,6 +59,7 @@ class ZRM:
         self.origin_location = base_location
         self.target_location, self.transported_victim, self.time_until_destination_in_minutes = None, None, None
         self.queue_of_next_targets = []
+        self.are_specialists_outside = False
 
     def GetPersonnelCount(self) -> int:
         return self.type.value
@@ -54,9 +72,6 @@ class ZRM:
     def IsTransportingAVictim(self) -> bool:
         return self.transported_victim is not None
 
-    def IsDriving(self) -> bool:
-        return self.time_until_destination_in_minutes is not None
-
     def StartTransportingAVictim(self, victim: Victim, target_location: TargetDestination):
         """Zaczyna transport poszkodowanego do docelowej lokalizacji"""
         if self.IsDriving():
@@ -64,8 +79,15 @@ class ZRM:
         self.transported_victim = victim
         self.StartDriving(target_location)
 
+    def IsDriving(self) -> bool:
+        return self.time_until_destination_in_minutes is not None
+
     def StartDriving(self, target_location: Optional[TargetDestination] = None):
         """Zaczyna jechać do docelowej lokalizacji"""
+        if self.IsDriving():
+            raise RuntimeError(f"ZRM {self.id_} jest obecnie w drodze")
+        if self.are_specialists_outside:
+            raise RuntimeError("Specjaliści są poza pojazdem, nie można zacząć jechać")
         if target_location:
             self.target_location = target_location
         self.CalculateTimeForTheNextDestination()
@@ -78,6 +100,8 @@ class ZRM:
 
     def DriveOrFinishDrivingAndReturnVictim(self) -> Optional[Victim]:
         """Zmniejsza czas do dojazdu na miejsce o 1 minutę/kończy dojazd"""
+        if not self.IsDriving():
+            return None
         if self.time_until_destination_in_minutes == 0:
             return self.FinishDrivingAndReturnVictim()
         self.time_until_destination_in_minutes -= 1
@@ -98,6 +122,26 @@ class ZRM:
 
     def QueueNewTargetLocation(self, new_target: TargetDestination):
         self.queue_of_next_targets.append(new_target)
+
+    def SpecialistsLeaveTheVehicle(self):
+        self.are_specialists_outside = True
+
+    def TrySpecialistsComeBackToTheVehicle(self) -> bool:
+        if self.CheckIfSpecialistsCanComeBack():
+            self.are_specialists_outside = False
+            return True
+        return False
+
+    def CheckIfSpecialistsCanComeBack(self) -> bool:
+        for specialist in self.specialists:
+            if specialist.time_until_procedure_is_finished:
+                return False
+        return True
+
+    def SpecialistsContinuePerformingProcedures(self):
+        if self.are_specialists_outside:
+            for specialist in self.specialists:
+                specialist.ContinuePerformingProcedure()
 
 
 class ZRMType(enum.Enum):
