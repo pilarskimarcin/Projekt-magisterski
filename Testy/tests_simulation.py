@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import random
 from typing import List, Tuple
 import unittest
 
@@ -70,6 +71,40 @@ class TestSimulation(unittest.TestCase):
         self.simulation.SendOutFirstTeamsToTheIncident(sample_reported_victims_count)
 
         self.assertEqual(self.GetCountOfDrivingTeams(), len(self.simulation.all_teams))
+
+    def testCheckIfSimulationEndReachedTrue(self):
+        self.SimulationEndSetup()
+
+        self.assertTrue(self.simulation.CheckIfSimulationEndReached())
+
+    def testCheckIfSimulationEndReachedNotAssessed(self):
+        self.SimulationEndSetup()
+        self.RandomVictim().has_been_assessed = False
+
+        self.assertFalse(self.simulation.CheckIfSimulationEndReached())
+
+    def RandomVictim(self) -> victim.Victim:
+        random_index: int = random.randint(0, len(self.simulation.all_victims) - 1)
+        return self.simulation.all_victims[random_index]
+
+    def testCheckIfSimulationEndReachedNotAdmittedToHospital(self):
+        self.SimulationEndSetup()
+        self.RandomVictim().hospital_admittance_time = None
+
+        self.assertFalse(self.simulation.CheckIfSimulationEndReached())
+
+    def SimulationEndSetup(self):
+        sample_time: int = 1
+        for victim_ in self.simulation.all_victims:
+            victim_.Assess()
+            if not victim_.IsDead():
+                victim_.AdmitToHospital(sample_time)
+
+    def testSimulationRegularStep(self):
+        raise NotImplementedError
+
+    def testMoveTeam(self):
+        raise NotImplementedError
 
 
 if __name__ == '__main__':
