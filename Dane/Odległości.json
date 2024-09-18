@@ -3,6 +3,100 @@
     "Magnoliowa 10, 32-500 Chrzanów": {
       "odległość [km]": 1.53,
       "czas podróży [min]": 2.7
+    },
+    "Głowackiego 91, 32-540 Trzebinia": {
+      "odległość [km]": 2.121,
+      "czas podróży [min]": 3.9166666666666665
+    }
+  },
+  "Tadeusza Kościuszki 50, 32-540 Trzebinia": {
+    "Głowackiego 91, 32-540 Trzebinia": {
+      "odległość [km]": 3.002,
+      "czas podróży [min]": 5.616666666666666
+    }
+  },
+  "Lipowiecka 3, 32-551 Wygiełzów": {
+    "Głowackiego 91, 32-540 Trzebinia": {
+      "odległość [km]": 11.59,
+      "czas podróży [min]": 15.2
+    }
+  },
+  "Górnicza 5, 32-590 Libiąż": {
+    "Głowackiego 91, 32-540 Trzebinia": {
+      "odległość [km]": 13.19,
+      "czas podróży [min]": 18.666666666666668
+    }
+  },
+  "Szkolna 6, 32-060 Nowa Wieś Szlachecka": {
+    "Głowackiego 91, 32-540 Trzebinia": {
+      "odległość [km]": 26.53,
+      "czas podróży [min]": 31.35
+    }
+  },
+  "Wodąca 2, 32-332 Bukowno": {
+    "Głowackiego 91, 32-540 Trzebinia": {
+      "odległość [km]": 20.392,
+      "czas podróży [min]": 27.066666666666666
+    }
+  },
+  "Legionów Polskich 6, 32-065 Krzeszowice": {
+    "Głowackiego 91, 32-540 Trzebinia": {
+      "odległość [km]": 16.551,
+      "czas podróży [min]": 21.033333333333335
+    }
+  },
+  "Wysokie Brzegi 4, 32-600 Oświęcim": {
+    "Głowackiego 91, 32-540 Trzebinia": {
+      "odległość [km]": 25.418,
+      "czas podróży [min]": 33.18333333333333
+    }
+  },
+  "Palimąki 2, 32-640 Zator": {
+    "Głowackiego 91, 32-540 Trzebinia": {
+      "odległość [km]": 21.995,
+      "czas podróży [min]": 28.65
+    }
+  },
+  "Osiecka 3a, 32-300 Olkusz": {
+    "Głowackiego 91, 32-540 Trzebinia": {
+      "odległość [km]": 22.642,
+      "czas podróży [min]": 29.55
+    }
+  },
+  "Kryspinów 356, 32-060 Kryspinów": {
+    "Głowackiego 91, 32-540 Trzebinia": {
+      "odległość [km]": 41.851,
+      "czas podróży [min]": 32.85
+    }
+  },
+  "Kolejowa 28, 32-080 Zabierzów": {
+    "Głowackiego 91, 32-540 Trzebinia": {
+      "odległość [km]": 39.479,
+      "czas podróży [min]": 31.683333333333334
+    }
+  },
+  "Chełmońskiego 28, 43-600 Jaworzno": {
+    "Głowackiego 91, 32-540 Trzebinia": {
+      "odległość [km]": 18.372,
+      "czas podróży [min]": 21.816666666666666
+    }
+  },
+  "Mikołowska 50, 41-400 Mysłowice": {
+    "Głowackiego 91, 32-540 Trzebinia": {
+      "odległość [km]": 31.89,
+      "czas podróży [min]": 27.55
+    }
+  },
+  "Pokoju 17, 43-143 Lędziny": {
+    "Głowackiego 91, 32-540 Trzebinia": {
+      "odległość [km]": 36.14,
+      "czas podróży [min]": 31.25
+    }
+  },
+  "Bartosza Głowackiego 10, 40-052 Katowice": {
+    "Głowackiego 91, 32-540 Trzebinia": {
+      "odległość [km]": 39.361,
+      "czas podróży [min]": 31.983333333333334
     }
   }
 }
