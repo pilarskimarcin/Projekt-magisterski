@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import math
+import random
 from typing import List, Optional
 
 from Skrypty.utilities import PlaceAddress, TargetDestination
@@ -8,10 +10,16 @@ from Skrypty.victim_classes import Victim
 class IncidentPlace(TargetDestination):
     address: PlaceAddress
     victims: List[Victim]
+    reported_victims_count: int
 
     def __init__(self, address: PlaceAddress, victims: List[Victim]):
         super().__init__(address)
         self.victims = victims
+        self.reported_victims_count = self.GetStartingAmountOfVictims()
+
+    def GetStartingAmountOfVictims(self) -> int:
+        victims_total_count: int = len(self.victims)
+        return math.floor(random.uniform(0.3, 0.75) * victims_total_count)
 
     def TryTakeVictim(self, victim_id: int) -> Optional[Victim]:
         for victim in self.victims:
@@ -19,6 +27,9 @@ class IncidentPlace(TargetDestination):
                 self.victims.remove(victim)
                 return victim
         return None
+
+    def NeedsReconnaissance(self):
+        return len(self.victims) != self.reported_victims_count
 
 
 class Department:
@@ -40,7 +51,7 @@ class Department:
             return False
         return vars(self) == vars(other)
 
-    def TakeInVictim(self, victim: Victim, current_time: float):
+    def TakeInVictim(self, victim: Victim, current_time: int):
         if self.current_beds_count == 0:
             raise RuntimeError(f"Brak miejsc na oddziale {self.name}")
         self.admitted_victims.append(victim)
@@ -64,7 +75,7 @@ class Hospital(TargetDestination):
             return False
         return vars(self) == vars(other)
 
-    def TakeInVictimToOneOfDepartments(self, victim: Victim, current_time: float):
+    def TakeInVictimToOneOfDepartments(self, victim: Victim, current_time: int):
         for medicine_discipline_id in victim.GetCurrentHealthProblemIds():
             department: Department = self.TryGetDepartment(medicine_discipline_id)
             if self.TryGetDepartment(medicine_discipline_id):

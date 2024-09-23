@@ -45,6 +45,11 @@ class IncidentPlaceTests(unittest.TestCase):
             CreateSampleVictims()
         )
 
+    def testGetStartingAmountOfVictims(self):
+        while len(self.sample_incident_place.victims) < 88:
+            self.sample_incident_place.victims.extend(CreateSampleVictims())
+        self.assertTrue(26 <= self.sample_incident_place.GetStartingAmountOfVictims() <= 66)
+
     def testTryTakeVictimCorrectId(self):
         sample_victim_id: int = 1
         sample_victim: victim.Victim = CreateSampleVictims()[0]
@@ -60,6 +65,14 @@ class IncidentPlaceTests(unittest.TestCase):
         self.assertIsNone(
             self.sample_incident_place.TryTakeVictim(sample_victim_id)
         )
+
+    def testNeedsReconnaissanceTrue(self):
+        self.assertTrue(self.sample_incident_place.NeedsReconnaissance())
+
+    def testNeedsReconnaissanceFalse(self):
+        self.sample_incident_place.reported_victims_count = len(self.sample_incident_place.victims)
+
+        self.assertFalse(self.sample_incident_place.NeedsReconnaissance())
 
 
 def AssertDepartmentTookInVictim(
@@ -80,13 +93,13 @@ def CreateSampleDepartment() -> sor.Department:
 class DepartmentTests(unittest.TestCase):
     sample_department: sor.Department
     sample_victim: victim.Victim
-    sample_time: float
+    sample_time: int
 
     def setUp(self):
         self.sample_department = CreateSampleDepartment()
         sample_state: victim.State = tests_victim.CreateSampleState()
         self.sample_victim = victim.Victim(1, [sample_state])
-        self.sample_time = 65.0
+        self.sample_time = 65
 
     def testInit(self):
         self.assertEqual(self.sample_department.admitted_victims, [])
@@ -159,7 +172,7 @@ class HospitalTests(unittest.TestCase):
         sample_department: sor.Department = self.sample_hospital.TryGetDepartment(victim.EMERGENCY_DISCIPLINE_NUMBER)
         sample_state: victim.State = tests_victim.CreateSampleState()
         sample_victim: victim.Victim = victim.Victim(1, [sample_state])
-        sample_time: float = 65.0
+        sample_time: int = 65
         sample_beds_amount: int = sample_department.current_beds_count
 
         self.sample_hospital.TakeInVictimToOneOfDepartments(sample_victim, sample_time)
