@@ -2,6 +2,7 @@
 import math
 import unittest
 
+from Skrypty import sor_classes as sor
 from Skrypty import utilities as util
 from Skrypty import victim_classes as victim
 from Skrypty import zrm_classes as zrm
@@ -32,6 +33,7 @@ class SpecialistTests(unittest.TestCase):
 
         self.assertEqual(self.sample_specialist.stored_procedure, sample_procedure)
         self.assertEqual(self.sample_specialist.target_victim, sample_victim)
+        self.assertEqual(self.sample_specialist.is_idle, False)
 
     def testContinuePerformingProcedureNoProcedure(self):
         self.sample_specialist.ContinuePerformingProcedure()
@@ -39,6 +41,29 @@ class SpecialistTests(unittest.TestCase):
         self.assertIsNone(self.sample_specialist.stored_procedure)
         self.assertIsNone(self.sample_specialist.target_victim)
         self.assertIsNone(self.sample_specialist.time_until_procedure_is_finished)
+
+    def testContinuePerformingProcedureWithProcedure(self):
+        sample_procedure: victim.Procedure = tests_victim.CreateSampleProcedure()
+        self.sample_specialist.StartPerformingProcedure(sample_procedure)
+        sample_time_before_procedure_finished: int = self.sample_specialist.time_until_procedure_is_finished
+        self.sample_specialist.ContinuePerformingProcedure()
+
+        self.assertEqual(self.sample_specialist.stored_procedure, sample_procedure)
+        self.assertEqual(
+            self.sample_specialist.time_until_procedure_is_finished,
+            sample_time_before_procedure_finished - 1
+        )
+        self.assertEqual(self.sample_specialist.is_idle, False)
+
+    def testFinishProcedure(self):
+        sample_procedure: victim.Procedure = tests_victim.CreateSampleProcedure()
+        self.sample_specialist.StartPerformingProcedure(sample_procedure)
+        self.sample_specialist.FinishProcedure()
+
+        self.assertEqual(self.sample_specialist.stored_procedure, None)
+        self.assertEqual(self.sample_specialist.target_victim, None)
+        self.assertEqual(self.sample_specialist.time_until_procedure_is_finished, None)
+        self.assertEqual(self.sample_specialist.is_idle, True)
 
 
 def CreateSampleZRM() -> zrm.ZRM:
@@ -55,7 +80,7 @@ class ZRMTests(unittest.TestCase):
 
     def setUp(self):
         self.sample_zrm = CreateSampleZRM()
-        self.sample_target_location = util.TargetDestination(tests_util.CreateSampleAddressIncident())
+        self.sample_target_location = sor.IncidentPlace(tests_util.CreateSampleAddressIncident(), [])
         sample_state: victim.State = tests_victim.CreateSampleState()
         self.sample_victim = victim.Victim(1, [sample_state])
 
@@ -132,11 +157,11 @@ class ZRMTests(unittest.TestCase):
 
     def testFinishDrivingAndReturnVictimNoQueue(self):
         self.sample_zrm.StartTransportingAVictim(self.sample_victim, self.sample_target_location)
-        self.sample_zrm.time_until_destination_in_minutes = 0
+        self.sample_zrm.time_until_destination_in_minutes = 1
 
         self.assertIsNotNone(self.sample_zrm.DriveOrFinishDrivingAndReturnVictim())
         self.assertTupleEqual(
-            tuple1=(self.sample_zrm.transported_victim, self.sample_zrm.origin_location,
+            tuple1=(self.sample_zrm.transported_victim, self.sample_zrm.origin_location_address,
                     self.sample_zrm.target_location, self.sample_zrm.time_until_destination_in_minutes),
             tuple2=(None, self.sample_target_location.address, None, None)
         )
@@ -144,13 +169,13 @@ class ZRMTests(unittest.TestCase):
     def testFinishDrivingAndReturnVictimWithQueue(self):
         self.sample_zrm.StartTransportingAVictim(self.sample_victim, self.sample_target_location)
         self.sample_zrm.QueueNewTargetLocation(self.sample_target_location)
-        self.sample_zrm.time_until_destination_in_minutes = 0
+        self.sample_zrm.time_until_destination_in_minutes = 1
 
         self.assertIsNotNone(self.sample_zrm.DriveOrFinishDrivingAndReturnVictim())
         self.assertTupleEqual(
-            tuple1=(self.sample_zrm.transported_victim, self.sample_zrm.origin_location,
+            tuple1=(self.sample_zrm.transported_victim, self.sample_zrm.origin_location_address,
                     self.sample_zrm.target_location, self.sample_zrm.time_until_destination_in_minutes),
-            tuple2=(None, self.sample_target_location.address, self.sample_target_location, None)
+            tuple2=(None, self.sample_target_location.address, self.sample_target_location, 0)
         )
 
     def testQueueNewTargetLocation(self):
@@ -162,29 +187,32 @@ class ZRMTests(unittest.TestCase):
         self.sample_zrm.SpecialistsLeaveTheVehicle()
 
         self.assertTrue(self.sample_zrm.are_specialists_outside)
+        self.assertTrue(self.sample_zrm.specialists[-1].is_idle)
 
     def testTrySpecialistsComeBackToTheVehicleTrue(self):
         self.sample_zrm.SpecialistsLeaveTheVehicle()
 
         self.assertTrue(self.sample_zrm.TrySpecialistsComeBackToTheVehicle())
         self.assertFalse(self.sample_zrm.are_specialists_outside)
+        self.assertFalse(self.sample_zrm.specialists[-1].is_idle)
 
     def testTrySpecialistsComeBackToTheVehicleFalse(self):
         self.sample_zrm.SpecialistsLeaveTheVehicle()
         self.sample_zrm.specialists[0].StartPerformingProcedure(tests_victim.CreateSampleProcedure())
 
         self.assertFalse(self.sample_zrm.TrySpecialistsComeBackToTheVehicle())
+        self.assertTrue(self.sample_zrm.are_specialists_outside)
 
-    def testCheckIfSpecialistsCanComeBackTrue(self):
+    def testAreSpecialistsIdleTrue(self):
         self.sample_zrm.SpecialistsLeaveTheVehicle()
 
-        self.assertTrue(self.sample_zrm.CheckIfSpecialistsCanComeBack())
+        self.assertTrue(self.sample_zrm.AreSpecialistsIdle())
 
-    def testCheckIfSpecialistsCanComeBackFalse(self):
+    def testAreSpecialistsIdleFalse(self):
         self.sample_zrm.SpecialistsLeaveTheVehicle()
         self.sample_zrm.specialists[0].StartPerformingProcedure(tests_victim.CreateSampleProcedure())
 
-        self.assertFalse(self.sample_zrm.CheckIfSpecialistsCanComeBack())
+        self.assertFalse(self.sample_zrm.AreSpecialistsIdle())
 
     def testSpecialistsContinuePerformingProcedures(self):
         self.sample_zrm.SpecialistsLeaveTheVehicle()
