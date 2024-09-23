@@ -69,13 +69,7 @@ class PlaceAddress:
         if self.AreCoordinatesSavedInDataFrame():
             self.ReadCoordinatesFromDataFrame()
             return
-        url = "https://trueway-geocoding.p.rapidapi.com/Geocode"
-        querystring = {"address": self.address_for_api_requests, "language": "pl", "country": "pl"}
-        headers = {"x-rapidapi-key": getenv("XRAPID_API_KEY"), "x-rapidapi-host": "trueway-geocoding.p.rapidapi.com"}
-        response = requests.get(url, headers=headers, params=querystring).json()
-        coordinates = response["results"][0]["location"]
-        self.latitude = coordinates["lat"]
-        self.longitude = coordinates["lng"]
+        self.GeocodeUsingAPI()
         self.SavePlaceCoordinatesToFile()
 
     def AreCoordinatesSavedInDataFrame(self, places_coordinates_df: Optional[pd.DataFrame] = None) -> bool:
@@ -98,6 +92,15 @@ class PlaceAddress:
         coordinates: str = this_address_row.loc[:, PLACES_CSV_COORDINATES_COLUMN_NAME].values[0]
         self.latitude, self.longitude = [float(coordinate) for coordinate in coordinates.split(",")]
 
+    def GeocodeUsingAPI(self, ):
+        url = "https://trueway-geocoding.p.rapidapi.com/Geocode"
+        querystring = {"address": self.address_for_api_requests, "language": "pl", "country": "pl"}
+        headers = {"x-rapidapi-key": getenv("XRAPID_API_KEY"), "x-rapidapi-host": "trueway-geocoding.p.rapidapi.com"}
+        response = requests.get(url, headers=headers, params=querystring).json()
+        coordinates = response["results"][0]["location"]
+        self.latitude = coordinates["lat"]
+        self.longitude = coordinates["lng"]
+
     def SavePlaceCoordinatesToFile(self, target_csv_file: str = PLACES_CSV_FILE):
         if not self.AreCoordinatesPresent():
             return
@@ -115,22 +118,14 @@ class PlaceAddress:
             return False
         return True
 
-    def CalculateDistanceAndDurationToOtherPlace(self, other: PlaceAddress) -> Tuple[float, float]:
-        """Funkcja obliczająca dystans w kilometrach i czas w minutach między dwoma miejscami"""
+    def GetDistanceAndDurationToOtherPlace(self, other: PlaceAddress) -> Tuple[float, float]:
+        """Funkcja uzyskująca dystans w kilometrach i czas w minutach między dwoma miejscami"""
         if not self.AreCoordinatesPresent() or not other.AreCoordinatesPresent():
             raise RuntimeError("Współrzędne nie zostały jeszcze zakodowane, nie można obliczyć odległości")
         saved_distance_and_duration: Optional[Tuple[float, float]] = self.ReadDistanceAndDurationFromFile(other)
         if saved_distance_and_duration:
             return saved_distance_and_duration
-        url = "https://trueway-matrix.p.rapidapi.com/CalculateDrivingMatrix"
-        querystring = {"origins": f"{str(self.latitude)},{str(self.longitude)}",
-                       "destinations": f"{str(other.latitude)},{str(other.longitude)}"}
-        headers = {"X-RapidAPI-key": getenv("XRAPID_API_KEY"), "X-RapidAPI-Host": "trueway-matrix.p.rapidapi.com"}
-        response = requests.get(url, headers=headers, params=querystring).json()
-        origin_index: int = 0
-        destination_index: int = 0
-        distance: float = response["distances"][origin_index][destination_index] / 1000
-        duration: float = response["durations"][origin_index][destination_index] / 60
+        distance, duration = self.CalculateDistanceAndDurationToOtherPlaceUsingAPI(other)
         self.SaveDistanceAndDurationToFile(distance, duration, other)
         return distance, duration
 
@@ -147,6 +142,18 @@ class PlaceAddress:
                     if destination == other_place.address_for_api_requests:
                         return info_for_origin_destination[DISTANCE_KEY], info_for_origin_destination[DURATION_KEY]
         return None
+
+    def CalculateDistanceAndDurationToOtherPlaceUsingAPI(self, other: PlaceAddress) -> Tuple[float, float]:
+        url = "https://trueway-matrix.p.rapidapi.com/CalculateDrivingMatrix"
+        querystring = {"origins": f"{str(self.latitude)},{str(self.longitude)}",
+                       "destinations": f"{str(other.latitude)},{str(other.longitude)}"}
+        headers = {"X-RapidAPI-key": getenv("XRAPID_API_KEY"), "X-RapidAPI-Host": "trueway-matrix.p.rapidapi.com"}
+        response = requests.get(url, headers=headers, params=querystring).json()
+        origin_index: int = 0
+        destination_index: int = 0
+        distance: float = response["distances"][origin_index][destination_index] / 1000
+        duration: float = response["durations"][origin_index][destination_index] / 60
+        return distance, duration
 
     def SaveDistanceAndDurationToFile(
             self, distance: float, duration: float, other: PlaceAddress, target_json_file: str = DISTANCES_JSON_FILE

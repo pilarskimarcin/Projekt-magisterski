@@ -22,7 +22,7 @@ def CreateSampleDistanceAndDurationData() -> Tuple[float, float]:
 
 
 def CreateSampleCoordinates() -> Tuple[float, float]:
-    return 50.13721, 19.42863
+    return 50.136, 19.42863
 
 
 def CreateSampleAddressIncident() -> utilities.PlaceAddress:
@@ -106,6 +106,13 @@ class TestPlaceAddress(unittest.TestCase):
             RuntimeError, self.sample_address.ReadCoordinatesFromDataFrame, sample_dataframe_without_address
         )
 
+    def testGeocodeUsingAPI(self):
+        self.RemoveLatitudeAndLongitudeFromSampleAddress()
+        self.sample_address.GeocodeUsingAPI()
+        sample_latitude, sample_longitude = CreateSampleCoordinates()
+        self.assertAlmostEqual(self.sample_address.latitude, sample_latitude, delta=0.0015)
+        self.assertAlmostEqual(self.sample_address.longitude, sample_longitude, delta=0.015)
+
     def testSavePlaceCoordinatesToFileExistingRecord(self):
         with open("../Dane/Miejsca.csv", encoding="utf-8") as f1:
             file1 = f1.read()
@@ -141,10 +148,10 @@ class TestPlaceAddress(unittest.TestCase):
 
         self.assertTrue(self.sample_address.AreCoordinatesPresent())
 
-    def testDistanceFromOtherPlace(self):
+    def testGetDistanceAndDurationToOtherPlace(self):
         sample_address_2: utilities.PlaceAddress = CreateSampleAddressIncident()
         sample_distance, sample_duration = CreateSampleDistanceAndDurationData()
-        results = self.sample_address.CalculateDistanceAndDurationToOtherPlace(sample_address_2)
+        results = self.sample_address.GetDistanceAndDurationToOtherPlace(sample_address_2)
 
         self.assertAlmostEqual(results[0], sample_distance, delta=0.1)
         self.assertAlmostEqual(results[1], sample_duration, delta=1)
@@ -152,10 +159,18 @@ class TestPlaceAddress(unittest.TestCase):
     def testReadDistanceAndDurationFromFile(self):
         sample_address_2: utilities.PlaceAddress = CreateSampleAddressIncident()
         sample_distance, sample_duration = CreateSampleDistanceAndDurationData()
-        results = self.sample_address.CalculateDistanceAndDurationToOtherPlace(sample_address_2)
+        results = self.sample_address.GetDistanceAndDurationToOtherPlace(sample_address_2)
 
         self.assertAlmostEqual(results[0], sample_distance, delta=0.1)
         self.assertAlmostEqual(results[1], sample_duration, delta=0.1)
+
+    def testCalculateDistanceAndDurationToOtherPlaceUsingAPI(self):
+        sample_address_2: utilities.PlaceAddress = CreateSampleAddressIncident()
+        sample_distance, sample_duration = CreateSampleDistanceAndDurationData()
+        results = self.sample_address.CalculateDistanceAndDurationToOtherPlaceUsingAPI(sample_address_2)
+
+        self.assertAlmostEqual(results[0], sample_distance, delta=0.1)
+        self.assertAlmostEqual(results[1], sample_duration, delta=1)
 
     def testSaveDistanceAndDurationToFileExistingRecord(self):
         sample_address_2: utilities.PlaceAddress = CreateSampleAddressIncident()
