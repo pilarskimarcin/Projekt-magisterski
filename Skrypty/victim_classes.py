@@ -65,7 +65,6 @@ class Victim:
     hospital_admittance_time: Optional[int]
     initial_RPM_number: int
     current_RPM_number: int
-    has_been_assessed: bool
     procedures_performed_so_far: List[Procedure]
 
     def __init__(self, id_: int, states: List[State]):
@@ -76,7 +75,6 @@ class Victim:
                 self.current_state = state
         self.current_RPM_number = self.initial_RPM_number = self.CalculateRPM()
         self.hospital_admittance_time = None
-        self.has_been_assessed = False
         self.procedures_performed_so_far = []
 
     def __eq__(self, other):
@@ -196,9 +194,6 @@ class Victim:
 
     def GetCurrentHealthProblemIds(self) -> List[int]:
         return self.current_state.GetAllHealthProblemDisciplines()
-
-    def Assess(self):
-        self.has_been_assessed = True
 
     def IsDead(self):
         return self.current_state.triage_colour == TriageColour.BLACK

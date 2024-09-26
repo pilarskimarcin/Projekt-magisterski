@@ -173,9 +173,17 @@ class TestSimulation(unittest.TestCase):
             )
         sample_team: zrm.ZRM = self.simulation.idle_teams[0]
         self.simulation.TeamIntoAction(sample_team)
-        sample_victim: victim.Victim = tests_victim.CreateSampleVictim()
+        sample_victim: victim.Victim = self.RandomVictim()
+        self.simulation.MoveVictimFromUnknownStatusToAssessed(sample_victim)
+        self.simulation.MoveVictimFromAssessedToTransportReady(sample_victim)
         sample_team.StartTransportingAVictim(sample_victim, sample_destination)
         return sample_team, sample_victim
+
+    def RandomVictim(self) -> victim.Victim:
+        random_victim: Optional[victim.Victim] = None
+        while not random_victim or random_victim.IsDead():
+            random_victim = random.choice(self.simulation.all_victims)
+        return random_victim
 
     def testMoveTeamFinishedInHospital(self):
         sample_team, sample_victim = self.TeamStartDrivingWithVictim(hospital_target=True)
@@ -185,10 +193,12 @@ class TestSimulation(unittest.TestCase):
 
         self.assertEqual(sample_team.time_until_destination_in_minutes, None)
         self.assertIsNotNone(sample_victim.hospital_admittance_time)
+        self.assertTrue(sample_victim not in self.simulation.transport_ready_victims)
 
     def testMoveTeamFinishedNotInHospitalError(self):
         sample_team, sample_victim = self.TeamStartDrivingWithVictim(hospital_target=False)
         self.simulation.MoveTeam(sample_team)
+
         self.assertRaises(RuntimeError, self.simulation.MoveTeam, sample_team)
 
     def testTryHandleReconnaissanceFalse(self):
@@ -254,30 +264,46 @@ class TestSimulation(unittest.TestCase):
         self.assertTrue(self.simulation.CheckIfSimulationEndReached())
 
     def SimulationEndSetup(self):
-        sample_time: int = 1
         for victim_ in self.simulation.all_victims:
-            victim_.Assess()
+            self.simulation.MoveVictimFromUnknownStatusToAssessed(victim_)
             if not victim_.IsDead():
-                victim_.AdmitToHospital(sample_time)
+                self.simulation.MoveVictimFromAssessedToTransportReady(victim_)
+        self.simulation.transport_ready_victims.clear()
 
     def testCheckIfSimulationEndReachedNotAssessed(self):
         self.SimulationEndSetup()
-        self.RandomVictim().has_been_assessed = False
+        self.simulation.unknown_status_victims.append(self.RandomVictim())
 
         self.assertFalse(self.simulation.CheckIfSimulationEndReached())
-
-    def RandomVictim(self) -> victim.Victim:
-        random_victim: Optional[victim.Victim] = None
-        while not random_victim or random_victim.IsDead():
-            random_index: int = random.randint(0, len(self.simulation.all_victims) - 1)
-            random_victim = self.simulation.all_victims[random_index]
-        return random_victim
 
     def testCheckIfSimulationEndReachedNotAdmittedToHospital(self):
         self.SimulationEndSetup()
-        self.RandomVictim().hospital_admittance_time = None
+        self.simulation.transport_ready_victims.append(self.RandomVictim())
 
         self.assertFalse(self.simulation.CheckIfSimulationEndReached())
+
+    def testCheckIfSimulationEndReachedNotDeadLeftInAssessed(self):
+        self.SimulationEndSetup()
+        self.simulation.assessed_victims.append(self.RandomVictim())
+
+        self.assertFalse(self.simulation.CheckIfSimulationEndReached())
+
+    def testMoveVictimFromUnknownStatusToAssessed(self):
+        random_victim: victim.Victim = self.RandomVictim()
+        self.simulation.MoveVictimFromUnknownStatusToAssessed(random_victim)
+
+        self.assertTrue(random_victim not in self.simulation.unknown_status_victims)
+        self.assertTrue(random_victim in self.simulation.assessed_victims)
+        self.assertTrue(random_victim not in self.simulation.transport_ready_victims)
+
+    def testMoveVictimFromAssessedToTransportReady(self):
+        random_victim: victim.Victim = self.RandomVictim()
+        self.simulation.MoveVictimFromUnknownStatusToAssessed(random_victim)
+        self.simulation.MoveVictimFromAssessedToTransportReady(random_victim)
+
+        self.assertTrue(random_victim not in self.simulation.unknown_status_victims)
+        self.assertTrue(random_victim not in self.simulation.assessed_victims)
+        self.assertTrue(random_victim in self.simulation.transport_ready_victims)
 
 
 if __name__ == '__main__':

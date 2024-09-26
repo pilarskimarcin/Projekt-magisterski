@@ -19,6 +19,9 @@ class Simulation:
     idle_teams: List[ZRM]
     teams_in_action: List[ZRM]
     all_victims: List[Victim]
+    unknown_status_victims: List[Victim]
+    assessed_victims: List[Victim]
+    transport_ready_victims: List[Victim]
     available_procedures: List[Procedure]
     elapsed_simulation_time: int
 
@@ -33,6 +36,9 @@ class Simulation:
         self.idle_teams = main_scenario.teams
         self.teams_in_action = []
         self.all_victims = main_scenario.victims
+        self.unknown_status_victims = self.all_victims[:]
+        self.assessed_victims = []
+        self.transport_ready_victims = []
         self.available_procedures = self.LoadProcedures()
         self.elapsed_simulation_time = 0
 
@@ -60,12 +66,29 @@ class Simulation:
             self.SimulationRegularStep()
             for incident in self.incidents:
                 self.TryHandleReconnaissance(first_team, incident)
-            # Mogą dojechać na miejsce inni - powinno assessować poszkodowanych i zacząć im pomagać
-            # Koniec rekonesansu - wiadomo ile poszkodowanych, jeśli więcej niż karetek jadących/na miejscu to wysłać
-            # tyle ile trzeba
-            # TODO: Sprawdzić czy w poprzedniej turze coś się zdarzyło, dotarło się gdzieś itd
-            # pomaganie i transport ->
-        # wszyscy w szpitalu, KONIEC, zapisanie czasu zakończenia
+            for team in self.teams_in_action:
+                if not team.IsDriving() and not team.are_specialists_outside:
+                    if self.transport_ready_victims:
+                        # wziąć wg koloru (czerwony, żółty) i RPM rosnąco, jechać do szpitala
+                        pass
+                    else:
+                        team.SpecialistsLeaveTheVehicle()
+                    # TODO: albo ma jechać na miejsce wypadku - wtedy gdy zostanie przeniesiony ktoś na transport_ready
+                if team.are_specialists_outside and team.AreSpecialistsIdle():
+                    if self.unknown_status_victims:
+                        # triaż - 30sek/pacjenta, robić aż będzie puste unknown_status_victims - ile triażystów max?
+                        # zapisać w zmiennej liczbę triażystów
+                        pass
+                    elif self.assessed_victims:
+                        # perform procedure odpowiednio
+                        # przy wrzucaniu do transported - wysłać karetkę, której cel jest najbliżej do tego miejsca
+                        # GetClosestTeam(adres)? Trzeba pamiętać czy ona jest gdzieś, czy jedzie - wtedy od jej celu,
+                        # nie od niej
+                        pass
+                    else:
+                        team.TrySpecialistsComeBackToTheVehicle()
+            # czy nowy wypadek z additional_scenarios?
+        # sprawdzić wyniki symulacji
 
     def SendOutNTeamsToTheIncidentReturnFirst(self, incident_place: IncidentPlace, n_teams_to_send: int) -> ZRM:
         """Wysyła pierwsze zespoły na miejsce wypadku, zwraca ten, który przyjedzie pierwszy"""
@@ -77,10 +100,6 @@ class Simulation:
                 team.StartDriving(incident_place)
                 self.TeamIntoAction(team)
         return self.GetTeamById(teams_times_to_reach_incident[0][0])
-
-    def TeamIntoAction(self, team: ZRM):
-        self.idle_teams.remove(team)
-        self.teams_in_action.append(team)
 
     def TeamsAndTimesToReachTheIncidentAsc(self, incident_place: IncidentPlace) -> List[Tuple[str, float]]:
         teams_times_to_reach_incident: List[Tuple[str, float]] = []
@@ -94,11 +113,23 @@ class Simulation:
         teams_times_to_reach_incident.sort(key=lambda x: x[1])
         return teams_times_to_reach_incident
 
+    def TeamIntoAction(self, team: ZRM):
+        self.idle_teams.remove(team)
+        self.teams_in_action.append(team)
+
     def GetTeamById(self, team_id: str) -> Optional[ZRM]:
         for team in self.idle_teams + self.teams_in_action:
             if team.id_ == team_id:
                 return team
         return None
+
+    def CheckIfSimulationEndReached(self) -> bool:
+        if self.unknown_status_victims or self.transport_ready_victims:
+            return False
+        for victim in self.assessed_victims:
+            if not victim.IsDead():
+                return False
+        return True
 
     def SimulationRegularStep(self):
         self.elapsed_simulation_time += 1
@@ -116,6 +147,7 @@ class Simulation:
                 target_location.TakeInVictimToOneOfDepartments(
                     transported_victim, self.elapsed_simulation_time
                 )
+                self.transport_ready_victims.remove(transported_victim)
             else:
                 raise RuntimeError(
                     f"Zespół {team.id_} dojechał z pacjentem {transported_victim.id_} na miejsce, które nie jest "
@@ -131,7 +163,7 @@ class Simulation:
                 n_newfound_victims: int = len(incident_place.victims) - incident_place.reported_victims_count
                 incident_place.reported_victims_count = len(incident_place.victims)
                 if self.idle_teams:
-                    self.SendOutNTeamsToTheIncidentReturnFirst(incident_place, n_newfound_victims)
+                    _ = self.SendOutNTeamsToTheIncidentReturnFirst(incident_place, n_newfound_victims)
 
     def PerformReconnaissance(self, first_team: ZRM):
         first_team.SpecialistsLeaveTheVehicle()
@@ -144,11 +176,11 @@ class Simulation:
             if procedure.health_problem.discipline == discipline and procedure.health_problem.number == number:
                 return procedure
         return None
+    
+    def MoveVictimFromUnknownStatusToAssessed(self, victim: Victim):
+        self.unknown_status_victims.remove(victim)
+        self.assessed_victims.append(victim)
 
-    def CheckIfSimulationEndReached(self) -> bool:
-        for victim in self.all_victims:
-            if not victim.has_been_assessed:
-                return False
-            if not victim.IsDead() and not victim.HasBeenAdmittedToHospital():
-                return False
-        return True
+    def MoveVictimFromAssessedToTransportReady(self, victim: Victim):
+        self.assessed_victims.remove(victim)
+        self.transport_ready_victims.append(victim)

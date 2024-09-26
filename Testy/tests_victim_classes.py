@@ -118,7 +118,6 @@ class VictimClassTests(unittest.TestCase):
         self.assertEqual(self.sample_victim.current_RPM_number, 6)
         self.assertEqual(self.sample_victim.initial_RPM_number, 6)
         self.assertEqual(self.sample_victim.hospital_admittance_time, None)
-        self.assertEqual(self.sample_victim.has_been_assessed, False)
 
     def testEquality(self):
         sample_victim: victim.Victim = CreateSampleVictim()
@@ -248,11 +247,6 @@ class VictimClassTests(unittest.TestCase):
 
     def testGetCurrentHealthProblemIds(self):
         self.assertEqual(self.sample_victim.GetCurrentHealthProblemIds(), SampleHealthProblemDisciplines())
-
-    def testAssess(self):
-        self.sample_victim.Assess()
-
-        self.assertEqual(self.sample_victim.has_been_assessed, True)
 
     def testIsDeadFalse(self):
         self.assertEqual(self.sample_victim.IsDead(), False)
