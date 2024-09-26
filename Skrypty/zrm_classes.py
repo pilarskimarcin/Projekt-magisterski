@@ -133,6 +133,8 @@ class ZRM:
         self.queue_of_next_targets.append(new_target)
 
     def SpecialistsLeaveTheVehicle(self):
+        if self.IsDriving():
+            raise RuntimeError("Karetka w ruchu, specjaliści nie mogą jej opuścić")
         for specialist in self.specialists:
             specialist.is_idle = True
         self.are_specialists_outside = True

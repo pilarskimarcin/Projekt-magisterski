@@ -183,11 +183,16 @@ class ZRMTests(unittest.TestCase):
 
         self.assertEqual(self.sample_zrm.queue_of_next_targets, [self.sample_target_location])
 
-    def testSpecialistsLeaveTheVehicle(self):
+    def testSpecialistsLeaveTheVehicleCorrectUsage(self):
         self.sample_zrm.SpecialistsLeaveTheVehicle()
 
         self.assertTrue(self.sample_zrm.are_specialists_outside)
         self.assertTrue(self.sample_zrm.specialists[-1].is_idle)
+
+    def testSpecialistsLeaveTheVehicleIsDriving(self):
+        self.sample_zrm.StartDriving(self.sample_target_location)
+
+        self.assertRaises(RuntimeError, self.sample_zrm.SpecialistsLeaveTheVehicle)
 
     def testTrySpecialistsComeBackToTheVehicleTrue(self):
         self.sample_zrm.SpecialistsLeaveTheVehicle()
