@@ -156,6 +156,13 @@ class TestPlaceAddress(unittest.TestCase):
         self.assertAlmostEqual(results[0], sample_distance, delta=0.1)
         self.assertAlmostEqual(results[1], sample_duration, delta=1)
 
+    def testGetDistanceAndDurationToSamePlace(self):
+        sample_address_2: utilities.PlaceAddress = CreateSampleAddressHospital()
+        results = self.sample_address.GetDistanceAndDurationToOtherPlace(sample_address_2)
+
+        self.assertAlmostEqual(results[0], 0)
+        self.assertAlmostEqual(results[1], 0)
+
     def testReadDistanceAndDurationFromFile(self):
         sample_address_2: utilities.PlaceAddress = CreateSampleAddressIncident()
         sample_distance, sample_duration = CreateSampleDistanceAndDurationData()

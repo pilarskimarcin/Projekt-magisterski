@@ -122,6 +122,8 @@ class PlaceAddress:
         """Funkcja uzyskująca dystans w kilometrach i czas w minutach między dwoma miejscami"""
         if not self.AreCoordinatesPresent() or not other.AreCoordinatesPresent():
             raise RuntimeError("Współrzędne nie zostały jeszcze zakodowane, nie można obliczyć odległości")
+        if self == other:
+            return 0, 0
         saved_distance_and_duration: Optional[Tuple[float, float]] = self.ReadDistanceAndDurationFromFile(other)
         if saved_distance_and_duration:
             return saved_distance_and_duration
