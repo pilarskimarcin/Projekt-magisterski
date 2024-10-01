@@ -85,13 +85,11 @@ class ZRMTests(unittest.TestCase):
         self.sample_victim = victim.Victim(1, [sample_state])
 
     def testInit(self):
-        self.assertTupleEqual(
-            (
-                len(self.sample_zrm.specialists), self.sample_zrm.target_location, self.sample_zrm.transported_victim,
-                self.sample_zrm.time_until_destination_in_minutes, self.sample_zrm.queue_of_next_targets
-            ),
-            (3, None, None, None, [])
-        )
+        self.assertEqual(len(self.sample_zrm.specialists), 3)
+        self.assertEqual(self.sample_zrm.target_location, None)
+        self.assertEqual(self.sample_zrm.transported_victim, None)
+        self.assertEqual(self.sample_zrm.time_until_destination_in_minutes, None)
+        self.assertEqual(self.sample_zrm.queue_of_next_targets, [])
 
     def testEquality(self):
         sample_zrm: zrm.ZRM = CreateSampleZRM()
@@ -105,13 +103,9 @@ class ZRMTests(unittest.TestCase):
         self.assertNotEqual(sample_zrm, self.sample_zrm)
 
     def testSimpleGetters(self):
-        self.assertTupleEqual(
-            tuple1=(
-                self.sample_zrm.GetPersonnelCount(), self.sample_zrm.IsDriving(),
-                self.sample_zrm.IsTransportingAVictim()
-            ),
-            tuple2=(3, False, False)
-        )
+        self.assertEqual(self.sample_zrm.GetPersonnelCount(), 3)
+        self.assertEqual(self.sample_zrm.IsDriving(), False)
+        self.assertEqual(self.sample_zrm.IsTransportingAVictim(), False)
 
     def testStartDriving(self):
         self.sample_zrm.StartDriving(self.sample_target_location)
@@ -160,11 +154,10 @@ class ZRMTests(unittest.TestCase):
         self.sample_zrm.time_until_destination_in_minutes = 1
 
         self.assertIsNotNone(self.sample_zrm.DriveOrFinishDrivingAndReturnVictim())
-        self.assertTupleEqual(
-            tuple1=(self.sample_zrm.transported_victim, self.sample_zrm.origin_location_address,
-                    self.sample_zrm.target_location, self.sample_zrm.time_until_destination_in_minutes),
-            tuple2=(None, self.sample_target_location.address, None, None)
-        )
+        self.assertEqual(self.sample_zrm.transported_victim, None)
+        self.assertEqual(self.sample_zrm.origin_location_address, self.sample_target_location.address)
+        self.assertEqual(self.sample_zrm.target_location, None)
+        self.assertEqual(self.sample_zrm.time_until_destination_in_minutes, None)
 
     def testFinishDrivingAndReturnVictimWithQueue(self):
         self.sample_zrm.StartTransportingAVictim(self.sample_victim, self.sample_target_location)
@@ -172,11 +165,10 @@ class ZRMTests(unittest.TestCase):
         self.sample_zrm.time_until_destination_in_minutes = 1
 
         self.assertIsNotNone(self.sample_zrm.DriveOrFinishDrivingAndReturnVictim())
-        self.assertTupleEqual(
-            tuple1=(self.sample_zrm.transported_victim, self.sample_zrm.origin_location_address,
-                    self.sample_zrm.target_location, self.sample_zrm.time_until_destination_in_minutes),
-            tuple2=(None, self.sample_target_location.address, self.sample_target_location, 0)
-        )
+        self.assertEqual(self.sample_zrm.transported_victim, None)
+        self.assertEqual(self.sample_zrm.origin_location_address, self.sample_target_location.address)
+        self.assertEqual(self.sample_zrm.target_location, self.sample_target_location)
+        self.assertEqual(self.sample_zrm.time_until_destination_in_minutes, 0)
 
     def testQueueNewTargetLocation(self):
         self.sample_zrm.QueueNewTargetLocation(self.sample_target_location)

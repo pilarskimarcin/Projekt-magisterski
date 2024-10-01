@@ -41,6 +41,9 @@ class PlaceAddress:
             return False
         return vars(self) == vars(other)
 
+    def __repr__(self):
+        return str(self.__dict__)
+
     @classmethod
     def FromString(cls, address_string: str) -> PlaceAddress:
         address_parts: Tuple[str, str, str, str] = cls.DivideAddressIntoParts(address_string)
@@ -197,3 +200,6 @@ class TargetDestination:
 
     def __init__(self, address: PlaceAddress):
         self.address = address
+
+    def __repr__(self):
+        return str(self.__dict__)

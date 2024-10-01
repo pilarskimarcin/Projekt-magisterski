@@ -17,6 +17,9 @@ class IncidentPlace(TargetDestination):
         self.victims = victims
         self.reported_victims_count = self.GetStartingAmountOfVictims()
 
+    def __repr__(self):
+        return str(self.__dict__)
+
     def GetStartingAmountOfVictims(self) -> int:
         victims_total_count: int = len(self.victims)
         return math.floor(random.uniform(0.3, 0.75) * victims_total_count)
@@ -51,6 +54,9 @@ class Department:
             return False
         return vars(self) == vars(other)
 
+    def __repr__(self):
+        return str(self.__dict__)
+
     def TakeInVictim(self, victim: Victim, current_time: int):
         if self.current_beds_count == 0:
             raise RuntimeError(f"Brak miejsc na oddziale {self.name}")
@@ -75,8 +81,11 @@ class Hospital(TargetDestination):
             return False
         return vars(self) == vars(other)
 
+    def __repr__(self):
+        return str(self.__dict__)
+
     def TakeInVictimToOneOfDepartments(self, victim: Victim, current_time: int):
-        for medicine_discipline_id in victim.GetCurrentHealthProblemIds():
+        for medicine_discipline_id in victim.GetCurrentHealthProblemDisciplines():
             department: Department = self.TryGetDepartment(medicine_discipline_id)
             if self.TryGetDepartment(medicine_discipline_id):
                 department.TakeInVictim(victim, current_time)

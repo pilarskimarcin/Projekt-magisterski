@@ -3,7 +3,7 @@ from __future__ import annotations
 import csv
 import enum
 import sys
-from typing import Dict, List, Literal, NamedTuple, Optional, Tuple
+from typing import Dict, List, Literal, NamedTuple, Optional, Set, Tuple
 
 from Skrypty.profiles_editor import DESCRIPTION_START, N_FIRST_LINES_TO_OMIT, STATE_TITLE, TIME_UNIT
 
@@ -81,6 +81,9 @@ class Victim:
         if not isinstance(other, Victim):
             return False
         return vars(self) == vars(other)
+
+    def __repr__(self):
+        return str(self.__dict__)
 
     def CalculateRPM(self) -> int:
         """Oblicza RPM na podstawie obecnego stanu pacjenta"""
@@ -180,11 +183,9 @@ class Victim:
             raise ValueError("Brak stanu o takim numerze")
 
     def PerformProcedureOnMe(self, procedure: Procedure):
-        if procedure.health_problem in self.current_state.GetCriticalHealthProblemNeededToBeFixedForImprovement():
+        if procedure.health_problem in self.GetCurrentCriticalHealthProblems():
             self.procedures_performed_so_far.append(procedure)
-            if [
-                procedure.health_problem for procedure in self.procedures_performed_so_far
-            ] == self.current_state.GetCriticalHealthProblemNeededToBeFixedForImprovement():
+            if len(self.GetCurrentCriticalHealthProblems()) == 0:
                 self.ChangeState(self.current_state.GetImprovedStateNumber())
         else:
             raise RuntimeError(f"Zła procedura {procedure.health_problem} użyta na poszkodowanym {self.id_}")
@@ -192,14 +193,23 @@ class Victim:
     def AdmitToHospital(self, time: int):
         self.hospital_admittance_time = time
 
-    def GetCurrentHealthProblemIds(self) -> List[int]:
+    def GetCurrentHealthProblemDisciplines(self) -> List[int]:
         return self.current_state.GetAllHealthProblemDisciplines()
 
-    def IsDead(self):
+    def IsDead(self) -> bool:
         return self.current_state.triage_colour == TriageColour.BLACK
 
-    def HasBeenAdmittedToHospital(self):
+    def HasBeenAdmittedToHospital(self) -> bool:
         return self.hospital_admittance_time is not None
+
+    def GetCurrentCriticalHealthProblems(self) -> Set[HealthProblem]:
+        base_problems: Set[HealthProblem] = set(
+            self.current_state.GetCriticalHealthProblemNeededToBeFixedForImprovement()
+        )
+        healed_problems: Set[HealthProblem] = {
+            procedure.health_problem for procedure in self.procedures_performed_so_far
+        }
+        return base_problems.difference(healed_problems)
 
 
 class TransitionData(NamedTuple):
@@ -255,6 +265,9 @@ class State:
         if not isinstance(other, State):
             return False
         return vars(self) == vars(other)
+
+    def __repr__(self):
+        return str(self.__dict__)
 
     @classmethod
     def FromString(cls, lines: List[str]) -> State:
@@ -350,17 +363,17 @@ class State:
             health_problem_ids.insert(0, EMERGENCY_DISCIPLINE_NUMBER)
         return health_problem_ids
 
-    def GetTimeOfDeterioration(self) -> int:
-        return self.timed_next_state_transition[0]
+    def GetTimeOfDeterioration(self) -> Optional[int]:
+        return self.timed_next_state_transition[0] if self.timed_next_state_transition else None
 
-    def GetDeterioratedStateNumber(self) -> StateNumber:
-        return self.timed_next_state_transition[1]
+    def GetDeterioratedStateNumber(self) -> Optional[StateNumber]:
+        return self.timed_next_state_transition[1] if self.timed_next_state_transition else None
 
     def GetCriticalHealthProblemNeededToBeFixedForImprovement(self) -> List[HealthProblem]:
-        return self.intervention_next_state_transition[0]
+        return self.intervention_next_state_transition[0] if self.intervention_next_state_transition else []
 
-    def GetImprovedStateNumber(self) -> StateNumber:
-        return self.intervention_next_state_transition[1]
+    def GetImprovedStateNumber(self) -> Optional[StateNumber]:
+        return self.intervention_next_state_transition[1] if self.intervention_next_state_transition else None
 
 
 class TriageColour(enum.Enum):

@@ -3,8 +3,8 @@ from typing import List, Optional, Tuple
 
 from Skrypty.scenario_classes import Scenario
 from Skrypty.sor_classes import Hospital, IncidentPlace
-from Skrypty.utilities import TargetDestination
-from Skrypty.victim_classes import Procedure, Victim
+from Skrypty.utilities import PlaceAddress, TargetDestination
+from Skrypty.victim_classes import Procedure, TriageColour, Victim
 from Skrypty.zrm_classes import ZRM
 
 # Stałe
@@ -41,6 +41,9 @@ class Simulation:
         self.transport_ready_victims = []
         self.available_procedures = self.LoadProcedures()
         self.elapsed_simulation_time = 0
+
+    def __repr__(self):
+        return str(self.__dict__)
 
     @staticmethod
     def LoadProcedures() -> List[Procedure]:
@@ -80,6 +83,8 @@ class Simulation:
                         # zapisać w zmiennej liczbę triażystów
                         pass
                     elif self.assessed_victims:
+                        target_victim: Victim = self.GetTargetVictimForProcedure()
+                        target_victim_critical_health_problems = target_victim.GetCurrentCriticalHealthProblems()
                         # perform procedure odpowiednio
                         # przy wrzucaniu do transported - wysłać karetkę, której cel jest najbliżej do tego miejsca
                         # GetClosestTeam(adres)? Trzeba pamiętać czy ona jest gdzieś, czy jedzie - wtedy od jej celu,
@@ -92,7 +97,9 @@ class Simulation:
 
     def SendOutNTeamsToTheIncidentReturnFirst(self, incident_place: IncidentPlace, n_teams_to_send: int) -> ZRM:
         """Wysyła pierwsze zespoły na miejsce wypadku, zwraca ten, który przyjedzie pierwszy"""
-        teams_times_to_reach_incident: List[Tuple[str, float]] = self.TeamsAndTimesToReachTheIncidentAsc(incident_place)
+        teams_times_to_reach_incident: List[Tuple[str, float]] = self.TeamsAndTimesToReachTheAddressAscending(
+            self.idle_teams, incident_place.address
+        )
         for count, team_and_time in enumerate(teams_times_to_reach_incident):
             team_id, _ = team_and_time
             if count < n_teams_to_send:
@@ -101,27 +108,28 @@ class Simulation:
                 self.TeamIntoAction(team)
         return self.GetTeamById(teams_times_to_reach_incident[0][0])
 
-    def TeamsAndTimesToReachTheIncidentAsc(self, incident_place: IncidentPlace) -> List[Tuple[str, float]]:
+    @staticmethod
+    def TeamsAndTimesToReachTheAddressAscending(teams: List[ZRM], address: PlaceAddress) -> List[Tuple[str, float]]:
         teams_times_to_reach_incident: List[Tuple[str, float]] = []
-        for team in self.idle_teams:
+        for team in teams:
             teams_times_to_reach_incident.append(
                 (
                     team.id_,
-                    team.origin_location_address.GetDistanceAndDurationToOtherPlace(incident_place.address)[1]
+                    team.origin_location_address.GetDistanceAndDurationToOtherPlace(address)[1]
                 )
             )
         teams_times_to_reach_incident.sort(key=lambda x: x[1])
         return teams_times_to_reach_incident
-
-    def TeamIntoAction(self, team: ZRM):
-        self.idle_teams.remove(team)
-        self.teams_in_action.append(team)
 
     def GetTeamById(self, team_id: str) -> Optional[ZRM]:
         for team in self.idle_teams + self.teams_in_action:
             if team.id_ == team_id:
                 return team
         return None
+
+    def TeamIntoAction(self, team: ZRM):
+        self.idle_teams.remove(team)
+        self.teams_in_action.append(team)
 
     def CheckIfSimulationEndReached(self) -> bool:
         if self.unknown_status_victims or self.transport_ready_victims:
@@ -175,6 +183,23 @@ class Simulation:
         for procedure in self.available_procedures:
             if procedure.health_problem.discipline == discipline and procedure.health_problem.number == number:
                 return procedure
+        return None
+
+    def GetTargetVictimForProcedure(self) -> Optional[Victim]:
+        victims_yellow: List[Victim] = []
+        victims_red: List[Victim] = []
+        for victim in self.assessed_victims:
+            match victim.current_state.triage_colour:
+                case TriageColour.YELLOW:
+                    victims_yellow.append(victim)
+                case TriageColour.RED:
+                    victims_red.append(victim)
+        if victims_red:
+            victims_red.sort(key=lambda x: x.current_RPM_number)
+            return victims_red[0]
+        elif victims_yellow:
+            victims_yellow.sort(key=lambda x: x.current_RPM_number)
+            return victims_yellow[0]
         return None
     
     def MoveVictimFromUnknownStatusToAssessed(self, victim: Victim):

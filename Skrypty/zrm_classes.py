@@ -27,6 +27,9 @@ class Specialist:
             return False
         return vars(self) == vars(other)
 
+    def __repr__(self):
+        return str(self.__dict__)
+
     def StartPerformingProcedure(self, procedure: Procedure, target_victim: Victim = None):
         self.target_victim = target_victim
         self.stored_procedure = procedure
@@ -76,6 +79,9 @@ class ZRM:
         if not isinstance(other, ZRM):
             return False
         return vars(self) == vars(other)
+
+    def __repr__(self):
+        return str(self.__dict__)
 
     def IsTransportingAVictim(self) -> bool:
         return self.transported_victim is not None

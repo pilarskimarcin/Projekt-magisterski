@@ -91,7 +91,7 @@ class TestSimulation(unittest.TestCase):
         self.assertFalse(sample_team in self.simulation.idle_teams)
         self.assertTrue(sample_team in self.simulation.teams_in_action)
 
-    def testTeamsAndTimesToReachTheIncidentAsc(self):
+    def testTeamsAndTimesToReachTheIncidentAscending(self):
         sample_teams_times_to_reach_incident: List[Tuple[str, float]] = [
             ('K01 47', 3.9166666666666665), ('K01 098', 3.9166666666666665), ('K01 100', 5.616666666666666),
             ('K01 102', 15.2), ('K01 104', 18.666666666666668), ('K01 032', 21.033333333333335),
@@ -103,7 +103,9 @@ class TestSimulation(unittest.TestCase):
         ]
 
         self.assertEqual(
-            self.simulation.TeamsAndTimesToReachTheIncidentAsc(self.simulation.incidents[0]),
+            self.simulation.TeamsAndTimesToReachTheAddressAscending(
+                self.simulation.idle_teams, self.simulation.incidents[0].address
+            ),
             sample_teams_times_to_reach_incident
         )
 
@@ -287,6 +289,41 @@ class TestSimulation(unittest.TestCase):
         self.simulation.assessed_victims.append(self.RandomVictim())
 
         self.assertFalse(self.simulation.CheckIfSimulationEndReached())
+
+    def testGetTargetVictimForProcedureRed(self):
+        worst_condition_red_victim_RPM_number: int = 2
+        self.AssessAllVictims()
+
+        self.assertEqual(
+            self.simulation.GetTargetVictimForProcedure().current_RPM_number,
+            worst_condition_red_victim_RPM_number
+        )
+
+    def AssessAllVictims(self):
+        for victim_ in self.simulation.all_victims:
+            self.simulation.MoveVictimFromUnknownStatusToAssessed(victim_)
+
+    def testGetTargetVictimForProcedureNoRedYellow(self):
+        worst_condition_yellow_victim_RPM_number: int = 10
+        self.AssessAllVictims()
+        self.RemoveVictimsWithTriageColour(victim.TriageColour.RED)
+
+        self.assertEqual(
+            self.simulation.GetTargetVictimForProcedure().current_RPM_number,
+            worst_condition_yellow_victim_RPM_number
+        )
+
+    def RemoveVictimsWithTriageColour(self, triage_colour_to_remove: victim.TriageColour):
+        for victim_ in self.simulation.all_victims:
+            if victim_.current_state.triage_colour == triage_colour_to_remove:
+                self.simulation.assessed_victims.remove(victim_)
+
+    def testGetTargetVictimForProcedureNoRedNoYellow(self):
+        self.AssessAllVictims()
+        self.RemoveVictimsWithTriageColour(victim.TriageColour.RED)
+        self.RemoveVictimsWithTriageColour(victim.TriageColour.YELLOW)
+
+        self.assertIsNone(self.simulation.GetTargetVictimForProcedure())
 
     def testMoveVictimFromUnknownStatusToAssessed(self):
         random_victim: victim.Victim = self.RandomVictim()

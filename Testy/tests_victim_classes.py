@@ -117,7 +117,7 @@ class VictimClassTests(unittest.TestCase):
         self.assertEqual(self.sample_victim.current_state, CreateSampleState())
         self.assertEqual(self.sample_victim.current_RPM_number, 6)
         self.assertEqual(self.sample_victim.initial_RPM_number, 6)
-        self.assertEqual(self.sample_victim.hospital_admittance_time, None)
+        self.assertIsNone(self.sample_victim.hospital_admittance_time)
 
     def testEquality(self):
         sample_victim: victim.Victim = CreateSampleVictim()
@@ -245,8 +245,8 @@ class VictimClassTests(unittest.TestCase):
         self.assertEqual(self.sample_victim.hospital_admittance_time, sample_time)
         self.assertEqual(self.sample_victim.HasBeenAdmittedToHospital(), True)
 
-    def testGetCurrentHealthProblemIds(self):
-        self.assertEqual(self.sample_victim.GetCurrentHealthProblemIds(), SampleHealthProblemDisciplines())
+    def testGetCurrentHealthProblemDisciplines(self):
+        self.assertEqual(self.sample_victim.GetCurrentHealthProblemDisciplines(), SampleHealthProblemDisciplines())
 
     def testIsDeadFalse(self):
         self.assertEqual(self.sample_victim.IsDead(), False)
@@ -270,6 +270,34 @@ class VictimClassTests(unittest.TestCase):
 
         self.assertEqual(self.sample_victim.procedures_performed_so_far, [sample_procedure])
         self.assertEqual(self.sample_victim.current_state.number, 1)
+
+    def testGetCurrentCriticalHealthProblems(self):
+        sample_critical_health_problems: List[victim.HealthProblem] = SampleCriticalHealthProblems()
+
+        self.assertEqual(
+            self.sample_victim.GetCurrentCriticalHealthProblems(),
+            set(sample_critical_health_problems)
+        )
+
+    def testGetCurrentCriticalHealthProblemsOneFixed(self):
+        sample_critical_health_problems: List[victim.HealthProblem] = SampleCriticalHealthProblems()
+        self.sample_victim.PerformProcedureOnMe(
+            victim.Procedure(sample_critical_health_problems[0], 1)
+        )
+
+        self.assertEqual(
+            self.sample_victim.GetCurrentCriticalHealthProblems(),
+            {sample_critical_health_problems[1]}
+        )
+
+    def testGetCurrentCriticalHealthProblemsNoAvailable(self):
+        sample_critical_health_problems: List[victim.HealthProblem] = SampleCriticalHealthProblems()
+        for health_problem in sample_critical_health_problems:
+            self.sample_victim.PerformProcedureOnMe(
+                victim.Procedure(health_problem, 1)
+            )
+
+        self.assertEqual(self.sample_victim.GetCurrentCriticalHealthProblems(), set())
 
 
 def CreateSampleStateLines() -> List[str]:
@@ -298,19 +326,25 @@ class StateClassTests(unittest.TestCase):
         sample_state: victim.State = CreateSampleState()
         transition_time, transition_new_state = SampleTimedNextStateTransition()
 
-        self.assertTupleEqual(
-            tuple1=(
-                sample_state.GetAllHealthProblemDisciplines(), sample_state.GetTimeOfDeterioration(),
-                sample_state.GetDeterioratedStateNumber(),
-                sample_state.GetCriticalHealthProblemNeededToBeFixedForImprovement(),
-                sample_state.GetImprovedStateNumber()
-            ),
-            tuple2=(
-                SampleHealthProblemDisciplines(), transition_time,
-                transition_new_state, SampleCriticalHealthProblems(),
-                3
-            )
+        self.assertEqual(sample_state.GetAllHealthProblemDisciplines(), SampleHealthProblemDisciplines())
+        self.assertEqual(sample_state.GetTimeOfDeterioration(), transition_time)
+        self.assertEqual(sample_state.GetDeterioratedStateNumber(), transition_new_state)
+        self.assertEqual(
+            sample_state.GetCriticalHealthProblemNeededToBeFixedForImprovement(),
+            SampleCriticalHealthProblems()
         )
+        self.assertEqual(sample_state.GetImprovedStateNumber(), 3)
+
+    def testTransitionGettersWhenTransitionsNone(self):
+        sample_state: victim.State = CreateSampleState(no_transitions=True)
+
+        self.assertEqual(sample_state.GetTimeOfDeterioration(), None)
+        self.assertEqual(sample_state.GetDeterioratedStateNumber(), None)
+        self.assertEqual(
+            sample_state.GetCriticalHealthProblemNeededToBeFixedForImprovement(),
+            []
+        )
+        self.assertEqual(sample_state.GetImprovedStateNumber(), None)
 
     def testFromString(self):
         sample_state: victim.State = CreateSampleState(no_transitions=True)
