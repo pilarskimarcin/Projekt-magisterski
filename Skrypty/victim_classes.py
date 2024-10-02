@@ -178,6 +178,7 @@ class Victim:
             if state.number == new_state_number:
                 self.current_state = state
                 self.procedures_performed_so_far = []
+                self.current_RPM_number = self.initial_RPM_number = self.CalculateRPM()
                 return
         else:
             raise ValueError("Brak stanu o takim numerze")

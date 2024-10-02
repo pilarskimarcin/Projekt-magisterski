@@ -236,6 +236,8 @@ class VictimClassTests(unittest.TestCase):
 
         self.assertEqual(self.sample_victim.current_state.number, new_state_number)
         self.assertEqual(self.sample_victim.procedures_performed_so_far, [])
+        self.assertEqual(self.sample_victim.current_RPM_number, 7)
+        self.assertEqual(self.sample_victim.initial_RPM_number, 7)
 
     def testAdmitToHospital(self):
         self.assertIsNone(self.sample_victim.hospital_admittance_time)
