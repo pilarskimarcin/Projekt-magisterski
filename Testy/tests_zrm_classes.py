@@ -55,15 +55,28 @@ class SpecialistTests(unittest.TestCase):
         )
         self.assertEqual(self.sample_specialist.is_idle, False)
 
-    def testFinishProcedure(self):
+    def testContinuePerformingProcedureFinishingProcedure(self):
         sample_procedure: victim.Procedure = tests_victim.CreateSampleProcedure()
         self.sample_specialist.StartPerformingProcedure(sample_procedure)
+        self.sample_specialist.time_until_procedure_is_finished = 1
+        self.sample_specialist.ContinuePerformingProcedure()
+
+        self.assertEqual(self.sample_specialist.stored_procedure, None)
+        self.assertEqual(self.sample_specialist.target_victim, None)
+        self.assertEqual(self.sample_specialist.time_until_procedure_is_finished, None)
+        self.assertEqual(self.sample_specialist.is_idle, True)
+
+    def testFinishProcedure(self):
+        sample_procedure: victim.Procedure = tests_victim.CreateSampleProcedure()
+        target_victim: victim.Victim = tests_victim.CreateSampleVictim()
+        self.sample_specialist.StartPerformingProcedure(sample_procedure, target_victim)
         self.sample_specialist.FinishProcedure()
 
         self.assertEqual(self.sample_specialist.stored_procedure, None)
         self.assertEqual(self.sample_specialist.target_victim, None)
         self.assertEqual(self.sample_specialist.time_until_procedure_is_finished, None)
         self.assertEqual(self.sample_specialist.is_idle, True)
+        self.assertEqual(target_victim.procedures_performed_so_far, [sample_procedure])
 
 
 def CreateSampleZRM() -> zrm.ZRM:
@@ -71,6 +84,9 @@ def CreateSampleZRM() -> zrm.ZRM:
             "K01 47", "DM06-01", zrm.ZRMType.S,
             tests_util.CreateSampleAddressHospital()
     )
+
+
+BAD_TEAM_ID = "K01 98"
 
 
 class ZRMTests(unittest.TestCase):
@@ -98,7 +114,7 @@ class ZRMTests(unittest.TestCase):
 
     def testInequality(self):
         sample_zrm: zrm.ZRM = CreateSampleZRM()
-        sample_zrm.id_ = "K01 98"
+        sample_zrm.id_ = BAD_TEAM_ID
 
         self.assertNotEqual(sample_zrm, self.sample_zrm)
 
@@ -122,11 +138,16 @@ class ZRMTests(unittest.TestCase):
 
         self.assertRaises(RuntimeError, self.sample_zrm.StartDriving, self.sample_target_location)
 
-    def testStartDrivingWithVictim(self):
+    def testStartTransportingAVictim(self):
         self.sample_zrm.StartTransportingAVictim(self.sample_victim, self.sample_target_location)
 
         self.assertTrue(self.sample_zrm.IsTransportingAVictim())
         self.assertTrue(self.sample_zrm.IsDriving())
+
+    def testStartTransportingAVictimAlreadyDriving(self):
+        self.sample_zrm.StartDriving(self.sample_target_location)
+
+        self.assertRaises(RuntimeError, self.sample_zrm.StartTransportingAVictim, self.sample_victim, self.sample_target_location)
 
     def testCalculateTimeForTheNextDestination(self):
         self.sample_zrm.target_location = self.sample_target_location

@@ -107,8 +107,6 @@ class ZRM:
         self.CalculateTimeForTheNextDestination()
 
     def CalculateTimeForTheNextDestination(self):
-        distance: float
-        duration: float
         distance, duration = self.origin_location_address.GetDistanceAndDurationToOtherPlace(
             self.target_location.address)
         self.time_until_destination_in_minutes = math.ceil(0.64 * duration)

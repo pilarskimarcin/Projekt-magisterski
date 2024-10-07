@@ -273,6 +273,12 @@ class VictimClassTests(unittest.TestCase):
         self.assertEqual(self.sample_victim.procedures_performed_so_far, [sample_procedure])
         self.assertEqual(self.sample_victim.current_state.number, 1)
 
+    def testPerformProcedureOnMeWrongProcedure(self):
+        health_problems = SampleCriticalHealthProblems()
+        sample_procedure: victim.Procedure = victim.Procedure.FromDisciplineAndNumber(
+            health_problems[0].discipline, -1, 1)
+        self.assertRaises(RuntimeError, self.sample_victim.PerformProcedureOnMe, sample_procedure)
+
     def testGetCurrentCriticalHealthProblems(self):
         sample_critical_health_problems: List[victim.HealthProblem] = SampleCriticalHealthProblems()
 
@@ -391,6 +397,17 @@ class StateClassTests(unittest.TestCase):
             SAMPLE_DESCRIPTION
         )
 
+    def testGettersErrors(self):
+        sample_state_lines: List[str] = CreateSampleStateLines()
+        sample_state_data_lines: List[str] = sample_state_lines[victim.N_FIRST_LINES_TO_OMIT:]
+        sample_state_data_lines[0] = '1; Czy pacjent chodzi?; (tak/nie); 0'  # nie -> 0
+        sample_state_data_lines[3] = '4; Czy pacjent spełnia polecenia?; (tak/nie); 1'  # tak -> 1
+        sample_state_data_lines[4] = '5; Kolor segregacji; (nazwa koloru); zielony'  # czerwony -> zielony
+
+        self.assertRaises(ValueError, victim.State.GetIsVictimWalkingFromString, sample_state_data_lines)
+        self.assertRaises(ValueError, victim.State.GetIsVictimFollowingOrdersFromString, sample_state_data_lines)
+        self.assertRaises(ValueError, victim.State.GetTriageColourFromString, sample_state_data_lines)
+
 
 class HealthProblemClassTests(unittest.TestCase):
     def testFromProcedureString(self):
@@ -401,7 +418,7 @@ class HealthProblemClassTests(unittest.TestCase):
 
 def CreateSampleProcedure():
     return victim.Procedure(
-        victim.HealthProblem(15, 1), 2
+        victim.HealthProblem(15, 7), 2
     )
 
 
@@ -410,7 +427,7 @@ class ProcedureClassTests(unittest.TestCase):
         sample_procedure: victim.Procedure = CreateSampleProcedure()
 
         self.assertEqual(
-            victim.Procedure.FromString("P(15.1)", "2"),
+            victim.Procedure.FromString("P(15.7)", "2"),
             sample_procedure
         )
 
@@ -418,7 +435,7 @@ class ProcedureClassTests(unittest.TestCase):
         sample_procedure: victim.Procedure = CreateSampleProcedure()
 
         self.assertEqual(
-            victim.Procedure.FromDisciplineAndNumber(15, 1, 2),
+            victim.Procedure.FromDisciplineAndNumber(15, 7, 2),
             sample_procedure
         )
 

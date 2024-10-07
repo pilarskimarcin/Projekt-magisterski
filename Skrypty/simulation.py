@@ -4,8 +4,9 @@ from typing import List, Optional, Tuple
 from Skrypty.scenario_classes import Scenario
 from Skrypty.sor_classes import Hospital, IncidentPlace
 from Skrypty.utilities import PlaceAddress, TargetDestination
-from Skrypty.victim_classes import Procedure, TriageColour, Victim
+from Skrypty.victim_classes import HealthProblem, Procedure, TriageColour, Victim
 from Skrypty.zrm_classes import ZRM
+from zrm_classes import Specialist
 
 # Stałe
 PROCEDURES_CSV_TIME_COLUMN_NAME: str = "Czas wykonania przez ratowników [min]"
@@ -66,56 +67,54 @@ class Simulation:
             main_incident, main_incident.reported_victims_count
         )
         while not self.CheckIfSimulationEndReached():
-            self.SimulationRegularStep()
+            self.SimulationTimeProgresses()
             for incident in self.incidents:
                 self.TryHandleReconnaissance(first_team, incident)
             for team in self.teams_in_action:
                 if not team.IsDriving() and not team.are_specialists_outside:
-                    if self.transport_ready_victims:
-                        # wziąć wg koloru (czerwony, żółty) i RPM rosnąco, jechać do szpitala
-                        pass
-                    else:
-                        team.SpecialistsLeaveTheVehicle()
-                    # TODO: albo ma jechać na miejsce wypadku - wtedy gdy zostanie przeniesiony ktoś na transport_ready
+                    self.OrderIdleTeam(team)
                 if team.are_specialists_outside and team.AreSpecialistsIdle():
-                    if self.unknown_status_victims:
-                        # triaż - 30sek/pacjenta, robić aż będzie puste unknown_status_victims - ile triażystów max?
-                        # zapisać w zmiennej liczbę triażystów
-                        pass
-                    elif self.assessed_victims:
-                        target_victim: Victim = self.GetTargetVictimForProcedure()
-                        target_victim_critical_health_problems = target_victim.GetCurrentCriticalHealthProblems()
-                        # perform procedure odpowiednio
-                        # przy wrzucaniu do transported - wysłać karetkę, której cel jest najbliżej do tego miejsca
-                        # GetClosestTeam(adres)? Trzeba pamiętać czy ona jest gdzieś, czy jedzie - wtedy od jej celu,
-                        # nie od niej
-                        pass
-                    else:
-                        team.TrySpecialistsComeBackToTheVehicle()
+                    self.OrderIdleSpecialists(team)
             # czy nowy wypadek z additional_scenarios?
         # sprawdzić wyniki symulacji
 
     def SendOutNTeamsToTheIncidentReturnFirst(self, incident_place: IncidentPlace, n_teams_to_send: int) -> ZRM:
         """Wysyła pierwsze zespoły na miejsce wypadku, zwraca ten, który przyjedzie pierwszy"""
-        teams_times_to_reach_incident: List[Tuple[str, float]] = self.TeamsAndTimesToReachTheAddressAscending(
-            self.idle_teams, incident_place.address
+        teams_times_to_reach_incident: List[Tuple[str, float]] = (
+            self.GetTeamsWithoutQueueAndTimesToReachTheAddressAscending(
+                self.idle_teams, incident_place.address
+            )
         )
         for count, team_and_time in enumerate(teams_times_to_reach_incident):
             team_id, _ = team_and_time
-            if count < n_teams_to_send:
+            if count >= n_teams_to_send:
+                break
+            else:
                 team: ZRM = self.GetTeamById(team_id)
                 team.StartDriving(incident_place)
                 self.TeamIntoAction(team)
         return self.GetTeamById(teams_times_to_reach_incident[0][0])
 
     @staticmethod
-    def TeamsAndTimesToReachTheAddressAscending(teams: List[ZRM], address: PlaceAddress) -> List[Tuple[str, float]]:
+    def GetTeamsWithoutQueueAndTimesToReachTheAddressAscending(teams: List[ZRM], address: PlaceAddress) \
+            -> List[Tuple[str, float]]:
         teams_times_to_reach_incident: List[Tuple[str, float]] = []
         for team in teams:
+            if team.queue_of_next_targets:
+                continue
+            if team.IsDriving():
+                time_to_reach_address: float = (
+                        team.time_until_destination_in_minutes +
+                        team.target_location.address.GetDistanceAndDurationToOtherPlace(address)[1]
+                )
+            else:
+                time_to_reach_address: float = (
+                    team.origin_location_address.GetDistanceAndDurationToOtherPlace(address)[1]
+                )
             teams_times_to_reach_incident.append(
                 (
                     team.id_,
-                    team.origin_location_address.GetDistanceAndDurationToOtherPlace(address)[1]
+                    time_to_reach_address
                 )
             )
         teams_times_to_reach_incident.sort(key=lambda x: x[1])
@@ -139,7 +138,7 @@ class Simulation:
                 return False
         return True
 
-    def SimulationRegularStep(self):
+    def SimulationTimeProgresses(self):
         self.elapsed_simulation_time += 1
         for team in self.teams_in_action:
             self.MoveTeam(team)
@@ -185,6 +184,44 @@ class Simulation:
                 return procedure
         return None
 
+    def OrderIdleTeam(self, team: ZRM):
+        if team.queue_of_next_targets:
+            team.StartDriving(team.queue_of_next_targets.pop())
+        elif self.transport_ready_victims:
+            # wziąć wg koloru (czerwony, żółty) i RPM rosnąco, jechać do szpitala
+            pass
+        else:
+            team.SpecialistsLeaveTheVehicle()
+        # TODO: albo ma jechać na miejsce wypadku - wtedy gdy zostanie przeniesiony ktoś na transport_ready
+
+    def OrderIdleSpecialists(self, team: ZRM):
+        for specialist in team.specialists:
+            if self.unknown_status_victims:
+                # triaż - 30sek/pacjenta, robić aż będzie puste unknown_status_victims - ile triażystów max?
+                # zapisać w zmiennej liczbę triażystów
+                pass
+            elif self.assessed_victims:
+                self.HelpMostCriticalAssessedVictim(specialist, team)
+            else:
+                team.TrySpecialistsComeBackToTheVehicle()
+
+    def HelpMostCriticalAssessedVictim(self, specialist: Specialist, team: ZRM):
+        # TODO przerobić na pętlę, by albo komuś zdołać pomóc, albo się zebrać
+        target_victim: Victim = self.GetTargetVictimForProcedure()
+        target_victim_critical_health_problems = target_victim.GetCurrentCriticalHealthProblems()
+        if len(target_victim_critical_health_problems) == 0:
+            self.MoveVictimFromAssessedToTransportReady(target_victim)
+            closest_zrm: ZRM = self.GetClosestTeamWithoutQueue(team.origin_location_address)
+            incident_location: IncidentPlace = self.GetIncidentPlaceFromAddress(
+                team.origin_location_address
+            )
+            closest_zrm.QueueNewTargetLocation(incident_location)
+        health_problem_to_treat: HealthProblem = target_victim_critical_health_problems.pop()
+        procedure_to_be_performed: Procedure = self.GetProcedureByDisciplineAndNumber(
+            health_problem_to_treat.discipline, health_problem_to_treat.number
+        )
+        specialist.StartPerformingProcedure(procedure_to_be_performed, target_victim)
+
     def GetTargetVictimForProcedure(self) -> Optional[Victim]:
         victims_yellow: List[Victim] = []
         victims_red: List[Victim] = []
@@ -200,6 +237,19 @@ class Simulation:
         elif victims_yellow:
             victims_yellow.sort(key=lambda x: x.current_RPM_number)
             return victims_yellow[0]
+        return None
+
+    def GetClosestTeamWithoutQueue(self, target_address: PlaceAddress) -> Optional[ZRM]:
+        teams_and_times = self.GetTeamsWithoutQueueAndTimesToReachTheAddressAscending(
+            self.teams_in_action, target_address
+        )
+        closest_team_id, _ = teams_and_times[0] if teams_and_times else (None, None)
+        return self.GetTeamById(closest_team_id) if closest_team_id else None
+
+    def GetIncidentPlaceFromAddress(self, address: PlaceAddress) -> Optional[IncidentPlace]:
+        for incident in self.incidents:
+            if incident.address == address:
+                return incident
         return None
     
     def MoveVictimFromUnknownStatusToAssessed(self, victim: Victim):

@@ -17,6 +17,12 @@ def CreateSampleAddressHospital() -> utilities.PlaceAddress:
     )
 
 
+def CreateSampleAddressHospital2() -> utilities.PlaceAddress:
+    return utilities.PlaceAddress(
+        "Wysokie Brzegi", "4", "32-600", "Oświęcim"
+    )
+
+
 def CreateSampleDistanceAndDurationData() -> Tuple[float, float]:
     return 1.53, 2.7
 
@@ -29,6 +35,10 @@ def CreateSampleAddressIncident() -> utilities.PlaceAddress:
     return utilities.PlaceAddress(
         "Magnoliowa", "10", "32-500", "Chrzanów"
     )
+
+
+def SampleMultiplePartsAddress() -> str:
+    return "30 Maja 1960r. 9B 65-072 Zielona Góra"
 
 
 class TestPlaceAddress(unittest.TestCase):
@@ -65,17 +75,44 @@ class TestPlaceAddress(unittest.TestCase):
         self.assertEqual(utilities.PlaceAddress.FromString(sample_address_string), self.sample_address)
 
     def testDivideAddressIntoParts(self):
-        sample_address_parts: Tuple[str, str, str, str] = "18 Listopada 1989", "16", "32-700", "Tarnowskie Góry"
+        sample_address_parts: Tuple[str, str, str, str] = ("30 Maja 1960r.", "9B", "65-072", "Zielona Góra")
 
         self.assertEqual(
-            utilities.PlaceAddress.DivideAddressIntoParts("18 Listopada 1989 16 32-700 Tarnowskie Góry"),
+            utilities.PlaceAddress.DivideAddressIntoParts(SampleMultiplePartsAddress()),
             sample_address_parts
         )
 
-    def testGeocoding(self):
-        self.RemoveLatitudeAndLongitudeFromSampleAddress()
-        self.sample_address.Geocoding()
+    def testDivideAddressIntoPartsInvalidAddress(self):
+        self.assertRaises(
+            ValueError, utilities.PlaceAddress.DivideAddressIntoParts, "18 Listopada 1989 16 32 700 Tarnowskie Góry"
+        )
+
+    def testGeocodingIsAlreadyInFile(self):
         sample_latitude, sample_longitude = CreateSampleCoordinates()
+        self.RemoveLatitudeAndLongitudeFromSampleAddress()
+        with open(utilities.PLACES_CSV_FILE, encoding="utf-8") as f1:
+            file1 = f1.read()
+        self.sample_address.Geocoding()
+        with open(utilities.PLACES_CSV_FILE, encoding="utf-8") as f2:
+            file2 = f2.read()
+
+        self.assertEqual(file1, file2)
+        self.assertAlmostEqual(self.sample_address.latitude, sample_latitude, delta=0.0015)
+        self.assertAlmostEqual(self.sample_address.longitude, sample_longitude, delta=0.015)
+
+    # def testGeocodingAddressNotInFile(self):
+    #     # TODO0 usunąć ostatni w pliku adres, zapamiętać współrzędne, utworzyć obiekt, geocoding powinien przywrócić
+    #     #  taki sam stan pliku i dobre współrzędne z API wyciągnąć
+
+    def testGeocodingAlreadyGeocoded(self):
+        sample_latitude, sample_longitude = CreateSampleCoordinates()
+        with open(utilities.PLACES_CSV_FILE, encoding="utf-8") as f1:
+            file1 = f1.read()
+        self.sample_address.Geocoding()
+        with open(utilities.PLACES_CSV_FILE, encoding="utf-8") as f2:
+            file2 = f2.read()
+
+        self.assertEqual(file1, file2)
         self.assertAlmostEqual(self.sample_address.latitude, sample_latitude, delta=0.0015)
         self.assertAlmostEqual(self.sample_address.longitude, sample_longitude, delta=0.015)
 
@@ -83,7 +120,7 @@ class TestPlaceAddress(unittest.TestCase):
         self.sample_address.longitude = self.sample_address.latitude = None
 
     def testAreCoordinatesSavedInDataFrameTrue(self):
-        places_coordinates_df: pd.DataFrame = pd.read_csv("../Dane/Miejsca.csv", header=0, index_col=0)
+        places_coordinates_df: pd.DataFrame = pd.read_csv(utilities.PLACES_CSV_FILE, header=0, index_col=0)
 
         self.assertTrue(self.sample_address.AreCoordinatesSavedInDataFrame(places_coordinates_df))
 
@@ -113,10 +150,21 @@ class TestPlaceAddress(unittest.TestCase):
         self.assertAlmostEqual(self.sample_address.latitude, sample_latitude, delta=0.0015)
         self.assertAlmostEqual(self.sample_address.longitude, sample_longitude, delta=0.015)
 
-    def testSavePlaceCoordinatesToFileExistingRecord(self):
-        with open("../Dane/Miejsca.csv", encoding="utf-8") as f1:
+    def testSavePlaceCoordinatesToFileNoCoordinates(self):
+        with open(utilities.PLACES_CSV_FILE, encoding="utf-8") as f1:
             file1 = f1.read()
-        with open("../Dane/Miejsca.csv", encoding="utf-8") as f2:
+        self.RemoveLatitudeAndLongitudeFromSampleAddress()
+        self.sample_address.SavePlaceCoordinatesToFile()
+        with open(utilities.PLACES_CSV_FILE, encoding="utf-8") as f2:
+            file2 = f2.read()
+
+        self.assertEqual(file1, file2)
+
+    def testSavePlaceCoordinatesToFileExistingRecord(self):
+        with open(utilities.PLACES_CSV_FILE, encoding="utf-8") as f1:
+            file1 = f1.read()
+        self.sample_address.SavePlaceCoordinatesToFile()
+        with open(utilities.PLACES_CSV_FILE, encoding="utf-8") as f2:
             file2 = f2.read()
 
         self.assertEqual(file1, file2)
@@ -156,20 +204,31 @@ class TestPlaceAddress(unittest.TestCase):
         self.assertAlmostEqual(results[0], sample_distance, delta=0.1)
         self.assertAlmostEqual(results[1], sample_duration, delta=1)
 
-    def testGetDistanceAndDurationToSamePlace(self):
+    def testGetDistanceAndDurationToOtherPlaceSamePlace(self):
         sample_address_2: utilities.PlaceAddress = CreateSampleAddressHospital()
         results = self.sample_address.GetDistanceAndDurationToOtherPlace(sample_address_2)
 
         self.assertAlmostEqual(results[0], 0)
         self.assertAlmostEqual(results[1], 0)
 
+    def testGetDistanceAndDurationToOtherPlaceError(self):
+        sample_address_2: utilities.PlaceAddress = CreateSampleAddressHospital()
+        self.RemoveLatitudeAndLongitudeFromSampleAddress()
+
+        self.assertRaises(RuntimeError, self.sample_address.GetDistanceAndDurationToOtherPlace, sample_address_2)
+
     def testReadDistanceAndDurationFromFile(self):
         sample_address_2: utilities.PlaceAddress = CreateSampleAddressIncident()
         sample_distance, sample_duration = CreateSampleDistanceAndDurationData()
-        results = self.sample_address.GetDistanceAndDurationToOtherPlace(sample_address_2)
+        results = self.sample_address.ReadDistanceAndDurationFromFile(sample_address_2)
 
         self.assertAlmostEqual(results[0], sample_distance, delta=0.1)
         self.assertAlmostEqual(results[1], sample_duration, delta=0.1)
+
+    def testReadDistanceAndDurationFromFileError(self):
+        sample_address_2: utilities.PlaceAddress = utilities.PlaceAddress.FromString(SampleMultiplePartsAddress())
+
+        self.assertIsNone(self.sample_address.ReadDistanceAndDurationFromFile(sample_address_2))
 
     def testCalculateDistanceAndDurationToOtherPlaceUsingAPI(self):
         sample_address_2: utilities.PlaceAddress = CreateSampleAddressIncident()
@@ -194,16 +253,25 @@ class TestPlaceAddress(unittest.TestCase):
 
     def testSaveDistanceAndDurationToFileNewRecord(self):
         sample_address_2: utilities.PlaceAddress = CreateSampleAddressIncident()
+        sample_address_3: utilities.PlaceAddress = CreateSampleAddressHospital2()
         sample_filename: str = "test.json"
         sample_distance, sample_duration = CreateSampleDistanceAndDurationData()
         open(sample_filename, "w", encoding="utf-8").close()
         self.sample_address.SaveDistanceAndDurationToFile(
             sample_distance, sample_duration, sample_address_2, sample_filename
         )
+        self.sample_address.SaveDistanceAndDurationToFile(
+            sample_distance, sample_duration, sample_address_3, sample_filename
+        )
 
         self.assertTrue(
             self.sample_address.IsDistanceAndDurationPresentInTheFile(
                 sample_address_2, sample_filename
+            )
+        )
+        self.assertTrue(
+            self.sample_address.IsDistanceAndDurationPresentInTheFile(
+                sample_address_3, sample_filename
             )
         )
         os.remove(sample_filename)

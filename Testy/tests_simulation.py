@@ -84,14 +84,7 @@ class TestSimulation(unittest.TestCase):
 
         self.assertEqual(self.GetCountOfDrivingTeams(), len(self.simulation.teams_in_action))
 
-    def testTeamIntoAction(self):
-        sample_team: zrm.ZRM = self.simulation.idle_teams[0]
-        self.simulation.TeamIntoAction(sample_team)
-
-        self.assertFalse(sample_team in self.simulation.idle_teams)
-        self.assertTrue(sample_team in self.simulation.teams_in_action)
-
-    def testTeamsAndTimesToReachTheIncidentAscending(self):
+    def testTeamsAndTimesToReachTheIncidentAscendingBeginningState(self):
         sample_teams_times_to_reach_incident: List[Tuple[str, float]] = [
             ('K01 47', 3.9166666666666665), ('K01 098', 3.9166666666666665), ('K01 100', 5.616666666666666),
             ('K01 102', 15.2), ('K01 104', 18.666666666666668), ('K01 032', 21.033333333333335),
@@ -103,24 +96,106 @@ class TestSimulation(unittest.TestCase):
         ]
 
         self.assertEqual(
-            self.simulation.TeamsAndTimesToReachTheAddressAscending(
+            self.simulation.GetTeamsWithoutQueueAndTimesToReachTheAddressAscending(
                 self.simulation.idle_teams, self.simulation.incidents[0].address
             ),
             sample_teams_times_to_reach_incident
         )
 
-    def testGetTeamById(self):
-        sample_team: zrm.ZRM = tests_zrm.CreateSampleZRM()
+    def testTeamsAndTimesToReachTheIncidentAscendingRandomState(self):
+        """
+        Wyczerpuje wszystkie przypadki liczenia czasu dojazdu
+        - K01 47 nie brany pod uwagę, bo ma kolejkę zadań,
+        - K01 112 jest bliżej niż zwykle, więc inna kolejność,
+        - K01 100 jedzie już do szpitala, więc będzie inaczej policzony czas dojazdu
+        """
+        self.simulation.GetTeamById('K01 47').QueueNewTargetLocation(self.simulation.incidents[0])
+        closest_team: zrm.ZRM = self.simulation.GetTeamById('K01 112')
+        closest_team.StartDriving(self.simulation.incidents[0])
+        closest_team.time_until_destination_in_minutes = 1
+        self.simulation.GetTeamById('K01 100').StartDriving(self.simulation.all_hospitals[0])
+
+        sample_teams_times_to_reach_incident: List[Tuple[str, float]] = [
+            ('K01 112', 1.0), ('K01 098', 3.9166666666666665), ('K01 100', 9.9166666666666666),
+            ('K01 102', 15.2), ('K01 104', 18.666666666666668), ('K01 032', 21.033333333333335),
+            ('K01 138', 21.033333333333335), ('S02 242', 21.816666666666666), ('S02 214', 21.816666666666666),
+            ('S02 212', 21.816666666666666), ('K01 152', 27.066666666666666), ('S02 350', 27.55), ('S02 352', 27.55),
+            ('K01 116', 28.65), ('K01 43', 29.55), ('S02 308', 31.25), ('K01 154', 31.35),
+            ('K01 07', 31.683333333333334), ('S02 313', 31.983333333333334), ('S02 348', 31.983333333333334),
+            ('K01 022', 32.85), ('K01 142', 33.18333333333333)
+        ]
+
+        self.assertEqual(
+            self.simulation.GetTeamsWithoutQueueAndTimesToReachTheAddressAscending(
+                self.simulation.idle_teams, self.simulation.incidents[0].address
+            ),
+            sample_teams_times_to_reach_incident
+        )
+
+    def testGetTeamByIdIdle(self):
+        sample_team: zrm.ZRM = self.simulation.idle_teams[0]
 
         self.assertEqual(sample_team, self.simulation.GetTeamById(sample_team.id_))
 
-    def testSimulationRegularStep(self):
-        setup_values: Tuple[int, int, int, int] = self.SimulationRegularStepTestSetup()
-        self.simulation.SimulationRegularStep()
+    def testGetTeamByIdInAction(self):
+        sample_team: zrm.ZRM = self.simulation.idle_teams[0]
+        self.simulation.TeamIntoAction(sample_team)
+
+        self.assertEqual(sample_team, self.simulation.GetTeamById(sample_team.id_))
+
+    def testGetTeamByIdWrongId(self):
+        self.assertIsNone(self.simulation.GetTeamById(tests_zrm.BAD_TEAM_ID))
+
+    def testTeamIntoAction(self):
+        sample_team: zrm.ZRM = self.simulation.idle_teams[0]
+        self.simulation.TeamIntoAction(sample_team)
+
+        self.assertFalse(sample_team in self.simulation.idle_teams)
+        self.assertTrue(sample_team in self.simulation.teams_in_action)
+
+    def testCheckIfSimulationEndReachedTrue(self):
+        self.SimulationEndSetup()
+
+        self.assertTrue(self.simulation.CheckIfSimulationEndReached())
+
+    def SimulationEndSetup(self):
+        for victim_ in self.simulation.all_victims:
+            self.simulation.MoveVictimFromUnknownStatusToAssessed(victim_)
+            if not victim_.IsDead():
+                self.simulation.MoveVictimFromAssessedToTransportReady(victim_)
+        self.simulation.transport_ready_victims.clear()
+
+    def testCheckIfSimulationEndReachedNotAssessed(self):
+        self.SimulationEndSetup()
+        self.simulation.unknown_status_victims.append(self.RandomVictim())
+
+        self.assertFalse(self.simulation.CheckIfSimulationEndReached())
+
+    def RandomVictim(self) -> victim.Victim:
+        random_victim: Optional[victim.Victim] = None
+        while not random_victim or random_victim.IsDead():
+            random_victim = random.choice(self.simulation.all_victims)
+        return random_victim
+
+    def testCheckIfSimulationEndReachedNotAdmittedToHospital(self):
+        self.SimulationEndSetup()
+        self.simulation.transport_ready_victims.append(self.RandomVictim())
+
+        self.assertFalse(self.simulation.CheckIfSimulationEndReached())
+
+    def testCheckIfSimulationEndReachedNotDeadLeftInAssessed(self):
+        self.SimulationEndSetup()
+        self.simulation.assessed_victims.append(self.RandomVictim())
+
+        self.assertFalse(self.simulation.CheckIfSimulationEndReached())
+
+    def testSimulationTimeProgresses(self):
+        setup_values: Tuple[int, int, int, int] = self.SimulationTimeProgressTestSetup()
+        self.simulation.SimulationTimeProgresses()
 
         self.AssertSimulationRegularStepEndedSuccessfully(setup_values)
 
-    def SimulationRegularStepTestSetup(self):
+    def SimulationTimeProgressTestSetup(self):
         elapsed_time_before: int = self.simulation.elapsed_simulation_time
         sample_destination: util.TargetDestination = util.TargetDestination(tests_util.CreateSampleAddressIncident())
         first_zrm: zrm.ZRM = self.simulation.idle_teams[0]
@@ -167,25 +242,31 @@ class TestSimulation(unittest.TestCase):
         )
 
     def TeamStartDrivingWithVictim(self, hospital_target: bool = False) -> Tuple[zrm.ZRM, victim.Victim]:
+        sample_victim: victim.Victim = self.RandomVictim()
         if hospital_target:
             sample_destination: sor.Hospital = tests_scenario.CreateSampleHospital()
+            sample_victim = self.EnsureThatVictimCanBeAdmittedToHospital(
+                sample_victim, sample_destination
+            )
         else:
             sample_destination: util.TargetDestination = util.TargetDestination(
                 tests_util.CreateSampleAddressIncident()
             )
         sample_team: zrm.ZRM = self.simulation.idle_teams[0]
         self.simulation.TeamIntoAction(sample_team)
-        sample_victim: victim.Victim = self.RandomVictim()
         self.simulation.MoveVictimFromUnknownStatusToAssessed(sample_victim)
         self.simulation.MoveVictimFromAssessedToTransportReady(sample_victim)
         sample_team.StartTransportingAVictim(sample_victim, sample_destination)
         return sample_team, sample_victim
 
-    def RandomVictim(self) -> victim.Victim:
-        random_victim: Optional[victim.Victim] = None
-        while not random_victim or random_victim.IsDead():
-            random_victim = random.choice(self.simulation.all_victims)
-        return random_victim
+    def EnsureThatVictimCanBeAdmittedToHospital(self, sample_victim: victim.Victim, hospital: sor.Hospital):
+        victim_can_be_admitted_to_hospital: bool = False
+        while not victim_can_be_admitted_to_hospital:
+            sample_victim: victim.Victim = self.RandomVictim()
+            for medicine_discipline_id in sample_victim.GetCurrentHealthProblemDisciplines():
+                if hospital.TryGetDepartment(medicine_discipline_id):
+                    victim_can_be_admitted_to_hospital = True
+        return sample_victim
 
     def testMoveTeamFinishedInHospital(self):
         sample_team, sample_victim = self.TeamStartDrivingWithVictim(hospital_target=True)
@@ -260,35 +341,17 @@ class TestSimulation(unittest.TestCase):
             reconnaissance_procedure
         )
 
-    def testCheckIfSimulationEndReachedTrue(self):
-        self.SimulationEndSetup()
+    def testGetProcedureByDisciplineAndNumberNoneFound(self):
+        self.assertIsNone(self.simulation.GetProcedureByDisciplineAndNumber(-1, -1))
 
-        self.assertTrue(self.simulation.CheckIfSimulationEndReached())
+    def testOrderIdleTeam(self):
+        raise NotImplementedError
 
-    def SimulationEndSetup(self):
-        for victim_ in self.simulation.all_victims:
-            self.simulation.MoveVictimFromUnknownStatusToAssessed(victim_)
-            if not victim_.IsDead():
-                self.simulation.MoveVictimFromAssessedToTransportReady(victim_)
-        self.simulation.transport_ready_victims.clear()
+    def testOrderIdleSpecialists(self):
+        raise NotImplementedError
 
-    def testCheckIfSimulationEndReachedNotAssessed(self):
-        self.SimulationEndSetup()
-        self.simulation.unknown_status_victims.append(self.RandomVictim())
-
-        self.assertFalse(self.simulation.CheckIfSimulationEndReached())
-
-    def testCheckIfSimulationEndReachedNotAdmittedToHospital(self):
-        self.SimulationEndSetup()
-        self.simulation.transport_ready_victims.append(self.RandomVictim())
-
-        self.assertFalse(self.simulation.CheckIfSimulationEndReached())
-
-    def testCheckIfSimulationEndReachedNotDeadLeftInAssessed(self):
-        self.SimulationEndSetup()
-        self.simulation.assessed_victims.append(self.RandomVictim())
-
-        self.assertFalse(self.simulation.CheckIfSimulationEndReached())
+    def testHelpMostImportantAssessedVictim(self):
+        raise NotImplementedError
 
     def testGetTargetVictimForProcedureRed(self):
         worst_condition_red_victim_RPM_number: int = 2
@@ -324,6 +387,58 @@ class TestSimulation(unittest.TestCase):
         self.RemoveVictimsWithTriageColour(victim.TriageColour.YELLOW)
 
         self.assertIsNone(self.simulation.GetTargetVictimForProcedure())
+
+    def testGetClosestTeamWithoutQueueBeginning(self):
+        self.AllTeamsIntoAction()
+        self.assertTrue(
+            self.simulation.GetClosestTeamWithoutQueue(self.simulation.incidents[0].address).id_ in ["K01 47", "K01 098"]
+        )
+
+    def AllTeamsIntoAction(self):
+        for team in self.simulation.idle_teams:
+            self.simulation.TeamIntoAction(team)
+
+    def testGetClosestTeamWithoutQueueClosestHaveQueuesNextClosestChosen(self):
+        self.AllTeamsIntoAction()
+        self.simulation.GetTeamById("K01 47").QueueNewTargetLocation(self.simulation.incidents[0])
+        self.simulation.GetTeamById("K01 098").QueueNewTargetLocation(self.simulation.incidents[0])
+        self.assertEqual(
+            self.simulation.GetClosestTeamWithoutQueue(self.simulation.incidents[0].address).id_, "K01 100"
+        )
+
+    def testGetClosestTeamWithoutQueueClosestIsDriving(self):
+        self.AllTeamsIntoAction()
+        closest_team_id: str = "S02 348"
+        closest_team: zrm.ZRM = self.simulation.GetTeamById(closest_team_id)
+        closest_team.StartDriving(self.simulation.incidents[0])
+        closest_team.time_until_destination_in_minutes = 1
+
+        self.assertEqual(
+            self.simulation.GetClosestTeamWithoutQueue(self.simulation.incidents[0].address).id_,
+            closest_team_id
+        )
+
+    def testGetClosestTeamWithoutQueueNone(self):
+        self.AllTeamsIntoAction()
+        for team in self.simulation.teams_in_action:
+            team.QueueNewTargetLocation(self.simulation.incidents[0])
+
+        self.assertIsNone(self.simulation.GetClosestTeamWithoutQueue(self.simulation.incidents[0].address))
+
+    def testGetIncidentPlaceFromAddressFromTeamAddress(self):
+        driving_team: zrm.ZRM = self.simulation.idle_teams[0]
+        driving_team.StartDriving(self.simulation.incidents[0])
+        driving_team.FinishDrivingAndReturnVictim()
+
+        self.assertEqual(
+            self.simulation.GetIncidentPlaceFromAddress(driving_team.origin_location_address),
+            self.simulation.incidents[0]
+        )
+
+    def testGetIncidentPlaceFromAddressBadAddress(self):
+        driving_team: zrm.ZRM = self.simulation.idle_teams[0]
+
+        self.assertIsNone(self.simulation.GetIncidentPlaceFromAddress(driving_team.origin_location_address))
 
     def testMoveVictimFromUnknownStatusToAssessed(self):
         random_victim: victim.Victim = self.RandomVictim()

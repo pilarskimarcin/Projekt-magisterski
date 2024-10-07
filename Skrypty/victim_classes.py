@@ -322,7 +322,8 @@ class State:
         elif stat == "tak":
             return True
         else:
-            raise ValueError("Błąd w trakcie wczytywania profilu: nieprawidłowa wartość \"Czy pacjent chodzi?\"")
+            raise ValueError("Błąd w trakcie wczytywania profilu: nieprawidłowa wartość "
+                             "\"Czy pacjent wykonuje polecenia?\"")
 
     @classmethod
     def GetTriageColourFromString(cls, data_lines: List[str]) -> TriageColour:
@@ -335,7 +336,7 @@ class State:
             case "żółty":
                 return TriageColour.YELLOW
             case _:
-                return TriageColour.GREEN
+                raise ValueError("Błąd w trakcie wczytywania profilu: nieprawidłowa wartość \"Kolor segregacji\"")
 
     @classmethod
     def GetHealthProblemIdsFromString(cls, data_lines: List[str]) -> List[HealthProblem]:
