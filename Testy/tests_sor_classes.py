@@ -189,8 +189,11 @@ class HospitalTests(unittest.TestCase):
         self.sample_hospital.departments.pop()
         self.sample_hospital.departments.pop(0)
 
-        self.assertRaises(RuntimeError, self.sample_hospital.TakeInVictimToOneOfDepartments, sample_victim, sample_time)
+        self.assertRaises(
+            RuntimeError,
+            self.sample_hospital.TakeInVictimToOneOfDepartments, sample_victim, sample_time
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

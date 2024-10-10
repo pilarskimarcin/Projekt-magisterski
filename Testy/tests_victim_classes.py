@@ -93,7 +93,7 @@ class FunctionsTests(unittest.TestCase):
         self.assertEqual(deterioration_table[-1], deterioration_table_last_row)
 
     def testConvertRowWithoutFirstElementToInt(self):
-        sample_string_row: List[str] = ['12', '12', '12', '11', '11', '10', '10', '10', '10', '9', '9', '8', '8']
+        sample_string_row: List[str] = ["12", "12", "12", "11", "11", "10", "10", "10", "10", "9", "9", "8", "8"]
         sample_result_int_row: List[int] = CreateDeteriorationTableLastRow()
 
         self.assertEqual(
@@ -228,7 +228,10 @@ class VictimClassTests(unittest.TestCase):
     def testChangeStateWrongNumber(self):
         wrong_state_number: int = 4
 
-        self.assertRaises(ValueError, self.sample_victim.ChangeState, wrong_state_number)
+        self.assertRaises(
+            ValueError,
+            self.sample_victim.ChangeState, wrong_state_number
+        )
 
     def testChangeStateCorrectNumber(self):
         new_state_number: int = 3
@@ -277,7 +280,11 @@ class VictimClassTests(unittest.TestCase):
         health_problems = SampleCriticalHealthProblems()
         sample_procedure: victim.Procedure = victim.Procedure.FromDisciplineAndNumber(
             health_problems[0].discipline, -1, 1)
-        self.assertRaises(RuntimeError, self.sample_victim.PerformProcedureOnMe, sample_procedure)
+
+        self.assertRaises(
+            RuntimeError,
+            self.sample_victim.PerformProcedureOnMe, sample_procedure
+        )
 
     def testGetCurrentCriticalHealthProblems(self):
         sample_critical_health_problems: List[victim.HealthProblem] = SampleCriticalHealthProblems()
@@ -320,9 +327,18 @@ class StateClassTests(unittest.TestCase):
     def testCheckInitArguments(self):
         victim.State.CheckInitArguments(1, 0, 0)
 
-        self.assertRaises(ValueError, victim.State.CheckInitArguments, 1, 0, -1)
-        self.assertRaises(ValueError, victim.State.CheckInitArguments, 1, -1, 0)
-        self.assertRaises(ValueError, victim.State.CheckInitArguments, 0, 0, 0)
+        self.assertRaises(
+            ValueError,
+            victim.State.CheckInitArguments, 1, 0, -1
+        )
+        self.assertRaises(
+            ValueError,
+            victim.State.CheckInitArguments, 1, -1, 0
+        )
+        self.assertRaises(
+            ValueError,
+            victim.State.CheckInitArguments, 0, 0, 0
+        )
 
     def testEquality(self):
         self.assertEqual(CreateSampleState(), CreateSampleState())
@@ -400,13 +416,22 @@ class StateClassTests(unittest.TestCase):
     def testGettersErrors(self):
         sample_state_lines: List[str] = CreateSampleStateLines()
         sample_state_data_lines: List[str] = sample_state_lines[victim.N_FIRST_LINES_TO_OMIT:]
-        sample_state_data_lines[0] = '1; Czy pacjent chodzi?; (tak/nie); 0'  # nie -> 0
-        sample_state_data_lines[3] = '4; Czy pacjent spełnia polecenia?; (tak/nie); 1'  # tak -> 1
-        sample_state_data_lines[4] = '5; Kolor segregacji; (nazwa koloru); zielony'  # czerwony -> zielony
+        sample_state_data_lines[0] = "1; Czy pacjent chodzi?; (tak/nie); 0"  # nie -> 0
+        sample_state_data_lines[3] = "4; Czy pacjent spełnia polecenia?; (tak/nie); 1"  # tak -> 1
+        sample_state_data_lines[4] = "5; Kolor segregacji; (nazwa koloru); zielony"  # czerwony -> zielony
 
-        self.assertRaises(ValueError, victim.State.GetIsVictimWalkingFromString, sample_state_data_lines)
-        self.assertRaises(ValueError, victim.State.GetIsVictimFollowingOrdersFromString, sample_state_data_lines)
-        self.assertRaises(ValueError, victim.State.GetTriageColourFromString, sample_state_data_lines)
+        self.assertRaises(
+            ValueError,
+            victim.State.GetIsVictimWalkingFromString, sample_state_data_lines
+        )
+        self.assertRaises(
+            ValueError,
+            victim.State.GetIsVictimFollowingOrdersFromString, sample_state_data_lines
+        )
+        self.assertRaises(
+            ValueError,
+            victim.State.GetTriageColourFromString, sample_state_data_lines
+        )
 
 
 class HealthProblemClassTests(unittest.TestCase):
@@ -440,5 +465,5 @@ class ProcedureClassTests(unittest.TestCase):
         )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

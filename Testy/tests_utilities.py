@@ -48,8 +48,9 @@ class TestPlaceAddress(unittest.TestCase):
         self.sample_address = CreateSampleAddressHospital()
 
     def testInit(self):
-        self.assertEqual(self.sample_address.address_for_api_requests, "Topolowa 16, 32-500 Chrzanów")
         sample_latitude, sample_longitude = CreateSampleCoordinates()
+
+        self.assertEqual(self.sample_address.address_for_api_requests, "Topolowa 16, 32-500 Chrzanów")
         self.assertAlmostEqual(self.sample_address.latitude, sample_latitude, delta=0.0015)
         self.assertAlmostEqual(self.sample_address.longitude, sample_longitude, delta=0.015)
 
@@ -84,7 +85,8 @@ class TestPlaceAddress(unittest.TestCase):
 
     def testDivideAddressIntoPartsInvalidAddress(self):
         self.assertRaises(
-            ValueError, utilities.PlaceAddress.DivideAddressIntoParts, "18 Listopada 1989 16 32 700 Tarnowskie Góry"
+            ValueError,
+            utilities.PlaceAddress.DivideAddressIntoParts, "18 Listopada 1989 16 32 700 Tarnowskie Góry"
         )
 
     def testGeocodingIsAlreadyInFile(self):
@@ -140,7 +142,8 @@ class TestPlaceAddress(unittest.TestCase):
         sample_dataframe_without_address: pd.DataFrame = CreateSampleDataFrameWithPlacesCoordinates()
 
         self.assertRaises(
-            RuntimeError, self.sample_address.ReadCoordinatesFromDataFrame, sample_dataframe_without_address
+            RuntimeError,
+            self.sample_address.ReadCoordinatesFromDataFrame, sample_dataframe_without_address
         )
 
     def testGeocodeUsingAPI(self):
@@ -215,7 +218,10 @@ class TestPlaceAddress(unittest.TestCase):
         sample_address_2: utilities.PlaceAddress = CreateSampleAddressHospital()
         self.RemoveLatitudeAndLongitudeFromSampleAddress()
 
-        self.assertRaises(RuntimeError, self.sample_address.GetDistanceAndDurationToOtherPlace, sample_address_2)
+        self.assertRaises(
+            RuntimeError,
+            self.sample_address.GetDistanceAndDurationToOtherPlace, sample_address_2
+        )
 
     def testReadDistanceAndDurationFromFile(self):
         sample_address_2: utilities.PlaceAddress = CreateSampleAddressIncident()
@@ -311,5 +317,5 @@ class TestPlaceAddress(unittest.TestCase):
         )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

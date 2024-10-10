@@ -125,7 +125,10 @@ class TestScenario(unittest.TestCase):
     def testParseVictimsError(self):
         sample_input1: str = "Profile - liczba poszkodowanych\nŻółty/Profil70 2\nŻółty/Profil95 2"
         sample_input2: str = "Całkowita liczba poszkodowanych: 5"
-        self.assertRaises(RuntimeError, self.sample_scenario.ParseVictims, sample_input1, sample_input2)
+        self.assertRaises(
+            RuntimeError,
+            self.sample_scenario.ParseVictims, sample_input1, sample_input2
+        )
 
     def testCreateVictimsFromProfilesAndCounts(self):
         sample_profiles_and_counts: List[Tuple[str, int]] = [
@@ -144,5 +147,5 @@ class TestScenario(unittest.TestCase):
         self.assertEqual(self.sample_scenario.address, sample_address)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
