@@ -11,13 +11,15 @@ from Skrypty.utilities import PlaceAddress, TargetDestination
 
 class Specialist:
     """Klasa reprezentująca specjalistów z ZRMu"""
+    id_: int
     origin_zrm_id: str
     time_until_procedure_is_finished: Optional[int]
     stored_procedure: Optional[Procedure]
     target_victim: Optional[Victim]
     is_idle: bool
 
-    def __init__(self, origin_zrm_id: str):
+    def __init__(self, origin_zrm_id: str, id_: int):
+        self.id_ = id_
         self.origin_zrm_id = origin_zrm_id
         self.time_until_procedure_is_finished = self.stored_procedure = self.target_victim = None
         self.is_idle = False
@@ -66,7 +68,7 @@ class ZRM:
         self.id_ = id_
         self.dispatch = dispatch
         self.type = zrm_type
-        self.specialists = [Specialist(self.id_) for _ in range(self.GetPersonnelCount())]
+        self.specialists = [Specialist(self.id_, i + 1) for i in range(self.GetPersonnelCount())]
         self.origin_location_address = base_location
         self.target_location, self.transported_victim, self.time_until_destination_in_minutes = None, None, None
         self.queue_of_next_targets = []

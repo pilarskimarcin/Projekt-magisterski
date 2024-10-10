@@ -12,17 +12,19 @@ from Testy import tests_victim_classes as tests_victim
 
 class SpecialistTests(unittest.TestCase):
     sample_specialist: zrm.Specialist
+    sample_zrm: zrm.ZRM
 
     def setUp(self):
-        self.sample_specialist = zrm.Specialist("K01 47")
+        self.sample_zrm = CreateSampleZRM()
+        self.sample_specialist = self.sample_zrm.specialists[0]
 
     def testEquality(self):
-        sample_specialist: zrm.Specialist = zrm.Specialist("K01 47")
+        sample_specialist: zrm.Specialist = zrm.Specialist("K01 47", 1)
 
         self.assertEqual(sample_specialist, self.sample_specialist)
 
     def testInequality(self):
-        sample_specialist: zrm.Specialist = zrm.Specialist("K01 48")
+        sample_specialist: zrm.Specialist = self.sample_zrm.specialists[1]
 
         self.assertNotEqual(sample_specialist, self.sample_specialist)
 
@@ -131,12 +133,18 @@ class ZRMTests(unittest.TestCase):
     def testStartDrivingNoSpecialists(self):
         self.sample_zrm.SpecialistsLeaveTheVehicle()
 
-        self.assertRaises(RuntimeError, self.sample_zrm.StartDriving, self.sample_target_location)
+        self.assertRaises(
+            RuntimeError,
+            self.sample_zrm.StartDriving, self.sample_target_location
+        )
 
     def testStartDrivingIsAlreadyDriving(self):
         self.sample_zrm.StartDriving(self.sample_target_location)
 
-        self.assertRaises(RuntimeError, self.sample_zrm.StartDriving, self.sample_target_location)
+        self.assertRaises(
+            RuntimeError,
+            self.sample_zrm.StartDriving, self.sample_target_location
+        )
 
     def testStartTransportingAVictim(self):
         self.sample_zrm.StartTransportingAVictim(self.sample_victim, self.sample_target_location)
@@ -147,7 +155,10 @@ class ZRMTests(unittest.TestCase):
     def testStartTransportingAVictimAlreadyDriving(self):
         self.sample_zrm.StartDriving(self.sample_target_location)
 
-        self.assertRaises(RuntimeError, self.sample_zrm.StartTransportingAVictim, self.sample_victim, self.sample_target_location)
+        self.assertRaises(
+            RuntimeError,
+            self.sample_zrm.StartTransportingAVictim, self.sample_victim, self.sample_target_location
+        )
 
     def testCalculateTimeForTheNextDestination(self):
         self.sample_zrm.target_location = self.sample_target_location
@@ -205,7 +216,10 @@ class ZRMTests(unittest.TestCase):
     def testSpecialistsLeaveTheVehicleIsDriving(self):
         self.sample_zrm.StartDriving(self.sample_target_location)
 
-        self.assertRaises(RuntimeError, self.sample_zrm.SpecialistsLeaveTheVehicle)
+        self.assertRaises(
+            RuntimeError,
+            self.sample_zrm.SpecialistsLeaveTheVehicle
+        )
 
     def testTrySpecialistsComeBackToTheVehicleTrue(self):
         self.sample_zrm.SpecialistsLeaveTheVehicle()
