@@ -267,6 +267,7 @@ class VictimClassTests(unittest.TestCase):
         self.sample_victim.PerformProcedureOnMe(victim.Procedure(health_problems[1], 1))
 
         self.assertEqual(self.sample_victim.current_state.number, 3)
+        self.assertEqual(self.sample_victim.under_procedure, False)
 
     def testPerformProcedureOnMeOnlyOneProcedure(self):
         health_problems = SampleCriticalHealthProblems()
@@ -275,6 +276,7 @@ class VictimClassTests(unittest.TestCase):
 
         self.assertEqual(self.sample_victim.procedures_performed_so_far, [sample_procedure])
         self.assertEqual(self.sample_victim.current_state.number, 1)
+        self.assertEqual(self.sample_victim.under_procedure, False)
 
     def testPerformProcedureOnMeWrongProcedure(self):
         health_problems = SampleCriticalHealthProblems()
@@ -285,6 +287,7 @@ class VictimClassTests(unittest.TestCase):
             RuntimeError,
             self.sample_victim.PerformProcedureOnMe, sample_procedure
         )
+        self.assertEqual(self.sample_victim.under_procedure, False)
 
     def testGetCurrentCriticalHealthProblems(self):
         sample_critical_health_problems: List[victim.HealthProblem] = SampleCriticalHealthProblems()

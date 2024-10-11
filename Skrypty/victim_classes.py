@@ -66,6 +66,7 @@ class Victim:
     initial_RPM_number: int
     current_RPM_number: int
     procedures_performed_so_far: List[Procedure]
+    under_procedure: bool
 
     def __init__(self, id_: int, states: List[State]):
         self.id_ = id_
@@ -76,6 +77,7 @@ class Victim:
         self.current_RPM_number = self.initial_RPM_number = self.CalculateRPM()
         self.hospital_admittance_time = None
         self.procedures_performed_so_far = []
+        self.under_procedure = False
 
     def __eq__(self, other):
         if not isinstance(other, Victim):
@@ -184,6 +186,7 @@ class Victim:
             raise ValueError("Brak stanu o takim numerze")
 
     def PerformProcedureOnMe(self, procedure: Procedure):
+        self.under_procedure = False
         if procedure.health_problem in self.GetCurrentCriticalHealthProblems():
             self.procedures_performed_so_far.append(procedure)
             if len(self.GetCurrentCriticalHealthProblems()) == 0:
