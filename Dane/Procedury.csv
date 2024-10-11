@@ -1,38 +1,39 @@
 ﻿Lp.;Nazwa;Procedura medyczna;Czas wykonania przez ratowników [min]
 0;Rozpoznanie miejsca zdarzenia;P(0.0);5
-1;Leczenie oparzenia dróg oddechowych;P(1.1);-
-2;Leczenie oparzeń 60% powierzchni ciała;P(1.2);-
-3;Zabezpieczenie rany;P(5.1);-
-4;Zabezpieczenie rany;P(5.2);-
-5;Leczenie oparzenia 2 stopnia;P(5.3);-
-6;Zabezpieczenie ran;P(5.4);-
-7;Leczenie rany pachy;P(5.5);-
-8;Chirurgirczne leczenie urazu;P(5.6);-
-9;Nastawienie żuchwy;P(6.1);-
-10;Udrożnienie dróg oddechowych;P(15.1);2
-11;Zabezpieczenie rany;P(15.2);3
-12;Odpoczynek;P(15.3);-
-13;Analgosedacja i intubacja na poziomie szyi;P(15.4);7
-14;Tamowanie krwi z rany;P(15.5);7
-15;Analgosedacja i konikopunkcja/konikotomia;P(15.6);10
-16;Odbarczenie odmy prężnej za pomocą igły do odmy lub fingertorakostomii;P(15.7);7
-17;Założenie opaski uciskowej powyżej krwawienia;P(15.8);4
-18;Analgosedacja;P(15.9);5
-19;Stabilizacja pasem miedniczym;P(15.10);5
-20;Założenie opaski uciskowej powyżej krwawienia;P(15.11);4
-21;Dożylne podanie glukozy;P(15.12);3
-22;Wound packing rany;P(15.13);5
-23;Założenie opaski uciskowej powyżej złamania;P(15.14);5
-24;Leczenie neurochirurgiczne;P(21.1);-
-25;Leczenie wstrząsu neurogennego;P(22.2);-
-26;Leczenie ortopedyczne urazu kończyn dolnych;P(25.1);-
-27;Leczenie ortopedyczne złamania kończyn dolnych;P(25.2);-
-28;Leczenie ortopedyczne urazu kręgosłupa lędźwiowego;P(25.3);-
-29;Leczenie ortopedyczne urazu kończyn górnych;P(25.4);-
-30;Leczenie ortopedyczne urazu biodra;P(25.5);-
-31;Leczenie ortopedyczne zwichnięcia nadgarstka;P(25.6);-
-32;Leczenie ortopedyczne złamania kości kończyn górnych;P(25.7);-
-33;Leczenie ortopedyczne urazu miednicy;P(25.8);-
-34;Leczenie amputowanej kończyny;P(25.9);-
-35;Leczenie endokrynologiczne urazu śledziony;P(44.1);-
-36;Leczenie gastroenterologiczne;P(47.1);-
+1;Triaż;P(0.1);1
+2;Leczenie oparzenia dróg oddechowych;P(1.1);-
+3;Leczenie oparzeń 60% powierzchni ciała;P(1.2);-
+4;Zabezpieczenie rany;P(5.1);-
+5;Zabezpieczenie rany;P(5.2);-
+6;Leczenie oparzenia 2 stopnia;P(5.3);-
+7;Zabezpieczenie ran;P(5.4);-
+8;Leczenie rany pachy;P(5.5);-
+9;Chirurgirczne leczenie urazu;P(5.6);-
+10;Nastawienie żuchwy;P(6.1);-
+11;Udrożnienie dróg oddechowych;P(15.1);2
+12;Zabezpieczenie rany;P(15.2);3
+13;Odpoczynek;P(15.3);-
+14;Analgosedacja i intubacja na poziomie szyi;P(15.4);7
+15;Tamowanie krwi z rany;P(15.5);7
+16;Analgosedacja i konikopunkcja/konikotomia;P(15.6);10
+17;Odbarczenie odmy prężnej za pomocą igły do odmy lub fingertorakostomii;P(15.7);7
+18;Założenie opaski uciskowej powyżej krwawienia;P(15.8);4
+19;Analgosedacja;P(15.9);5
+20;Stabilizacja pasem miedniczym;P(15.10);5
+21;Założenie opaski uciskowej powyżej krwawienia;P(15.11);4
+22;Dożylne podanie glukozy;P(15.12);3
+23;Wound packing rany;P(15.13);5
+24;Założenie opaski uciskowej powyżej złamania;P(15.14);5
+25;Leczenie neurochirurgiczne;P(21.1);-
+26;Leczenie wstrząsu neurogennego;P(22.2);-
+27;Leczenie ortopedyczne urazu kończyn dolnych;P(25.1);-
+28;Leczenie ortopedyczne złamania kończyn dolnych;P(25.2);-
+29;Leczenie ortopedyczne urazu kręgosłupa lędźwiowego;P(25.3);-
+30;Leczenie ortopedyczne urazu kończyn górnych;P(25.4);-
+31;Leczenie ortopedyczne urazu biodra;P(25.5);-
+32;Leczenie ortopedyczne zwichnięcia nadgarstka;P(25.6);-
+33;Leczenie ortopedyczne złamania kości kończyn górnych;P(25.7);-
+34;Leczenie ortopedyczne urazu miednicy;P(25.8);-
+35;Leczenie amputowanej kończyny;P(25.9);-
+36;Leczenie endokrynologiczne urazu śledziony;P(44.1);-
+37;Leczenie gastroenterologiczne;P(47.1);-
