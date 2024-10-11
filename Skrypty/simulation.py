@@ -78,7 +78,7 @@ class Simulation:
                 if team.are_specialists_outside and team.AreSpecialistsIdle():
                     self.OrderIdleSpecialists(team)
             # czy nowy wypadek z additional_scenarios?
-        # sprawdzić wyniki symulacji
+        # TODO sprawdzić wyniki symulacji
 
     def SendOutNTeamsToTheIncidentReturnFirst(self, incident_place: IncidentPlace, n_teams_to_send: int) -> ZRM:
         """Wysyła pierwsze zespoły na miejsce wypadku, zwraca ten, który przyjedzie pierwszy"""
@@ -178,9 +178,11 @@ class Simulation:
 
     def PerformReconnaissance(self, first_team: ZRM):
         first_team.SpecialistsLeaveTheVehicle()
-        reconnaissance_procedure: Procedure = self.GetProcedureByDisciplineAndNumber(0, 0)
         for specialist in first_team.specialists:
-            specialist.StartPerformingProcedure(reconnaissance_procedure)
+            specialist.StartPerformingProcedure(self.GetReconnaissanceProcedure())
+
+    def GetReconnaissanceProcedure(self):
+        return self.GetProcedureByDisciplineAndNumber(0, 0)
 
     def GetProcedureByDisciplineAndNumber(self, discipline: int, number: int) -> Optional[Procedure]:
         for procedure in self.available_procedures:
@@ -201,16 +203,31 @@ class Simulation:
     def OrderIdleSpecialists(self, team: ZRM):
         for specialist in team.specialists:
             if self.unknown_status_victims:
-                # triaż - 30sek/pacjenta, robić aż będzie puste unknown_status_victims - ile triażystów max?
-                # zapisać w zmiennej liczbę triażystów
-                pass
-            elif self.AnyRemainingAliveAssessedVictims():
+                self.PerformTriage(specialist)
+            elif self.AnyRemainingAssessedVictimsNeedingProcedures():
                 self.HelpAssessedVictimOrPrepareForTransport(specialist, team)
             else:
                 team.TrySpecialistsComeBackToTheVehicle()
 
+    def AnyRemainingAssessedVictimsNeedingProcedures(self) -> bool:
+        return any([not (victim.IsDead() or victim.under_procedure) for victim in self.assessed_victims])
+
+    def PerformTriage(self, specialist: Specialist):
+        random_unknown_status_victim: Victim = random.choice(self.unknown_status_victims)
+        self.MoveVictimFromUnknownStatusToAssessed(random_unknown_status_victim)
+        specialist.StartPerformingProcedure(self.GetTriageProcedure())
+
+    def MoveVictimFromUnknownStatusToAssessed(self, victim: Victim):
+        if victim not in self.unknown_status_victims:
+            return
+        self.unknown_status_victims.remove(victim)
+        self.assessed_victims.append(victim)
+
+    def GetTriageProcedure(self):
+        return self.GetProcedureByDisciplineAndNumber(0, 1)
+
     def HelpAssessedVictimOrPrepareForTransport(self, specialist: Specialist, team: ZRM):
-        while self.AnyRemainingAliveAssessedVictims():
+        while self.AnyRemainingAssessedVictimsNeedingProcedures():
             target_victim: Victim = self.GetTargetVictimForProcedure()
             target_victim_critical_health_problems = target_victim.GetCurrentCriticalHealthProblems()
             if len(target_victim_critical_health_problems) == 0:
@@ -233,6 +250,8 @@ class Simulation:
         victims_yellow: List[Victim] = []
         victims_red: List[Victim] = []
         for victim in self.assessed_victims:
+            if victim.under_procedure:
+                continue
             match victim.current_state.triage_colour:
                 case TriageColour.YELLOW:
                     victims_yellow.append(victim)
@@ -260,6 +279,12 @@ class Simulation:
         )
         closest_zrm.QueueNewTargetLocation(incident_location)
 
+    def MoveVictimFromAssessedToTransportReady(self, victim: Victim):
+        if victim not in self.assessed_victims:
+            return
+        self.assessed_victims.remove(victim)
+        self.transport_ready_victims.append(victim)
+
     def GetClosestTeamWithoutQueue(self, target_address: PlaceAddress) -> Optional[ZRM]:
         teams_and_times = self.GetTeamsWithoutQueueAndTimesToReachTheAddressAscending(
             self.teams_in_action, target_address
@@ -272,15 +297,3 @@ class Simulation:
             if incident.address == address:
                 return incident
         return None
-
-    def MoveVictimFromUnknownStatusToAssessed(self, victim: Victim):
-        if victim not in self.unknown_status_victims:
-            return
-        self.unknown_status_victims.remove(victim)
-        self.assessed_victims.append(victim)
-
-    def MoveVictimFromAssessedToTransportReady(self, victim: Victim):
-        if victim not in self.assessed_victims:
-            return
-        self.assessed_victims.remove(victim)
-        self.transport_ready_victims.append(victim)

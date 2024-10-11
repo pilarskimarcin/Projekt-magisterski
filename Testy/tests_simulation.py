@@ -14,12 +14,6 @@ from Testy import tests_victim_classes as tests_victim
 from Testy import tests_zrm_classes as tests_zrm
 
 
-def ReconnaissanceProcedure():
-    return victim.Procedure.FromDisciplineAndNumber(
-        0, 0, 5
-    )
-
-
 class TestSimulation(unittest.TestCase):
     simulation: sim.Simulation
 
@@ -39,12 +33,12 @@ class TestSimulation(unittest.TestCase):
         self.assertEqual(
             self.simulation.incidents[0].address.address_for_places_data, "Głowackiego 91 32-540 Trzebinia"
         )
-        self.assertEqual(len(self.simulation.available_procedures), 14)
+        self.assertEqual(len(self.simulation.available_procedures), 15)
 
     def testLoadProcedures(self):
         disciplines_numbers_times: List[Tuple[int, int]] = [
-            (0, 0, 5), (15, 1, 2), (15, 2, 3), (15, 4, 7), (15, 5, 7), (15, 6, 10), (15, 7, 7), (15, 8, 4), (15, 9, 5),
-            (15, 10, 5), (15, 11, 4), (15, 12, 3), (15, 13, 5), (15, 14, 5)
+            (0, 0, 5), (0, 1, 1), (15, 1, 2), (15, 2, 3), (15, 4, 7), (15, 5, 7), (15, 6, 10), (15, 7, 7), (15, 8, 4),
+            (15, 9, 5), (15, 10, 5), (15, 11, 4), (15, 12, 3), (15, 13, 5), (15, 14, 5)
         ]
         sample_procedures: List[victim.Procedure] = [
             victim.Procedure.FromDisciplineAndNumber(discipline, number, time)
@@ -352,7 +346,9 @@ class TestSimulation(unittest.TestCase):
         self.simulation.TryHandleReconnaissance(first_ZRM, self.simulation.incidents[0])
 
         self.assertTrue(first_ZRM.are_specialists_outside)
-        self.assertEqual(first_ZRM.specialists[0].stored_procedure, ReconnaissanceProcedure())
+        self.assertEqual(
+            first_ZRM.specialists[0].stored_procedure, self.simulation.GetReconnaissanceProcedure()
+        )
         self.assertTrue(self.simulation.incidents[0].NeedsReconnaissance())
 
     def testTryHandleReconnaissanceTrueFinishedReconnaissance(self):
@@ -370,16 +366,22 @@ class TestSimulation(unittest.TestCase):
         self.simulation.TeamIntoAction(first_team)
         self.simulation.PerformReconnaissance(first_team)
 
-        self.assertEqual(first_team.specialists[0].stored_procedure, ReconnaissanceProcedure())
+        self.assertEqual(
+            first_team.specialists[0].stored_procedure, self.simulation.GetReconnaissanceProcedure()
+        )
         self.assertEqual(first_team.specialists[0].is_idle, False)
         self.assertEqual(first_team.are_specialists_outside, True)
 
-    def testGetProcedureByDisciplineAndNumber(self):
-        reconnaissance_procedure: victim.Procedure = ReconnaissanceProcedure()
-
+    def testGetReconnaissanceProcedure(self):
         self.assertEqual(
-            self.simulation.GetProcedureByDisciplineAndNumber(0, 0),
-            reconnaissance_procedure
+            self.simulation.GetReconnaissanceProcedure(),
+            victim.Procedure.FromDisciplineAndNumber(0, 0, 5)
+        )
+
+    def testGetProcedureByDisciplineAndNumber(self):
+        self.assertEqual(
+            self.simulation.GetProcedureByDisciplineAndNumber(15, 6),
+            victim.Procedure(victim.HealthProblem(15, 6), 10)
         )
 
     def testGetProcedureByDisciplineAndNumberNoneFound(self):
@@ -389,9 +391,211 @@ class TestSimulation(unittest.TestCase):
         # TODO
         pass
 
-    def testOrderIdleSpecialists(self):
-        # TODO
-        pass
+    def testOrderIdleSpecialistsEverySpecialistTriage(self):
+        """Trzech ocenionych poszkodowanych, ale jest dużo nieocenionych, więc priorytetem jest ocena tych drugich"""
+        sample_team: zrm.ZRM = tests_zrm.CreateSampleZRM()
+        sample_team.SpecialistsLeaveTheVehicle()
+        n_victims_to_triage: int = 3
+        for _ in range(n_victims_to_triage):
+            self.simulation.MoveVictimFromUnknownStatusToAssessed(
+                self.RandomAliveVictimFromList(self.simulation.unknown_status_victims)
+            )
+        prev_unknown_status_victims_count: int = len(self.simulation.unknown_status_victims)
+        prev_assessed_victims_count: int = len(self.simulation.assessed_victims)
+        prev_transport_ready_victims_count: int = len(self.simulation.transport_ready_victims)
+        self.simulation.OrderIdleSpecialists(sample_team)
+
+        self.assertEqual(
+            len(self.simulation.unknown_status_victims),
+            prev_unknown_status_victims_count - n_victims_to_triage
+        )
+        self.assertEqual(
+            len(self.simulation.assessed_victims),
+            prev_assessed_victims_count + n_victims_to_triage
+        )
+        self.assertEqual(len(self.simulation.transport_ready_victims), prev_transport_ready_victims_count)
+        for specialist in sample_team.specialists:
+            self.assertIsNone(specialist.target_victim)
+            self.assertEqual(specialist.stored_procedure, self.simulation.GetTriageProcedure())
+            self.assertEqual(specialist.is_idle, False)
+        self.assertEqual(sample_team.are_specialists_outside, True)
+
+    def testOrderIdleSpecialistsEverySpecialistHelp(self):
+        """Wszyscy poszkodowani ocenieni, brak nieocenionych, więc tylko leczenie/przygotowanie do transportu"""
+        sample_team: zrm.ZRM = tests_zrm.CreateSampleZRM()
+        sample_team.SpecialistsLeaveTheVehicle()
+        self.AssessAllVictims()
+        helped_victim: victim.Victim = self.simulation.GetTargetVictimForProcedure()
+        self.HelpVictimCompletely(helped_victim)
+        self.AllTeamsIntoAction()
+        prev_unknown_status_victims_count: int = len(self.simulation.unknown_status_victims)
+        prev_assessed_victims_count: int = len(self.simulation.assessed_victims)
+        prev_transport_ready_victims_count: int = len(self.simulation.transport_ready_victims)
+        self.simulation.OrderIdleSpecialists(sample_team)
+
+        self.assertEqual(len(self.simulation.unknown_status_victims),  prev_unknown_status_victims_count)
+        self.assertEqual(len(self.simulation.assessed_victims), prev_assessed_victims_count - 1)
+        self.assertEqual(len(self.simulation.transport_ready_victims), prev_transport_ready_victims_count + 1)
+        for specialist in sample_team.specialists:
+            self.assertIsNotNone(specialist.target_victim)
+            self.assertIsNotNone(specialist.stored_procedure)
+            self.assertEqual(specialist.is_idle, False)
+        self.assertTrue(sample_team.specialists[0].target_victim != sample_team.specialists[1].target_victim)
+        self.assertTrue(sample_team.specialists[0].target_victim != sample_team.specialists[2].target_victim)
+        self.assertTrue(sample_team.specialists[1].target_victim != sample_team.specialists[2].target_victim)
+        self.assertEqual(sample_team.are_specialists_outside, True)
+
+    def AssessAllVictims(self):
+        for victim_ in self.simulation.all_victims:
+            self.simulation.MoveVictimFromUnknownStatusToAssessed(victim_)
+
+    @staticmethod
+    def HelpVictimCompletely(target_victim: victim.Victim):
+        needed_procedures: List[victim.Procedure] = [
+            victim.Procedure(health_problem, 1)
+            for health_problem in target_victim.GetCurrentCriticalHealthProblems()
+        ]
+        target_victim.procedures_performed_so_far = needed_procedures
+
+    def testOrderIdleSpecialistsEverySpecialistGoBackToVehicle(self):
+        """Wszyscy poszkodowani transport_ready - więc specjaliści mogą wrócić do karetki"""
+        sample_team: zrm.ZRM = tests_zrm.CreateSampleZRM()
+        sample_team.SpecialistsLeaveTheVehicle()
+        self.AssessAllVictims()
+        self.PrepareForTransportAllVictims()
+        prev_unknown_status_victims_count: int = len(self.simulation.unknown_status_victims)
+        prev_assessed_victims_count: int = len(self.simulation.assessed_victims)
+        prev_transport_ready_victims_count: int = len(self.simulation.transport_ready_victims)
+        self.simulation.OrderIdleSpecialists(sample_team)
+
+        self.assertEqual(len(self.simulation.unknown_status_victims), prev_unknown_status_victims_count)
+        self.assertEqual(len(self.simulation.assessed_victims),   prev_assessed_victims_count)
+        self.assertEqual(len(self.simulation.transport_ready_victims), prev_transport_ready_victims_count)
+        for specialist in sample_team.specialists:
+            self.assertIsNone(specialist.target_victim)
+            self.assertIsNone(specialist.stored_procedure)
+            self.assertEqual(specialist.is_idle, True)
+        self.assertEqual(sample_team.are_specialists_outside, False)
+
+    def PrepareForTransportAllVictims(self):
+        for victim_ in self.simulation.all_victims:
+            self.simulation.MoveVictimFromAssessedToTransportReady(victim_)
+
+    def testOrderIdleSpecialistsEverySpecialistDifferentThings(self):
+        """
+        Wszyscy poszkodowani transport_ready, poza jednym unassessed i jednym uleczonym assessed - są to wszystkie
+        przypadki funkcji - jednak nie zostanie wykonana instrukcja powrotu do karetki, ponieważ niektórzy specjaliści
+        są zajęci
+        """
+        sample_team: zrm.ZRM = tests_zrm.CreateSampleZRM()
+        sample_team.SpecialistsLeaveTheVehicle()
+        self.AssessAllVictims()
+        helped_victim: victim.Victim = self.simulation.GetTargetVictimForProcedure()
+        self.HelpVictimCompletely(helped_victim)
+        self.simulation.assessed_victims.remove(helped_victim)
+        not_helped_victim: victim.Victim = self.simulation.GetTargetVictimForProcedure()
+        self.simulation.assessed_victims.remove(not_helped_victim)
+        self.AllTeamsIntoAction()
+        self.PrepareForTransportAllVictims()
+        self.simulation.assessed_victims.append(helped_victim)
+        self.simulation.unknown_status_victims.append(not_helped_victim)
+        prev_unknown_status_victims_count: int = len(self.simulation.unknown_status_victims)
+        prev_assessed_victims_count: int = len(self.simulation.assessed_victims)
+        prev_transport_ready_victims_count: int = len(self.simulation.transport_ready_victims)
+        self.simulation.OrderIdleSpecialists(sample_team)
+
+        self.assertEqual(len(self.simulation.unknown_status_victims), prev_unknown_status_victims_count - 1)
+        self.assertEqual(len(self.simulation.assessed_victims), prev_assessed_victims_count)
+        self.assertEqual(
+            len(self.simulation.transport_ready_victims),
+            prev_transport_ready_victims_count + 1
+        )
+        self.assertIsNone(sample_team.specialists[0].target_victim)
+        self.assertEqual(sample_team.specialists[0].stored_procedure, self.simulation.GetTriageProcedure())
+        self.assertEqual(sample_team.specialists[0].is_idle, False)
+        self.assertIsNotNone(sample_team.specialists[1].target_victim)
+        self.assertIsNotNone(sample_team.specialists[1].stored_procedure)
+        self.assertEqual(sample_team.specialists[1].is_idle, False)
+        self.assertIsNone(sample_team.specialists[2].target_victim)
+        self.assertIsNone(sample_team.specialists[2].stored_procedure)
+        self.assertEqual(sample_team.specialists[2].is_idle, True)
+        self.assertEqual(sample_team.are_specialists_outside, True)
+
+    def testAnyRemainingAssessedVictimsNeedingProceduresNoAssessed(self):
+        self.assertFalse(self.simulation.AnyRemainingAssessedVictimsNeedingProcedures())
+
+    def testAnyRemainingAssessedVictimsNeedingProceduresOnlyDeadAssessed(self):
+        self.simulation.assessed_victims = [
+            victim_ for victim_ in self.simulation.assessed_victims if victim_.IsDead()
+        ]
+
+        self.assertFalse(self.simulation.AnyRemainingAssessedVictimsNeedingProcedures())
+
+    def testAnyRemainingAssessedVictimsNeedingProceduresOneAliveAssessed(self):
+        self.simulation.assessed_victims = [
+            victim_ for victim_ in self.simulation.assessed_victims if victim_.IsDead()
+        ]
+        self.simulation.assessed_victims.append(self.RandomAliveVictimFromList(self.simulation.all_victims))
+
+        self.assertTrue(self.simulation.AnyRemainingAssessedVictimsNeedingProcedures())
+
+    def testAnyRemainingAssessedVictimsNeedingProceduresOnlyUnderProcedureAssessed(self):
+        self.AssessAllVictims()
+        for victim_ in self.simulation.assessed_victims:
+            victim_.under_procedure = True
+
+        self.assertFalse(self.simulation.AnyRemainingAssessedVictimsNeedingProcedures())
+
+    def testAnyRemainingAssessedVictimsNeedingProceduresOneAliveUnderProcedure(self):
+        self.simulation.assessed_victims = [
+            victim_ for victim_ in self.simulation.assessed_victims if victim_.IsDead()
+        ]
+        random_victim: victim.Victim = self.RandomAliveVictimFromList(self.simulation.all_victims)
+        random_victim.under_procedure = True
+        self.simulation.assessed_victims.append(random_victim)
+
+        self.assertFalse(self.simulation.AnyRemainingAssessedVictimsNeedingProcedures())
+
+    def testPerformTriage(self):
+        sample_team: zrm.ZRM = tests_zrm.CreateSampleZRM()
+        sample_team.SpecialistsLeaveTheVehicle()
+        prev_unknown_status_victims_count: int = len(self.simulation.unknown_status_victims)
+        prev_assessed_victims_count: int = len(self.simulation.assessed_victims)
+        self.simulation.PerformTriage(sample_team.specialists[0])
+
+        self.assertEqual(len(self.simulation.unknown_status_victims), prev_unknown_status_victims_count - 1)
+        self.assertEqual(len(self.simulation.assessed_victims), prev_assessed_victims_count + 1)
+        self.assertEqual(sample_team.specialists[0].stored_procedure, self.simulation.GetTriageProcedure())
+        self.assertEqual(sample_team.specialists[0].is_idle, False)
+
+    def testMoveVictimFromUnknownStatusToAssessed(self):
+        random_victim: victim.Victim = self.RandomAliveVictimFromList(self.simulation.all_victims)
+        self.simulation.MoveVictimFromUnknownStatusToAssessed(random_victim)
+
+        self.assertTrue(random_victim not in self.simulation.unknown_status_victims)
+        self.assertTrue(random_victim in self.simulation.assessed_victims)
+        self.assertTrue(random_victim not in self.simulation.transport_ready_victims)
+
+    def testMoveVictimFromUnknownStatusToAssessedAlreadyMoved(self):
+        random_victim: victim.Victim = self.RandomAliveVictimFromList(self.simulation.all_victims)
+        self.simulation.MoveVictimFromUnknownStatusToAssessed(random_victim)
+        prev_unknown_status_victims_count: int = len(self.simulation.unknown_status_victims)
+        prev_assessed_victims_count: int = len(self.simulation.assessed_victims)
+        prev_transport_ready_victims_count: int = len(self.simulation.transport_ready_victims)
+        self.simulation.MoveVictimFromUnknownStatusToAssessed(random_victim)
+
+        self.assertTrue(random_victim not in self.simulation.unknown_status_victims)
+        self.assertTrue(random_victim in self.simulation.assessed_victims)
+        self.assertTrue(random_victim not in self.simulation.transport_ready_victims)
+        self.assertEqual(len(self.simulation.unknown_status_victims), prev_unknown_status_victims_count)
+        self.assertEqual(len(self.simulation.assessed_victims), prev_assessed_victims_count)
+        self.assertEqual(len(self.simulation.transport_ready_victims), prev_transport_ready_victims_count)
+
+    def testGetTriageProcedure(self):
+        self.assertEqual(
+            self.simulation.GetTriageProcedure(),
+            victim.Procedure.FromDisciplineAndNumber(0, 1, 1)
+        )
 
     def testHelpAssessedVictimOrPrepareForTransportOneToHelpFewToTransport(self):
         """Pierwszym znalezionym poszkodowanym będzie ten, któremu trzeba pomóc, więc pozostali zostaną ominięci"""
@@ -424,11 +628,7 @@ class TestSimulation(unittest.TestCase):
         self.simulation.assessed_victims = chosen_victims
         next_target_victim, *helped_victims = chosen_victims
         for helped_victim in helped_victims:
-            needed_procedures: List[victim.Procedure] = [
-                victim.Procedure(health_problem, 1)
-                for health_problem in helped_victim.GetCurrentCriticalHealthProblems()
-            ]
-            helped_victim.procedures_performed_so_far = needed_procedures
+            self.HelpVictimCompletely(helped_victim)
         return sample_team, helped_victims, next_target_victim
 
     def MoveTeamToIncidentPlaceAndSpecialistsOut(
@@ -499,9 +699,19 @@ class TestSimulation(unittest.TestCase):
             worst_condition_red_victim_RPM_number
         )
 
-    def AssessAllVictims(self):
-        for victim_ in self.simulation.all_victims:
-            self.simulation.MoveVictimFromUnknownStatusToAssessed(victim_)
+    def testGetTargetVictimForProcedureSecondWorstRed(self):
+        """Wszyscy poszkodowani o RPM=2 są już w trakcie przeprowadzania na nich procedur - więc zostaną pominięci"""
+        worst_condition_red_victim_RPM_number: int = 2
+        second_worst_condition_red_victim_RPM_number: int = 3
+        self.AssessAllVictims()
+        for victim_ in self.simulation.assessed_victims:
+            if victim_.current_RPM_number == worst_condition_red_victim_RPM_number:
+                victim_.under_procedure = True
+
+        self.assertEqual(
+            self.simulation.GetTargetVictimForProcedure().current_RPM_number,
+            second_worst_condition_red_victim_RPM_number
+        )
 
     def testGetTargetVictimForProcedureNoRedYellow(self):
         worst_condition_yellow_victim_RPM_number: int = 10
@@ -587,6 +797,31 @@ class TestSimulation(unittest.TestCase):
         for team in self.simulation.teams_in_action:
             team.QueueNewTargetLocation(self.simulation.all_hospitals[0])
 
+    def testMoveVictimFromAssessedToTransportReady(self):
+        random_victim: victim.Victim = self.RandomAliveVictimFromList(self.simulation.all_victims)
+        self.simulation.MoveVictimFromUnknownStatusToAssessed(random_victim)
+        self.simulation.MoveVictimFromAssessedToTransportReady(random_victim)
+
+        self.assertTrue(random_victim not in self.simulation.unknown_status_victims)
+        self.assertTrue(random_victim not in self.simulation.assessed_victims)
+        self.assertTrue(random_victim in self.simulation.transport_ready_victims)
+
+    def testMoveVictimFromAssessedToTransportReadyAlreadyMoved(self):
+        random_victim: victim.Victim = self.RandomAliveVictimFromList(self.simulation.all_victims)
+        self.simulation.MoveVictimFromUnknownStatusToAssessed(random_victim)
+        self.simulation.MoveVictimFromAssessedToTransportReady(random_victim)
+        prev_unknown_status_victims_count: int = len(self.simulation.unknown_status_victims)
+        prev_assessed_victims_count: int = len(self.simulation.assessed_victims)
+        prev_transport_ready_victims_count: int = len(self.simulation.transport_ready_victims)
+        self.simulation.MoveVictimFromAssessedToTransportReady(random_victim)
+
+        self.assertTrue(random_victim not in self.simulation.unknown_status_victims)
+        self.assertTrue(random_victim not in self.simulation.assessed_victims)
+        self.assertTrue(random_victim in self.simulation.transport_ready_victims)
+        self.assertEqual(len(self.simulation.unknown_status_victims), prev_unknown_status_victims_count)
+        self.assertEqual(len(self.simulation.assessed_victims), prev_assessed_victims_count)
+        self.assertEqual(len(self.simulation.transport_ready_victims), prev_transport_ready_victims_count)
+
     def testGetClosestTeamWithoutQueueBeginning(self):
         self.AllTeamsIntoAction()
 
@@ -636,54 +871,6 @@ class TestSimulation(unittest.TestCase):
         driving_team: zrm.ZRM = self.simulation.idle_teams[0]
 
         self.assertIsNone(self.simulation.GetIncidentPlaceFromAddress(driving_team.origin_location_address))
-
-    def testMoveVictimFromUnknownStatusToAssessed(self):
-        random_victim: victim.Victim = self.RandomAliveVictimFromList(self.simulation.all_victims)
-        self.simulation.MoveVictimFromUnknownStatusToAssessed(random_victim)
-
-        self.assertTrue(random_victim not in self.simulation.unknown_status_victims)
-        self.assertTrue(random_victim in self.simulation.assessed_victims)
-        self.assertTrue(random_victim not in self.simulation.transport_ready_victims)
-
-    def testMoveVictimFromUnknownStatusToAssessedAlreadyMoved(self):
-        random_victim: victim.Victim = self.RandomAliveVictimFromList(self.simulation.all_victims)
-        self.simulation.MoveVictimFromUnknownStatusToAssessed(random_victim)
-        prev_unknown_status_victims_count: int = len(self.simulation.unknown_status_victims)
-        prev_assessed_victims_count: int = len(self.simulation.assessed_victims)
-        prev_transport_ready_victims_count: int = len(self.simulation.transport_ready_victims)
-        self.simulation.MoveVictimFromUnknownStatusToAssessed(random_victim)
-
-        self.assertTrue(random_victim not in self.simulation.unknown_status_victims)
-        self.assertTrue(random_victim in self.simulation.assessed_victims)
-        self.assertTrue(random_victim not in self.simulation.transport_ready_victims)
-        self.assertEqual(len(self.simulation.unknown_status_victims), prev_unknown_status_victims_count)
-        self.assertEqual(len(self.simulation.assessed_victims), prev_assessed_victims_count)
-        self.assertEqual(len(self.simulation.transport_ready_victims), prev_transport_ready_victims_count)
-
-    def testMoveVictimFromAssessedToTransportReady(self):
-        random_victim: victim.Victim = self.RandomAliveVictimFromList(self.simulation.all_victims)
-        self.simulation.MoveVictimFromUnknownStatusToAssessed(random_victim)
-        self.simulation.MoveVictimFromAssessedToTransportReady(random_victim)
-
-        self.assertTrue(random_victim not in self.simulation.unknown_status_victims)
-        self.assertTrue(random_victim not in self.simulation.assessed_victims)
-        self.assertTrue(random_victim in self.simulation.transport_ready_victims)
-
-    def testMoveVictimFromAssessedToTransportReadyAlreadyMoved(self):
-        random_victim: victim.Victim = self.RandomAliveVictimFromList(self.simulation.all_victims)
-        self.simulation.MoveVictimFromUnknownStatusToAssessed(random_victim)
-        self.simulation.MoveVictimFromAssessedToTransportReady(random_victim)
-        prev_unknown_status_victims_count: int = len(self.simulation.unknown_status_victims)
-        prev_assessed_victims_count: int = len(self.simulation.assessed_victims)
-        prev_transport_ready_victims_count: int = len(self.simulation.transport_ready_victims)
-        self.simulation.MoveVictimFromAssessedToTransportReady(random_victim)
-
-        self.assertTrue(random_victim not in self.simulation.unknown_status_victims)
-        self.assertTrue(random_victim not in self.simulation.assessed_victims)
-        self.assertTrue(random_victim in self.simulation.transport_ready_victims)
-        self.assertEqual(len(self.simulation.unknown_status_victims), prev_unknown_status_victims_count)
-        self.assertEqual(len(self.simulation.assessed_victims), prev_assessed_victims_count)
-        self.assertEqual(len(self.simulation.transport_ready_victims), prev_transport_ready_victims_count)
 
 
 if __name__ == "__main__":
