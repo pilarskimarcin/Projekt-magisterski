@@ -22,7 +22,7 @@ class Specialist:
         self.id_ = id_
         self.origin_zrm_id = origin_zrm_id
         self.time_until_procedure_is_finished = self.stored_procedure = self.target_victim = None
-        self.is_idle = False
+        self.is_idle = True
 
     def __eq__(self, other):
         if not isinstance(other, Specialist):
@@ -34,6 +34,8 @@ class Specialist:
 
     def StartPerformingProcedure(self, procedure: Procedure, target_victim: Victim = None):
         self.target_victim = target_victim
+        if self.target_victim:
+            self.target_victim.under_procedure = True
         self.stored_procedure = procedure
         self.time_until_procedure_is_finished = procedure.time_needed_to_perform
         self.is_idle = False

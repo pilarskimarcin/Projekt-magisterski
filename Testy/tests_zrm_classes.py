@@ -28,13 +28,22 @@ class SpecialistTests(unittest.TestCase):
 
         self.assertNotEqual(sample_specialist, self.sample_specialist)
 
-    def testStartPerformingProcedure(self):
+    def testStartPerformingProcedureWithVictim(self):
         sample_procedure: victim.Procedure = tests_victim.CreateSampleProcedure()
         sample_victim: victim.Victim = tests_victim.CreateSampleVictim()
         self.sample_specialist.StartPerformingProcedure(sample_procedure, sample_victim)
 
         self.assertEqual(self.sample_specialist.stored_procedure, sample_procedure)
         self.assertEqual(self.sample_specialist.target_victim, sample_victim)
+        self.assertEqual(sample_victim.under_procedure, True)
+        self.assertEqual(self.sample_specialist.is_idle, False)
+
+    def testStartPerformingProcedureNoVictim(self):
+        sample_procedure: victim.Procedure = tests_victim.CreateSampleProcedure()
+        self.sample_specialist.StartPerformingProcedure(sample_procedure)
+
+        self.assertEqual(self.sample_specialist.stored_procedure, sample_procedure)
+        self.assertEqual(self.sample_specialist.target_victim, None)
         self.assertEqual(self.sample_specialist.is_idle, False)
 
     def testContinuePerformingProcedureNoProcedure(self):
@@ -78,6 +87,7 @@ class SpecialistTests(unittest.TestCase):
         self.assertEqual(self.sample_specialist.target_victim, None)
         self.assertEqual(self.sample_specialist.time_until_procedure_is_finished, None)
         self.assertEqual(self.sample_specialist.is_idle, True)
+        self.assertEqual(target_victim.under_procedure, False)
         self.assertEqual(target_victim.procedures_performed_so_far, [sample_procedure])
 
 
