@@ -21,31 +21,23 @@ def CreateSampleVictim() -> victim.Victim:
 def CreateStatesForSampleVictim() -> List[victim.State]:
     sample_states: List[victim.State] = [
         CreateSampleState(),
-        victim.State(
-            number=2, is_victim_walking=False, respiratory_rate=0, pulse_rate=0, is_victim_following_orders=False,
-            triage_colour=victim.TriageColour.BLACK,
-            health_problems_ids=[],
-            description=""
-        ),
-        victim.State(
-            number=3, is_victim_walking=False, respiratory_rate=14, pulse_rate=0, is_victim_following_orders=True,
-            triage_colour=victim.TriageColour.RED,
-            health_problems_ids=[victim.HealthProblem(5, 4), victim.HealthProblem(25, 2)],
-            description=""
-        )
+        victim.State(number=2, is_victim_walking=False, respiratory_rate=0, pulse_rate=0,
+                     is_victim_following_orders=False, triage_colour=victim.TriageColour.BLACK, health_problems=[],
+                     description=""),
+        victim.State(number=3, is_victim_walking=False, respiratory_rate=14, pulse_rate=0,
+                     is_victim_following_orders=True, triage_colour=victim.TriageColour.RED,
+                     health_problems=[victim.HealthProblem(5, 4), victim.HealthProblem(25, 2)], description="")
     ]
     return sample_states
 
 
 def CreateSampleState(no_transitions: bool = False) -> victim.State:
-    sample_state: victim.State = victim.State(
-        number=1, is_victim_walking=False, respiratory_rate=34, pulse_rate=0, is_victim_following_orders=True,
-        triage_colour=victim.TriageColour.RED,
-        health_problems_ids=CreateSampleHealthProblems(),
-        description=SAMPLE_DESCRIPTION,
-        timed_next_state_transition=SampleTimedNextStateTransition(),
-        intervention_next_state_transition=(SampleCriticalHealthProblems(), 3)
-    )
+    sample_state: victim.State = victim.State(number=1, is_victim_walking=False, respiratory_rate=34, pulse_rate=0,
+                                              is_victim_following_orders=True, triage_colour=victim.TriageColour.RED,
+                                              health_problems=CreateSampleHealthProblems(),
+                                              description=SAMPLE_DESCRIPTION,
+                                              timed_next_state_transition=SampleTimedNextStateTransition(),
+                                              intervention_next_state_transition=(SampleCriticalHealthProblems(), 3))
     if no_transitions:
         sample_state.timed_next_state_transition = sample_state.intervention_next_state_transition = None
     return sample_state
@@ -117,7 +109,7 @@ class VictimClassTests(unittest.TestCase):
         self.assertEqual(self.sample_victim.current_state, CreateSampleState())
         self.assertEqual(self.sample_victim.current_RPM_number, 6)
         self.assertEqual(self.sample_victim.initial_RPM_number, 6)
-        self.assertIsNone(self.sample_victim.hospital_admittance_time)
+        self.assertEqual(self.sample_victim.hospital_admittance_time, None)
 
     def testEquality(self):
         sample_victim: victim.Victim = CreateSampleVictim()
@@ -144,6 +136,7 @@ class VictimClassTests(unittest.TestCase):
 
     def CompareScoreFromRespiratoryLookUpTableAndSampleScore(self, arguments_pair: Tuple[int, int]):
         sample_respiratory_rate, sample_score_for_respiratory = arguments_pair
+
         self.assertEqual(
             victim.Victim.GetScoreFromLookUpTables(sample_respiratory_rate, victim.RESPIRATORY_RATE_SCORES),
             sample_score_for_respiratory
@@ -156,6 +149,7 @@ class VictimClassTests(unittest.TestCase):
 
     def testFromString(self):
         victim_from_string: victim.Victim = victim.Victim.FromString(self.sample_profile_text, 1)
+
         self.assertEqual(
             victim_from_string,
             self.sample_victim
@@ -408,8 +402,8 @@ class StateClassTests(unittest.TestCase):
             sample_state.triage_colour
         )
         self.assertEqual(
-            State.GetHealthProblemIdsFromString(sample_state_data_lines),
-            sample_state.health_problems_ids
+            State.GetHealthProblemsFromString(sample_state_data_lines),
+            sample_state.health_problems
         )
         self.assertEqual(
             State.GetDescriptionFromString(sample_state_data_lines),

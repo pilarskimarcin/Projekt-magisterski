@@ -125,6 +125,7 @@ class TestScenario(unittest.TestCase):
     def testParseVictimsError(self):
         sample_input1: str = "Profile - liczba poszkodowanych\nŻółty/Profil70 2\nŻółty/Profil95 2"
         sample_input2: str = "Całkowita liczba poszkodowanych: 5"
+
         self.assertRaises(
             RuntimeError,
             self.sample_scenario.ParseVictims, sample_input1, sample_input2

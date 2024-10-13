@@ -232,7 +232,7 @@ class State:
     pulse_rate: int
     is_victim_following_orders: bool
     triage_colour: TriageColour
-    health_problems_ids: List[HealthProblem]
+    health_problems: List[HealthProblem]
     description: str
     timed_next_state_transition: Optional[Tuple[int, StateNumber]]
     intervention_next_state_transition: Optional[Tuple[List[HealthProblem], StateNumber]]
@@ -240,7 +240,7 @@ class State:
     def __init__(
             self, number: StateNumber, is_victim_walking: bool, respiratory_rate: int, pulse_rate: int,
             is_victim_following_orders: bool, triage_colour: TriageColour,
-            health_problems_ids: List[HealthProblem], description: str,
+            health_problems: List[HealthProblem], description: str,
             timed_next_state_transition: Optional[Tuple[int, StateNumber]] = None,
             intervention_next_state_transition: Optional[Tuple[List[HealthProblem], StateNumber]] = None
     ):
@@ -251,7 +251,7 @@ class State:
         self.pulse_rate = pulse_rate
         self.is_victim_following_orders = is_victim_following_orders
         self.triage_colour = triage_colour
-        self.health_problems_ids = health_problems_ids
+        self.health_problems = health_problems
         self.description = description
         self.timed_next_state_transition = timed_next_state_transition
         self.intervention_next_state_transition = intervention_next_state_transition
@@ -283,13 +283,10 @@ class State:
         pulse_rate: int = cls.GetPulseRateFromString(data_lines)
         is_victim_following_orders: bool = cls.GetIsVictimFollowingOrdersFromString(data_lines)
         triage_colour: TriageColour = cls.GetTriageColourFromString(data_lines)
-        health_problem_ids: List[HealthProblem] = cls.GetHealthProblemIdsFromString(data_lines)
+        health_problem_ids: List[HealthProblem] = cls.GetHealthProblemsFromString(data_lines)
         description: str = cls.GetDescriptionFromString(data_lines)
-        return State(
-            int(state_number_string), is_victim_walking, respiratory_rate, pulse_rate,
-            is_victim_following_orders, triage_colour, health_problem_ids,
-            description
-        )
+        return State(int(state_number_string), is_victim_walking, respiratory_rate, pulse_rate,
+                     is_victim_following_orders, triage_colour, health_problem_ids, description)
 
     @classmethod
     def GetIsVictimWalkingFromString(cls, data_lines: List[str]) -> bool:
@@ -342,18 +339,18 @@ class State:
                 raise ValueError("Błąd w trakcie wczytywania profilu: nieprawidłowa wartość \"Kolor segregacji\"")
 
     @classmethod
-    def GetHealthProblemIdsFromString(cls, data_lines: List[str]) -> List[HealthProblem]:
+    def GetHealthProblemsFromString(cls, data_lines: List[str]) -> List[HealthProblem]:
         stat: str = data_lines[5].split("; ")[INDEX_OF_STAT_IN_LINE]
         if "-" in stat:
             return []
         health_problems_strings: List[str] = stat.split(", ")
-        health_problem_ids: List[HealthProblem] = []
+        health_problems: List[HealthProblem] = []
         for health_problems_string in health_problems_strings:
             discipline_string, number_string = health_problems_string.split(".")
-            health_problem_ids.append(
+            health_problems.append(
                 HealthProblem(int(discipline_string), int(number_string))
             )
-        return health_problem_ids
+        return health_problems
 
     @classmethod
     def GetDescriptionFromString(cls, data_lines: List[str]) -> str:
@@ -361,7 +358,7 @@ class State:
 
     def GetAllHealthProblemDisciplines(self) -> List[int]:
         health_problem_ids: List[int] = sorted(
-            {health_problem.discipline for health_problem in self.health_problems_ids}
+            {health_problem.discipline for health_problem in self.health_problems}
         )
         if EMERGENCY_DISCIPLINE_NUMBER in health_problem_ids:
             health_problem_ids.remove(EMERGENCY_DISCIPLINE_NUMBER)

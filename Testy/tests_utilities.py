@@ -57,18 +57,18 @@ class TestPlaceAddress(unittest.TestCase):
     def testEquality(self):
         sample_address: utilities.PlaceAddress = CreateSampleAddressHospital()
 
-        self.assertTrue(sample_address == self.sample_address)
+        self.assertEqual(sample_address == self.sample_address, True)
 
     def testInequalityPartOfAddress(self):
         sample_address: utilities.PlaceAddress = CreateSampleAddressIncident()
 
-        self.assertTrue(sample_address != self.sample_address)
+        self.assertNotEqual(self.sample_address, sample_address)
 
     def testInequalityCoordinates(self):
         sample_address: utilities.PlaceAddress = CreateSampleAddressHospital()
         sample_address.longitude = 7.5
 
-        self.assertTrue(sample_address != self.sample_address)
+        self.assertNotEqual(self.sample_address, sample_address)
 
     def testFromString(self):
         sample_address_string: str = "Topolowa 16 32-500 Chrzanów"
@@ -124,12 +124,12 @@ class TestPlaceAddress(unittest.TestCase):
     def testAreCoordinatesSavedInDataFrameTrue(self):
         places_coordinates_df: pd.DataFrame = pd.read_csv(utilities.PLACES_CSV_FILE, header=0, index_col=0)
 
-        self.assertTrue(self.sample_address.AreCoordinatesSavedInDataFrame(places_coordinates_df))
+        self.assertEqual(self.sample_address.AreCoordinatesSavedInDataFrame(places_coordinates_df), True)
 
     def testAreCoordinatesSavedInDataFrameFalse(self):
         places_coordinates_df: pd.DataFrame = CreateSampleDataFrameWithPlacesCoordinates()
 
-        self.assertFalse(self.sample_address.AreCoordinatesSavedInDataFrame(places_coordinates_df))
+        self.assertEqual(self.sample_address.AreCoordinatesSavedInDataFrame(places_coordinates_df), False)
 
     def testReadCoordinatesFromDataFrame(self):
         self.sample_address.ReadCoordinatesFromDataFrame()
@@ -150,6 +150,7 @@ class TestPlaceAddress(unittest.TestCase):
         self.RemoveLatitudeAndLongitudeFromSampleAddress()
         self.sample_address.GeocodeUsingAPI()
         sample_latitude, sample_longitude = CreateSampleCoordinates()
+
         self.assertAlmostEqual(self.sample_address.latitude, sample_latitude, delta=0.0015)
         self.assertAlmostEqual(self.sample_address.longitude, sample_longitude, delta=0.015)
 
@@ -181,23 +182,23 @@ class TestPlaceAddress(unittest.TestCase):
         sample_dataframe: pd.DataFrame = pd.read_csv(sample_file)
 
         self.assertTrue(self.sample_address.AreCoordinatesSavedInDataFrame(sample_dataframe))
-
         os.remove(sample_file)
 
     def testAreCoordinatesPresentNoCoordinates(self):
         self.RemoveLatitudeAndLongitudeFromSampleAddress()
-        self.assertFalse(self.sample_address.AreCoordinatesPresent())
+
+        self.assertEqual(self.sample_address.AreCoordinatesPresent(), False)
 
     def testAreCoordinatesPresentOnlyOnePresent(self):
         self.sample_address.longitude = None
 
-        self.assertFalse(self.sample_address.AreCoordinatesPresent())
+        self.assertEqual(self.sample_address.AreCoordinatesPresent(), False)
 
     def testAreCoordinatesPresentBothPresent(self):
         self.sample_address.longitude = 19.43
         self.sample_address.latitude = 50.14
 
-        self.assertTrue(self.sample_address.AreCoordinatesPresent())
+        self.assertEqual(self.sample_address.AreCoordinatesPresent(), True)
 
     def testGetDistanceAndDurationToOtherPlace(self):
         sample_address_2: utilities.PlaceAddress = CreateSampleAddressIncident()
@@ -285,7 +286,7 @@ class TestPlaceAddress(unittest.TestCase):
     def testIsDistancePresentInTheFile(self):
         sample_address_2: utilities.PlaceAddress = CreateSampleAddressIncident()
 
-        self.assertTrue(self.sample_address.IsDistanceAndDurationPresentInTheFile(sample_address_2))
+        self.assertEqual(self.sample_address.IsDistanceAndDurationPresentInTheFile(sample_address_2), True)
 
     def testAddDistanceAndDurationToDictionary(self):
         sample_dictionary: Dict[str, Dict[str, Dict[str, float]]] = {

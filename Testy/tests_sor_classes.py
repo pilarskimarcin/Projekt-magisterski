@@ -11,25 +11,19 @@ from Testy import tests_victim_classes as tests_victim
 def CreateSampleVictims() -> List[victim.Victim]:
     sample_state1: victim.State = victim.State(
         number=1, is_victim_walking=False, respiratory_rate=12, pulse_rate=120, is_victim_following_orders=True,
-        triage_colour=victim.TriageColour.YELLOW,
-        health_problems_ids=[
+        triage_colour=victim.TriageColour.YELLOW, health_problems=[
             victim.HealthProblem(25, 1), victim.HealthProblem(25, 4)
-        ],
-        description=u"Kobieta lat 17 zgłasza problem z poruszaniem się, na prośbę o opuszczenie strefy "
-                    u"niebezpiecznej, zgłasza ból w obrębie stawu kolanowego, dolegliwości uniemożliwiają "
-                    u"samodzielne poruszanie się, dolegliwości bólowe w obrębie stawu barkowego (widoczna "
-                    u"asymetria barku lewego w stosunku do prawego, bolesność palpacyjna)."
-    )
+        ], description=u"Kobieta lat 17 zgłasza problem z poruszaniem się, na prośbę o opuszczenie strefy "
+                       u"niebezpiecznej, zgłasza ból w obrębie stawu kolanowego, dolegliwości uniemożliwiają "
+                       u"samodzielne poruszanie się, dolegliwości bólowe w obrębie stawu barkowego (widoczna "
+                       u"asymetria barku lewego w stosunku do prawego, bolesność palpacyjna).")
     sample_state2: victim.State = victim.State(
         number=1, is_victim_walking=False, respiratory_rate=12, pulse_rate=130, is_victim_following_orders=True,
-        triage_colour=victim.TriageColour.YELLOW,
-        health_problems_ids=[
+        triage_colour=victim.TriageColour.YELLOW, health_problems=[
             victim.HealthProblem(25, 2)
-        ],
-        description=u"Mężczyzna lat 13 zgłasza problem z poruszaniem się, na prośbę o opuszczenie strefy "
-                    u"niebezpiecznej, zgłasza ból w obrębie piszczeli prawej, widoczna deformacja, widoczny uraz "
-                    u"głowy nie wymagający interwencji chirurgicznej."
-    )
+        ], description=u"Mężczyzna lat 13 zgłasza problem z poruszaniem się, na prośbę o opuszczenie strefy "
+                       u"niebezpiecznej, zgłasza ból w obrębie piszczeli prawej, widoczna deformacja, widoczny uraz "
+                       u"głowy nie wymagający interwencji chirurgicznej.")
     return [
         victim.Victim(1, [sample_state1]), victim.Victim(2, [sample_state1]),
         victim.Victim(3, [sample_state2]), victim.Victim(4, [sample_state2]),
@@ -48,23 +42,19 @@ class IncidentPlaceTests(unittest.TestCase):
     def testGetStartingAmountOfVictims(self):
         while len(self.sample_incident_place.victims) < 88:
             self.sample_incident_place.victims.extend(CreateSampleVictims())
-        self.assertTrue(26 <= self.sample_incident_place.GetStartingAmountOfVictims() <= 66)
+
+        self.assertEqual(26 <= self.sample_incident_place.GetStartingAmountOfVictims() <= 66, True)
 
     def testTryTakeVictimCorrectId(self):
         sample_victim_id: int = 1
         sample_victim: victim.Victim = CreateSampleVictims()[0]
 
-        self.assertEqual(
-            self.sample_incident_place.TryTakeVictim(sample_victim_id),
-            sample_victim
-        )
+        self.assertEqual(self.sample_incident_place.TryTakeVictim(sample_victim_id), sample_victim)
 
     def testTryTakeVictimWrongId(self):
         sample_victim_id: int = 5
 
-        self.assertIsNone(
-            self.sample_incident_place.TryTakeVictim(sample_victim_id)
-        )
+        self.assertIsNone(self.sample_incident_place.TryTakeVictim(sample_victim_id))
 
     def testNeedsReconnaissanceTrue(self):
         self.assertTrue(self.sample_incident_place.NeedsReconnaissance())
@@ -174,12 +164,11 @@ class HospitalTests(unittest.TestCase):
         sample_victim: victim.Victim = victim.Victim(1, [sample_state])
         sample_time: int = 65
         sample_beds_amount: int = sample_department.current_beds_count
-
         self.sample_hospital.TakeInVictimToOneOfDepartments(sample_victim, sample_time)
 
         AssertDepartmentTookInVictim(
-            test_case=self, department=sample_department, sample_victim=sample_victim,
-            sample_time=sample_time, sample_beds_amount=sample_beds_amount
+            test_case=self, department=sample_department, sample_victim=sample_victim, sample_time=sample_time,
+            sample_beds_amount=sample_beds_amount
         )
 
     def testNoFittingDepartments(self):

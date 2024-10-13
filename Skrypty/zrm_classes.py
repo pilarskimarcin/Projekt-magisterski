@@ -22,7 +22,7 @@ class Specialist:
         self.id_ = id_
         self.origin_zrm_id = origin_zrm_id
         self.time_until_procedure_is_finished = self.stored_procedure = self.target_victim = None
-        self.is_idle = True
+        self.is_idle = False
 
     def __eq__(self, other):
         if not isinstance(other, Specialist):

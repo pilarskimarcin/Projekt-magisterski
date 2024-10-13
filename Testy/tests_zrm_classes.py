@@ -16,10 +16,12 @@ class SpecialistTests(unittest.TestCase):
 
     def setUp(self):
         self.sample_zrm = CreateSampleZRM()
+        self.sample_zrm.SpecialistsLeaveTheVehicle()
         self.sample_specialist = self.sample_zrm.specialists[0]
 
     def testEquality(self):
         sample_specialist: zrm.Specialist = zrm.Specialist("K01 47", 1)
+        sample_specialist.is_idle = True
 
         self.assertEqual(sample_specialist, self.sample_specialist)
 
@@ -52,6 +54,7 @@ class SpecialistTests(unittest.TestCase):
         self.assertIsNone(self.sample_specialist.stored_procedure)
         self.assertIsNone(self.sample_specialist.target_victim)
         self.assertIsNone(self.sample_specialist.time_until_procedure_is_finished)
+        self.assertEqual(self.sample_specialist.is_idle, True)
 
     def testContinuePerformingProcedureWithProcedure(self):
         sample_procedure: victim.Procedure = tests_victim.CreateSampleProcedure()
@@ -159,8 +162,8 @@ class ZRMTests(unittest.TestCase):
     def testStartTransportingAVictim(self):
         self.sample_zrm.StartTransportingAVictim(self.sample_victim, self.sample_target_location)
 
-        self.assertTrue(self.sample_zrm.IsTransportingAVictim())
-        self.assertTrue(self.sample_zrm.IsDriving())
+        self.assertEqual(self.sample_zrm.IsTransportingAVictim(), True)
+        self.assertEqual(self.sample_zrm.IsDriving(), True)
 
     def testStartTransportingAVictimAlreadyDriving(self):
         self.sample_zrm.StartDriving(self.sample_target_location)
@@ -220,8 +223,8 @@ class ZRMTests(unittest.TestCase):
     def testSpecialistsLeaveTheVehicleCorrectUsage(self):
         self.sample_zrm.SpecialistsLeaveTheVehicle()
 
-        self.assertTrue(self.sample_zrm.are_specialists_outside)
-        self.assertTrue(self.sample_zrm.specialists[-1].is_idle)
+        self.assertEqual(self.sample_zrm.are_specialists_outside, True)
+        self.assertEqual(self.sample_zrm.specialists[-1].is_idle, True)
 
     def testSpecialistsLeaveTheVehicleIsDriving(self):
         self.sample_zrm.StartDriving(self.sample_target_location)
@@ -234,27 +237,27 @@ class ZRMTests(unittest.TestCase):
     def testTrySpecialistsComeBackToTheVehicleTrue(self):
         self.sample_zrm.SpecialistsLeaveTheVehicle()
 
-        self.assertTrue(self.sample_zrm.TrySpecialistsComeBackToTheVehicle())
-        self.assertFalse(self.sample_zrm.are_specialists_outside)
-        self.assertFalse(self.sample_zrm.specialists[-1].is_idle)
+        self.assertEqual(self.sample_zrm.TrySpecialistsComeBackToTheVehicle(), True)
+        self.assertEqual(self.sample_zrm.are_specialists_outside, False)
+        self.assertEqual(self.sample_zrm.specialists[-1].is_idle, False)
 
     def testTrySpecialistsComeBackToTheVehicleFalse(self):
         self.sample_zrm.SpecialistsLeaveTheVehicle()
         self.sample_zrm.specialists[0].StartPerformingProcedure(tests_victim.CreateSampleProcedure())
 
-        self.assertFalse(self.sample_zrm.TrySpecialistsComeBackToTheVehicle())
-        self.assertTrue(self.sample_zrm.are_specialists_outside)
+        self.assertEqual(self.sample_zrm.TrySpecialistsComeBackToTheVehicle(), False)
+        self.assertEqual(self.sample_zrm.are_specialists_outside, True)
 
     def testAreSpecialistsIdleTrue(self):
         self.sample_zrm.SpecialistsLeaveTheVehicle()
 
-        self.assertTrue(self.sample_zrm.AreSpecialistsIdle())
+        self.assertEqual(self.sample_zrm.AreSpecialistsIdle(), True)
 
     def testAreSpecialistsIdleFalse(self):
         self.sample_zrm.SpecialistsLeaveTheVehicle()
         self.sample_zrm.specialists[0].StartPerformingProcedure(tests_victim.CreateSampleProcedure())
 
-        self.assertFalse(self.sample_zrm.AreSpecialistsIdle())
+        self.assertEqual(self.sample_zrm.AreSpecialistsIdle(), False)
 
     def testSpecialistsContinuePerformingProcedures(self):
         self.sample_zrm.SpecialistsLeaveTheVehicle()
