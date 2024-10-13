@@ -1,6 +1,6 @@
 import pandas as pd
 import random
-from typing import List, Optional, Tuple
+from typing import List, Optional, Set, Tuple
 
 from Skrypty.scenario_classes import Scenario
 from Skrypty.sor_classes import Hospital, IncidentPlace
@@ -194,11 +194,11 @@ class Simulation:
         if team.queue_of_next_targets:
             team.StartDriving(team.queue_of_next_targets.pop())
         elif self.transport_ready_victims:
-            # wziąć wg koloru (czerwony, żółty) i RPM rosnąco, jechać do szpitala
+            # TODO wziąć wg koloru (czerwony, żółty) i RPM rosnąco, jechać do szpitala
+            #  jeśli dead, to z powrotem do assessed, trudno, i powtarzamy - więc while
             pass
         else:
             team.SpecialistsLeaveTheVehicle()
-        # TODO: albo ma jechać na miejsce wypadku - wtedy gdy zostanie przeniesiony ktoś na transport_ready
 
     def OrderIdleSpecialists(self, team: ZRM):
         for specialist in team.specialists:
@@ -229,15 +229,20 @@ class Simulation:
     def HelpAssessedVictimOrPrepareForTransport(self, specialist: Specialist, team: ZRM):
         while self.AnyRemainingAssessedVictimsNeedingProcedures():
             target_victim: Victim = self.GetTargetVictimForProcedure()
-            target_victim_critical_health_problems = target_victim.GetCurrentCriticalHealthProblems()
-            if len(target_victim_critical_health_problems) == 0:
-                try:
-                    self.PrepareVictimForTransportAndSendToClosestTeamQueue(target_victim, team)
-                    continue
-                except RuntimeError:
-                    break
+            target_victim_critical_problems: Set[HealthProblem] = target_victim.GetCurrentCriticalHealthProblems()
+            if len(target_victim_critical_problems) == 0:
+                non_critical_procedure_to_perform: Procedure = self.GetAnyPossibleProcedureToPerform(target_victim)
+                if not non_critical_procedure_to_perform:
+                    try:
+                        self.PrepareVictimForTransportAndSendToClosestTeamQueue(target_victim, team)
+                        continue
+                    except RuntimeError:
+                        break
+                else:
+                    specialist.StartPerformingProcedure(non_critical_procedure_to_perform, target_victim)
+                    return
             else:
-                health_problem_to_treat: HealthProblem = target_victim_critical_health_problems.pop()
+                health_problem_to_treat: HealthProblem = target_victim_critical_problems.pop()
                 procedure_to_be_performed: Procedure = self.GetProcedureByDisciplineAndNumber(
                     health_problem_to_treat.discipline, health_problem_to_treat.number
                 )
@@ -268,6 +273,22 @@ class Simulation:
     @staticmethod
     def SortVictimsListByRPM(victims_list: List[Victim], descending: bool = False):
         victims_list.sort(key=lambda x: x.current_RPM_number, reverse=descending)
+
+    def GetAnyPossibleProcedureToPerform(self, target_victim: Victim):
+        base_problems: Set[HealthProblem] = set(
+            target_victim.current_state.health_problems
+        )
+        healed_problems: Set[HealthProblem] = {
+            procedure.health_problem for procedure in target_victim.procedures_performed_so_far
+        }
+        non_healed_problems: Set[HealthProblem] = base_problems.difference(healed_problems)
+        for non_healed_problem in non_healed_problems:
+            found_procedure: Optional[Procedure] = self.GetProcedureByDisciplineAndNumber(
+                non_healed_problem.discipline, non_healed_problem.number
+            )
+            if found_procedure:
+                return found_procedure
+        return None
 
     def PrepareVictimForTransportAndSendToClosestTeamQueue(self, target_victim: Victim, team: ZRM):
         self.MoveVictimFromAssessedToTransportReady(target_victim)
