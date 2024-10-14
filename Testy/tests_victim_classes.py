@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from typing import List, Tuple
+from typing import List, Set, Tuple
 import unittest
 
 from Skrypty import victim_classes as victim
@@ -59,8 +59,8 @@ def SampleCriticalHealthProblems() -> List[victim.HealthProblem]:
     return [victim.HealthProblem(15, 7), victim.HealthProblem(15, 14)]
 
 
-def SampleHealthProblemDisciplines() -> List[int]:
-    return [15, 5, 25]
+def SampleHealthProblemDisciplines() -> Set[int]:
+    return {15, 5, 25}
 
 
 def CreateSampleTransitionData() -> victim.TransitionData:

@@ -197,7 +197,7 @@ class Victim:
     def AdmitToHospital(self, time: int):
         self.hospital_admittance_time = time
 
-    def GetCurrentHealthProblemDisciplines(self) -> List[int]:
+    def GetCurrentHealthProblemDisciplines(self) -> Set[int]:
         return self.current_state.GetAllHealthProblemDisciplines()
 
     def IsDead(self) -> bool:
@@ -356,13 +356,9 @@ class State:
     def GetDescriptionFromString(cls, data_lines: List[str]) -> str:
         return data_lines[6][len(DESCRIPTION_START):]
 
-    def GetAllHealthProblemDisciplines(self) -> List[int]:
-        health_problem_ids: List[int] = sorted(
-            {health_problem.discipline for health_problem in self.health_problems}
-        )
-        if EMERGENCY_DISCIPLINE_NUMBER in health_problem_ids:
-            health_problem_ids.remove(EMERGENCY_DISCIPLINE_NUMBER)
-            health_problem_ids.insert(0, EMERGENCY_DISCIPLINE_NUMBER)
+    def GetAllHealthProblemDisciplines(self) -> Set[int]:
+        health_problem_ids: Set[int] = {
+            health_problem.discipline for health_problem in self.health_problems}
         return health_problem_ids
 
     def GetTimeOfDeterioration(self) -> Optional[int]:

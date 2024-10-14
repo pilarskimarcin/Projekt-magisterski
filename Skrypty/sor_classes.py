@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
+import itertools
 import math
 import random
-from typing import List, Optional
+from typing import List, Optional, Set
 
 from Skrypty.utilities import PlaceAddress, TargetDestination
 from Skrypty.victim_classes import Victim
@@ -87,7 +88,7 @@ class Hospital(TargetDestination):
     def TakeInVictimToOneOfDepartments(self, victim: Victim, current_time: int):
         for medicine_discipline_id in victim.GetCurrentHealthProblemDisciplines():
             department: Department = self.TryGetDepartment(medicine_discipline_id)
-            if self.TryGetDepartment(medicine_discipline_id):
+            if department:
                 department.TakeInVictim(victim, current_time)
                 return
         raise RuntimeError(f"Brak pasującego oddziału w szpitalu {self.name}")
@@ -97,3 +98,11 @@ class Hospital(TargetDestination):
             if medicine_discipline_id in department.medical_categories:
                 return department
         return None
+
+    def CanVictimBeTakenIn(self, target_victim: Victim) -> bool:
+        all_medical_categories: Set[int] = set(itertools.chain.from_iterable(
+            [department.medical_categories for department in self.departments]
+        ))
+        target_victim_medical_categories: Set[int] = target_victim.GetCurrentHealthProblemDisciplines()
+        common_medical_categories: Set[int] = all_medical_categories.intersection(target_victim_medical_categories)
+        return len(common_medical_categories) != 0

@@ -159,9 +159,11 @@ class HospitalTests(unittest.TestCase):
         self.assertIsNone(self.sample_hospital.TryGetDepartment(1))
 
     def testTakeInVictimToOneOfDepartments(self):
-        sample_department: sor.Department = self.sample_hospital.TryGetDepartment(victim.EMERGENCY_DISCIPLINE_NUMBER)
         sample_state: victim.State = tests_victim.CreateSampleState()
         sample_victim: victim.Victim = victim.Victim(1, [sample_state])
+        sample_department: sor.Department = self.sample_hospital.TryGetDepartment(
+            sample_victim.GetCurrentHealthProblemDisciplines().pop()
+        )
         sample_time: int = 65
         sample_beds_amount: int = sample_department.current_beds_count
         self.sample_hospital.TakeInVictimToOneOfDepartments(sample_victim, sample_time)
@@ -171,7 +173,7 @@ class HospitalTests(unittest.TestCase):
             sample_beds_amount=sample_beds_amount
         )
 
-    def testNoFittingDepartments(self):
+    def testTakeInVictimToOneOfDepartmentsNoFittingDepartments(self):
         sample_state: victim.State = tests_victim.CreateSampleState()
         sample_victim: victim.Victim = victim.Victim(1, [sample_state])
         sample_time: float = 65.0
@@ -182,6 +184,20 @@ class HospitalTests(unittest.TestCase):
             RuntimeError,
             self.sample_hospital.TakeInVictimToOneOfDepartments, sample_victim, sample_time
         )
+
+    def testCanVictimBeTakenInTrue(self):
+        sample_state: victim.State = tests_victim.CreateSampleState()
+        sample_victim: victim.Victim = victim.Victim(1, [sample_state])
+
+        self.assertEqual(self.sample_hospital.CanVictimBeTakenIn(sample_victim), True)
+
+    def testCanVictimBeTakenInFalse(self):
+        sample_state: victim.State = tests_victim.CreateSampleState()
+        sample_victim: victim.Victim = victim.Victim(1, [sample_state])
+        self.sample_hospital.departments.pop()
+        self.sample_hospital.departments.pop(0)
+
+        self.assertEqual(self.sample_hospital.CanVictimBeTakenIn(sample_victim), False)
 
 
 if __name__ == "__main__":
