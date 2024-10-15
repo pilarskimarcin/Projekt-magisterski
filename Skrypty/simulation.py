@@ -74,7 +74,7 @@ class Simulation:
                 self.TryHandleReconnaissance(first_team, incident)
             for team in self.teams_in_action:
                 if not team.IsDriving() and not team.are_specialists_outside:
-                    self.OrderIdleTeam(team)
+                    self.OrderIdleTeamInAction(team)
                 if team.are_specialists_outside and team.AreSpecialistsIdle():
                     self.OrderIdleSpecialists(team)
             # czy nowy wypadek z additional_scenarios?
@@ -190,15 +190,43 @@ class Simulation:
                 return procedure
         return None
 
-    def OrderIdleTeam(self, team: ZRM):
+    def OrderIdleTeamInAction(self, team: ZRM):
         if team.queue_of_next_targets:
             team.StartDriving(team.queue_of_next_targets.pop())
         elif self.transport_ready_victims:
-            # TODO wziąć wg koloru (czerwony, żółty) i RPM rosnąco, jechać do szpitala
-            #  jeśli dead, to z powrotem do assessed, trudno, i powtarzamy - więc while
-            pass
-        else:
+            self.HandleTransportReadyVictims(team)
+        elif team.origin_location_address == self.incidents[0].address:
             team.SpecialistsLeaveTheVehicle()
+        else:
+            team.StartDriving(self.incidents[0])
+
+    def HandleTransportReadyVictims(self, team: ZRM):
+        self.SortVictimsListByRPM(self.transport_ready_victims)
+        for victim in self.transport_ready_victims[:]:
+            if victim.IsDead():
+                self.MoveVictimFromTransportReadyToAssessed(victim)
+                continue
+            target_hospital: Hospital = self.FindAppropriateAvailableHospital(victim)
+            if not target_hospital:
+                raise RuntimeError("Nie ma szpitala, mogącego przyjąć tego pacjenta")
+            team.StartTransportingAVictim(victim, target_hospital)
+            break
+
+    def FindAppropriateAvailableHospital(self, target_victim: Victim) -> Optional[Hospital]:
+        for hospital in self.all_hospitals:
+            if hospital.CanVictimBeTakenIn(target_victim):
+                return hospital
+        return None
+
+    @staticmethod
+    def SortVictimsListByRPM(victims_list: List[Victim], descending: bool = False):
+        victims_list.sort(key=lambda x: x.current_RPM_number, reverse=descending)
+
+    def MoveVictimFromTransportReadyToAssessed(self, victim: Victim):
+        if victim not in self.transport_ready_victims:
+            return
+        self.transport_ready_victims.remove(victim)
+        self.assessed_victims.append(victim)
 
     def OrderIdleSpecialists(self, team: ZRM):
         for specialist in team.specialists:
@@ -269,10 +297,6 @@ class Simulation:
             self.SortVictimsListByRPM(victims_yellow)
             return victims_yellow[0]
         return None
-
-    @staticmethod
-    def SortVictimsListByRPM(victims_list: List[Victim], descending: bool = False):
-        victims_list.sort(key=lambda x: x.current_RPM_number, reverse=descending)
 
     def GetAnyPossibleProcedureToPerform(self, target_victim: Victim):
         base_problems: Set[HealthProblem] = set(

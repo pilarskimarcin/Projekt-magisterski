@@ -9,6 +9,7 @@ from Skrypty import utilities as util
 from Skrypty import victim_classes as victim
 from Skrypty import zrm_classes as zrm
 from Testy import tests_scenario_classes as tests_scenario
+from Testy import tests_sor_classes as tests_sor
 from Testy import tests_utilities as tests_util
 from Testy import tests_victim_classes as tests_victim
 from Testy import tests_zrm_classes as tests_zrm
@@ -49,7 +50,7 @@ class TestSimulation(unittest.TestCase):
 
     def testPerformSimulation(self):
         # TODO
-        pass
+        raise NotImplementedError
 
     def testSendOutNTeamsToTheIncidentReturnFirstLessThanMaxTeams(self):
         sample_reported_victims_count: int = 15
@@ -388,9 +389,241 @@ class TestSimulation(unittest.TestCase):
     def testGetProcedureByDisciplineAndNumberNoneFound(self):
         self.assertIsNone(self.simulation.GetProcedureByDisciplineAndNumber(-1, -1))
 
-    def testOrderIdleTeam(self):
-        # TODO
-        pass
+    def testOrderIdleTeamInActionWithQueue(self):
+        sample_team: zrm.ZRM = tests_zrm.CreateSampleZRM()
+        self.simulation.TeamIntoAction(sample_team)
+        sample_team.origin_location_address = self.simulation.incidents[0].address
+        queued_incident_place: sor.IncidentPlace = tests_sor.CreateSampleIncidentPlace()
+        sample_team.QueueNewTargetLocation(queued_incident_place)
+        self.AssessAllVictims()
+        self.PrepareForTransportAllVictims()
+        prev_unknown_status_victims_count: int = len(self.simulation.unknown_status_victims)
+        prev_assessed_victims_count: int = len(self.simulation.assessed_victims)
+        prev_transport_ready_victims_count: int = len(self.simulation.transport_ready_victims)
+        self.simulation.OrderIdleTeamInAction(sample_team)
+
+        self.assertEqual(sample_team.are_specialists_outside, False)
+        self.assertEqual(sample_team.queue_of_next_targets, [])
+        self.assertEqual(sample_team.target_location, queued_incident_place)
+        self.assertEqual(sample_team.time_until_destination_in_minutes, 2)
+        self.assertEqual(sample_team.transported_victim, None)
+        self.assertEqual(len(self.simulation.unknown_status_victims), prev_unknown_status_victims_count)
+        self.assertEqual(len(self.simulation.assessed_victims), prev_assessed_victims_count)
+        self.assertEqual(len(self.simulation.transport_ready_victims), prev_transport_ready_victims_count)
+
+    def testOrderIdleTeamInActionTransportReadyVictims(self):
+        sample_team: zrm.ZRM = tests_zrm.CreateSampleZRM()
+        self.simulation.TeamIntoAction(sample_team)
+        sample_team.origin_location_address = self.simulation.incidents[0].address
+        self.AssessAllVictims()
+        target_victim: victim.Victim = self.simulation.GetTargetVictimForProcedure()
+        hospital_target: sor.Hospital = self.simulation.FindAppropriateAvailableHospital(target_victim)
+        for victim_ in self.simulation.all_victims:
+            if victim_.current_RPM_number == target_victim.current_RPM_number:
+                self.simulation.assessed_victims.remove(victim_)
+        self.PrepareForTransportAllVictims()
+        self.simulation.transport_ready_victims.append(target_victim)
+        n_dead_victims: int = len([victim_ for victim_ in self.simulation.transport_ready_victims if victim_.IsDead()])
+        prev_unknown_status_victims_count: int = len(self.simulation.unknown_status_victims)
+        prev_assessed_victims_count: int = len(self.simulation.assessed_victims)
+        prev_transport_ready_victims_count: int = len(self.simulation.transport_ready_victims)
+        self.simulation.OrderIdleTeamInAction(sample_team)
+
+        self.assertEqual(sample_team.are_specialists_outside, False)
+        self.assertEqual(sample_team.queue_of_next_targets, [])
+        self.assertEqual(sample_team.target_location, hospital_target)
+        self.assertIsNotNone(sample_team.time_until_destination_in_minutes)
+        self.assertEqual(sample_team.transported_victim, target_victim)
+        self.assertEqual(len(self.simulation.unknown_status_victims), prev_unknown_status_victims_count)
+        self.assertEqual(len(self.simulation.assessed_victims), prev_assessed_victims_count + n_dead_victims)
+        self.assertEqual(
+            len(self.simulation.transport_ready_victims), prev_transport_ready_victims_count - n_dead_victims
+        )
+
+    def testOrderIdleTeamInActionAtIncidentPlaceWithNoOrders(self):
+        sample_team: zrm.ZRM = tests_zrm.CreateSampleZRM()
+        self.simulation.TeamIntoAction(sample_team)
+        sample_team.origin_location_address = self.simulation.incidents[0].address
+        self.AssessAllVictims()
+        prev_unknown_status_victims_count: int = len(self.simulation.unknown_status_victims)
+        prev_assessed_victims_count: int = len(self.simulation.assessed_victims)
+        prev_transport_ready_victims_count: int = len(self.simulation.transport_ready_victims)
+        self.simulation.OrderIdleTeamInAction(sample_team)
+
+        self.assertEqual(sample_team.are_specialists_outside, True)
+        self.assertEqual(sample_team.queue_of_next_targets, [])
+        self.assertEqual(sample_team.target_location, None)
+        self.assertEqual(sample_team.time_until_destination_in_minutes, None)
+        self.assertEqual(sample_team.transported_victim, None)
+        self.assertEqual(len(self.simulation.unknown_status_victims), prev_unknown_status_victims_count)
+        self.assertEqual(len(self.simulation.assessed_victims), prev_assessed_victims_count)
+        self.assertEqual(len(self.simulation.transport_ready_victims), prev_transport_ready_victims_count)
+
+    def testOrderIdleTeamInActionNothingToDoGoToIncident(self):
+        sample_team: zrm.ZRM = tests_zrm.CreateSampleZRM()
+        self.simulation.TeamIntoAction(sample_team)
+        self.AssessAllVictims()
+        prev_unknown_status_victims_count: int = len(self.simulation.unknown_status_victims)
+        prev_assessed_victims_count: int = len(self.simulation.assessed_victims)
+        prev_transport_ready_victims_count: int = len(self.simulation.transport_ready_victims)
+        self.simulation.OrderIdleTeamInAction(sample_team)
+
+        self.assertEqual(sample_team.are_specialists_outside, False)
+        self.assertEqual(sample_team.queue_of_next_targets, [])
+        self.assertEqual(sample_team.target_location, self.simulation.incidents[0])
+        self.assertEqual(sample_team.time_until_destination_in_minutes, 3)
+        self.assertEqual(sample_team.transported_victim, None)
+        self.assertEqual(len(self.simulation.unknown_status_victims), prev_unknown_status_victims_count)
+        self.assertEqual(len(self.simulation.assessed_victims), prev_assessed_victims_count)
+        self.assertEqual(len(self.simulation.transport_ready_victims), prev_transport_ready_victims_count)
+
+    def testHandleTransportReadyVictimsNoDeadAndVictimsToTransport(self):
+        sample_team: zrm.ZRM = tests_zrm.CreateSampleZRM()
+        self.simulation.TeamIntoAction(sample_team)
+        self.AssessAllVictims()
+        n_chosen_victims: int = 3
+        chosen_victims: List[victim.Victim] = self.GetNAssessedVictimsWithDifferentRPM(n_chosen_victims)
+        self.PrepareForTransportAllVictims()
+        self.simulation.transport_ready_victims = chosen_victims
+        self.simulation.HandleTransportReadyVictims(sample_team)
+
+        self.assertEqual(sample_team.are_specialists_outside, False)
+        self.assertEqual(sample_team.transported_victim, chosen_victims[0])
+        self.assertEqual(
+            sample_team.target_location,
+            self.simulation.FindAppropriateAvailableHospital(chosen_victims[0])
+        )
+
+    def GetNAssessedVictimsWithDifferentRPM(self, n_victims: int, target_highest_RPM: bool = False) \
+            -> List[victim.Victim]:
+        chosen_victims: List[victim.Victim] = []
+        while len(chosen_victims) < (n_victims + 1):
+            random_victim: victim.Victim = self.RandomAliveVictimFromList(self.simulation.assessed_victims)
+            if random_victim.current_RPM_number not in [
+                chosen_victim.current_RPM_number for chosen_victim in chosen_victims
+            ] and random_victim.GetCurrentCriticalHealthProblems():
+                chosen_victims.append(random_victim)
+        self.simulation.SortVictimsListByRPM(chosen_victims, descending=target_highest_RPM)
+        return chosen_victims
+
+    def testHandleTransportReadyVictimsFewDeadAndVictimsToTransport(self):
+        sample_team: zrm.ZRM = tests_zrm.CreateSampleZRM()
+        n_chosen_victims: int = 3
+        n_dead_victims: int = 3
+        self.simulation.TeamIntoAction(sample_team)
+        self.AssessAllVictims()
+        chosen_victims: List[victim.Victim] = self.GetNAssessedVictimsWithDifferentRPM(n_chosen_victims)
+        self.PrepareForTransportAllVictims()
+        dead_victims: List[victim.Victim] = self.GetNDeadVictims(n_dead_victims)
+        self.simulation.transport_ready_victims = chosen_victims + dead_victims
+        prev_unknown_status_victims_count: int = len(self.simulation.unknown_status_victims)
+        prev_assessed_victims_count: int = len(self.simulation.assessed_victims)
+        prev_transport_ready_victims_count: int = len(self.simulation.transport_ready_victims)
+        self.simulation.HandleTransportReadyVictims(sample_team)
+
+        self.assertEqual(len(self.simulation.unknown_status_victims), prev_unknown_status_victims_count)
+        self.assertEqual(
+            len(self.simulation.assessed_victims), prev_assessed_victims_count + n_dead_victims
+        )
+        self.assertEqual(
+            len(self.simulation.transport_ready_victims), prev_transport_ready_victims_count - n_dead_victims
+        )
+        self.assertEqual(sample_team.are_specialists_outside, False)
+        self.assertEqual(sample_team.transported_victim, chosen_victims[0])
+        self.assertEqual(
+            sample_team.target_location,
+            self.simulation.FindAppropriateAvailableHospital(chosen_victims[0])
+        )
+
+    def GetNDeadVictims(self, n_victims: int) -> List[victim.Victim]:
+        chosen_victims: List[victim.Victim] = []
+        while len(chosen_victims) < n_victims:
+            random_victim: victim.Victim = random.choice(self.simulation.all_victims)
+            if random_victim.IsDead():
+                chosen_victims.append(random_victim)
+        return chosen_victims
+
+    def testHandleTransportReadyVictimsNoAppropriateHospitalError(self):
+        sample_team: zrm.ZRM = tests_zrm.CreateSampleZRM()
+        self.simulation.all_hospitals.remove(self.FindHospitalById(10))
+        self.simulation.all_hospitals.remove(self.FindHospitalById(9))
+        target_victim: victim.Victim = self.GetVictimById(25)
+        target_victim.current_state.health_problems.remove(victim.HealthProblem(15, 1))
+        self.AssessAllVictims()
+        self.PrepareForTransportAllVictims()
+        self.simulation.transport_ready_victims = [target_victim]
+
+        self.assertRaises(RuntimeError, self.simulation.HandleTransportReadyVictims, sample_team)
+
+    def testFindAppropriateAvailableHospitalFound(self):
+        self.simulation.all_hospitals.remove(self.FindHospitalById(10))
+        fitting_hospital: sor.Hospital = self.FindHospitalById(9)
+        target_victim: victim.Victim = self.GetVictimById(25)
+        target_victim.current_state.health_problems.remove(victim.HealthProblem(15, 1))
+
+        self.assertEqual(self.simulation.FindAppropriateAvailableHospital(target_victim), fitting_hospital)
+
+    def FindHospitalById(self, hospital_id: int) -> Optional[sor.Hospital]:
+        for hospital in self.simulation.all_hospitals:
+            if hospital.id_ == hospital_id:
+                return hospital
+        return None
+
+    def testFindAppropriateAvailableHospitalNotFound(self):
+        self.simulation.all_hospitals.remove(self.FindHospitalById(10))
+        self.simulation.all_hospitals.remove(self.FindHospitalById(9))
+        target_victim: victim.Victim = self.GetVictimById(25)
+        target_victim.current_state.health_problems.remove(victim.HealthProblem(15, 1))
+
+        self.assertEqual(self.simulation.FindAppropriateAvailableHospital(target_victim), None)
+
+    def testSortVictimsListByRPMAscending(self):
+        self.simulation.SortVictimsListByRPM(self.simulation.all_victims)
+
+        self.assertEqual(self.IsListOfVictimsSorted(self.simulation.all_victims), True)
+
+    @staticmethod
+    def IsListOfVictimsSorted(victims_list: List[victim.Victim], descending: bool = False) -> bool:
+        if descending:
+            key = lambda x, y: x >= y
+        else:
+            key = lambda x, y: x <= y
+        return all(
+            key(victims_list[i].current_RPM_number, victims_list[i + 1].current_RPM_number)
+            for i in range(len(victims_list) - 1)
+        )
+
+    def testSortVictimsListByRPMDescending(self):
+        self.simulation.SortVictimsListByRPM(self.simulation.all_victims, descending=True)
+
+        self.assertEqual(self.IsListOfVictimsSorted(self.simulation.all_victims, descending=True), True)
+
+    def testMoveVictimFromTransportReadyToAssessed(self):
+        random_victim: victim.Victim = self.RandomAliveVictimFromList(self.simulation.all_victims)
+        self.simulation.MoveVictimFromUnknownStatusToAssessed(random_victim)
+        self.simulation.MoveVictimFromAssessedToTransportReady(random_victim)
+        self.simulation.MoveVictimFromTransportReadyToAssessed(random_victim)
+
+        self.assertTrue(random_victim not in self.simulation.unknown_status_victims)
+        self.assertTrue(random_victim in self.simulation.assessed_victims)
+        self.assertTrue(random_victim not in self.simulation.transport_ready_victims)
+
+    def testMoveVictimFromTransportReadyToAssessedAlreadyMoved(self):
+        random_victim: victim.Victim = self.RandomAliveVictimFromList(self.simulation.all_victims)
+        self.simulation.MoveVictimFromUnknownStatusToAssessed(random_victim)
+        self.simulation.MoveVictimFromAssessedToTransportReady(random_victim)
+        self.simulation.MoveVictimFromTransportReadyToAssessed(random_victim)
+        prev_unknown_status_victims_count: int = len(self.simulation.unknown_status_victims)
+        prev_assessed_victims_count: int = len(self.simulation.assessed_victims)
+        prev_transport_ready_victims_count: int = len(self.simulation.transport_ready_victims)
+        self.simulation.MoveVictimFromTransportReadyToAssessed(random_victim)
+
+        self.assertTrue(random_victim not in self.simulation.unknown_status_victims)
+        self.assertTrue(random_victim in self.simulation.assessed_victims)
+        self.assertTrue(random_victim not in self.simulation.transport_ready_victims)
+        self.assertEqual(len(self.simulation.unknown_status_victims), prev_unknown_status_victims_count)
+        self.assertEqual(len(self.simulation.assessed_victims), prev_assessed_victims_count)
+        self.assertEqual(len(self.simulation.transport_ready_victims), prev_transport_ready_victims_count)
 
     def testOrderIdleSpecialistsEverySpecialistTriage(self):
         """Trzech ocenionych poszkodowanych, ale jest dużo nieocenionych, więc priorytetem jest ocena tych drugich"""
@@ -629,14 +862,9 @@ class TestSimulation(unittest.TestCase):
         sample_team: zrm.ZRM = self.simulation.teams_in_action[n_helped_victims]
         self.MoveTeamToIncidentPlaceAndSpecialistsOut(sample_team)
         self.AssessAllVictims()
-        chosen_victims: List[victim.Victim] = []
-        while len(chosen_victims) < (n_helped_victims + 1):
-            random_victim: victim.Victim = self.RandomAliveVictimFromList(self.simulation.assessed_victims)
-            if random_victim.current_RPM_number not in [
-                chosen_victim.current_RPM_number for chosen_victim in chosen_victims
-            ] and random_victim.GetCurrentCriticalHealthProblems():
-                chosen_victims.append(random_victim)
-        self.simulation.SortVictimsListByRPM(chosen_victims, descending=target_highest_RPM)
+        chosen_victims: List[victim.Victim] = self.GetNAssessedVictimsWithDifferentRPM(
+            n_helped_victims, target_highest_RPM
+        )
         self.simulation.assessed_victims = chosen_victims
         next_target_victim, *helped_victims = chosen_victims
         for helped_victim in helped_victims:
@@ -657,14 +885,14 @@ class TestSimulation(unittest.TestCase):
         zostaną najpierw przeniesieni do transport_ready
         """
         n_helped_victims: int = 3
-        non_critical_victim: victim.Victim = self.GetNonCriticalVictim()  # ma RPM 6 - może 75
+        non_critical_victim: victim.Victim = self.GetNonCriticalVictim()
         sample_team, helped_victims, next_target_victim = self.PrepareSampleTeamAndAssessedVictims(n_helped_victims)
         self.simulation.assessed_victims.remove(next_target_victim)
         self.simulation.assessed_victims.append(non_critical_victim)
         self.simulation.HelpAssessedVictimOrPrepareForTransport(sample_team.specialists[0], sample_team)
 
         for helped_victim in helped_victims:
-            self.assertFalse(helped_victim in self.simulation.assessed_victims)  # jeden helped_victim ma RPM 7
+            self.assertFalse(helped_victim in self.simulation.assessed_victims)
             self.assertTrue(helped_victim in self.simulation.transport_ready_victims)
         for team in self.simulation.teams_in_action[:n_helped_victims]:
             self.assertEqual(team.queue_of_next_targets, [self.simulation.incidents[0]])
@@ -778,27 +1006,6 @@ class TestSimulation(unittest.TestCase):
 
         self.assertIsNone(self.simulation.GetTargetVictimForProcedure())
 
-    def testSortVictimsListByRPMAscending(self):
-        self.simulation.SortVictimsListByRPM(self.simulation.all_victims)
-
-        self.assertEqual(self.IsListOfVictimsSorted(self.simulation.all_victims), True)
-
-    @staticmethod
-    def IsListOfVictimsSorted(victims_list: List[victim.Victim], descending: bool = False) -> bool:
-        if descending:
-            key = lambda x, y: x >= y
-        else:
-            key = lambda x, y: x <= y
-        return all(
-            key(victims_list[i].current_RPM_number, victims_list[i + 1].current_RPM_number)
-            for i in range(len(victims_list) - 1)
-        )
-
-    def testSortVictimsListByRPMDescending(self):
-        self.simulation.SortVictimsListByRPM(self.simulation.all_victims, descending=True)
-
-        self.assertEqual(self.IsListOfVictimsSorted(self.simulation.all_victims, descending=True), True)
-
     def testGetAnyPossibleProcedureToPerformFound(self):
         target_victim: victim.Victim = self.GetVictimById(75)
         found_procedure: victim.Procedure = victim.Procedure.FromDisciplineAndNumber(15, 2, 3)
@@ -820,9 +1027,7 @@ class TestSimulation(unittest.TestCase):
         target_victim: victim.Victim = self.RandomAliveVictimFromList(self.simulation.all_victims)
         self.simulation.MoveVictimFromUnknownStatusToAssessed(target_victim)
         team_of_specialists: zrm.ZRM = self.simulation.idle_teams[-1]
-        self.MoveTeamToIncidentPlaceAndSpecialistsOut(
-            team_of_specialists, self.simulation.incidents[0]
-        )
+        self.MoveTeamToIncidentPlaceAndSpecialistsOut(team_of_specialists)
         closest_team: zrm.ZRM = self.MakeIdleTeamClosestToTargetLocation(self.simulation.incidents[0])
         self.AllTeamsIntoAction()
         self.simulation.PrepareVictimForTransportAndSendToClosestTeamQueue(
@@ -892,8 +1097,9 @@ class TestSimulation(unittest.TestCase):
 
     def testGetClosestTeamWithoutQueueClosestHaveQueuesNextClosestChosen(self):
         self.AllTeamsIntoAction()
-        self.simulation.GetTeamById("K01 47").QueueNewTargetLocation(self.simulation.incidents[0])
-        self.simulation.GetTeamById("K01 098").QueueNewTargetLocation(self.simulation.incidents[0])
+        different_incident_place: sor.IncidentPlace = tests_sor.CreateSampleIncidentPlace()
+        self.simulation.GetTeamById("K01 47").QueueNewTargetLocation(different_incident_place)
+        self.simulation.GetTeamById("K01 098").QueueNewTargetLocation(different_incident_place)
 
         self.assertEqual(
             self.simulation.GetClosestTeamWithoutQueue(self.simulation.incidents[0].address).id_, "K01 100"

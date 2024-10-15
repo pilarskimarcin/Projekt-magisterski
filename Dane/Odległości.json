@@ -166,5 +166,15 @@
       "odległość [km]": 38.105,
       "czas podróży [min]": 30.35
     }
+  },
+  "Głowackiego 91, 32-540 Trzebinia": {
+    "Magnoliowa 10, 32-500 Chrzanów": {
+      "odległość [km]": 0.802,
+      "czas podróży [min]": 2.433333333333333
+    },
+    "Topolowa 16, 32-500 Chrzanów": {
+      "odległość [km]": 2.09,
+      "czas podróży [min]": 4.8
+    }
   }
 }

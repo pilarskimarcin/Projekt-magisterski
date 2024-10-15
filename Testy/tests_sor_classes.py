@@ -8,6 +8,13 @@ from Testy import tests_utilities as tests_util
 from Testy import tests_victim_classes as tests_victim
 
 
+def CreateSampleIncidentPlace() -> sor.IncidentPlace:
+    return sor.IncidentPlace(
+        tests_util.CreateSampleAddressIncident(),
+        CreateSampleVictims()
+    )
+
+
 def CreateSampleVictims() -> List[victim.Victim]:
     sample_state1: victim.State = victim.State(
         number=1, is_victim_walking=False, respiratory_rate=12, pulse_rate=120, is_victim_following_orders=True,
@@ -34,10 +41,7 @@ class IncidentPlaceTests(unittest.TestCase):
     sample_incident_place: sor.IncidentPlace
 
     def setUp(self):
-        self.sample_incident_place = sor.IncidentPlace(
-            tests_util.CreateSampleAddressIncident(),
-            CreateSampleVictims()
-        )
+        self.sample_incident_place = CreateSampleIncidentPlace()
 
     def testGetStartingAmountOfVictims(self):
         while len(self.sample_incident_place.victims) < 88:
