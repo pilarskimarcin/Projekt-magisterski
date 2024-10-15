@@ -80,7 +80,8 @@ class PlaceAddress:
             places_coordinates_df = pd.read_csv(
                 PLACES_CSV_FILE, header=0, index_col=0, encoding="utf-8"
             )
-        return self.address_for_api_requests in places_coordinates_df[PLACES_CSV_FILE_ADDRESS_COLUMN_NAME].values
+        all_saved_addresses: List[str] = places_coordinates_df[PLACES_CSV_FILE_ADDRESS_COLUMN_NAME].values.tolist()
+        return self.address_for_api_requests in all_saved_addresses
 
     def ReadCoordinatesFromDataFrame(self, places_coordinates_df: Optional[pd.DataFrame] = None):
         if places_coordinates_df is None:

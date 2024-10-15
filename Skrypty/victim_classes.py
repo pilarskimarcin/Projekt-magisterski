@@ -358,7 +358,8 @@ class State:
 
     def GetAllHealthProblemDisciplines(self) -> Set[int]:
         health_problem_ids: Set[int] = {
-            health_problem.discipline for health_problem in self.health_problems}
+            health_problem.discipline for health_problem in self.health_problems
+        }
         return health_problem_ids
 
     def GetTimeOfDeterioration(self) -> Optional[int]:
