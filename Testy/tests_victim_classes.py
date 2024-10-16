@@ -75,6 +75,12 @@ def CreateDeteriorationTableLastRow() -> List[int]:
     return [12, 12, 11, 11, 10, 10, 10, 10, 9, 9, 8, 8]
 
 
+def RoundNUpToNearestMultipleOfM(n: int, m: int):
+    """źródło: https://gist.github.com/OR13/20bc2044e01d512a51d0"""
+    needed_multiplier_of_m: int = (n + m - 1) // m
+    return m * needed_multiplier_of_m
+
+
 class FunctionsTests(unittest.TestCase):
     def testLoadingDeteriorationTable(self):
         deterioration_table_length: int = 13
@@ -207,7 +213,7 @@ class VictimClassTests(unittest.TestCase):
         self.assertEqual(self.sample_victim.current_RPM_number, RPM_before)
 
     def testLowerRPMCorrectInterval(self):
-        RPM_number_after_one_interval: int = 4  # od 6
+        RPM_number_after_one_interval: int = 4  # od RPM = 6
         sample_time_from_simulation_start = victim.RPM_DETERIORATION_INTERVAL_MINUTES
         self.sample_victim.LowerRPM(sample_time_from_simulation_start)
 
@@ -215,9 +221,20 @@ class VictimClassTests(unittest.TestCase):
 
     def testLowerRPMStateDeterioration(self):
         time_needed_for_deterioration: int = SampleTimedNextStateTransition()[0]
-        self.sample_victim.LowerRPM(time_needed_for_deterioration)
+        self.sample_victim.LowerRPM(
+            RoundNUpToNearestMultipleOfM(time_needed_for_deterioration, victim.RPM_DETERIORATION_INTERVAL_MINUTES)
+        )
 
         self.assertEqual(self.sample_victim.current_state.number, 2)
+
+    def testLowerRPMNoStateChangeRPMEquals0(self):
+        sample_time_from_simulation_start = victim.RPM_DETERIORATION_INTERVAL_MINUTES
+        self.sample_victim.current_RPM_number = self.sample_victim.initial_RPM_number = 1
+        self.sample_victim.LowerRPM(sample_time_from_simulation_start)
+
+        self.assertEqual(self.sample_victim.current_RPM_number, 0)
+        self.assertEqual(self.sample_victim.current_state.number, 1)
+        self.assertEqual(self.sample_victim.IsDead(), True)
 
     def testChangeStateWrongNumber(self):
         wrong_state_number: int = 4

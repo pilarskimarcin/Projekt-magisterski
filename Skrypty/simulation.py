@@ -78,7 +78,7 @@ class Simulation:
                 if team.are_specialists_outside and team.AreSpecialistsIdle():
                     self.OrderIdleSpecialists(team)
             # czy nowy wypadek z additional_scenarios?
-        # TODO sprawdzić wyniki symulacji
+        return self.SimulationResults()
 
     def SendOutNTeamsToTheIncidentReturnFirst(self, incident_place: IncidentPlace, n_teams_to_send: int) -> ZRM:
         """Wysyła pierwsze zespoły na miejsce wypadku, zwraca ten, który przyjedzie pierwszy"""
@@ -155,10 +155,14 @@ class Simulation:
         transported_victim: Optional[Victim] = team.DriveOrFinishDrivingAndReturnVictim()
         if transported_victim:
             if isinstance(target_location, Hospital):
+                self.transport_ready_victims.remove(transported_victim)
+                target_location.RemoveVictimFromIncoming(transported_victim)
+                if transported_victim.IsDead():
+                    self.assessed_victims.append(transported_victim)
+                    return
                 target_location.TakeInVictimToOneOfDepartments(
                     transported_victim, self.elapsed_simulation_time
                 )
-                self.transport_ready_victims.remove(transported_victim)
             else:
                 raise RuntimeError(
                     f"Zespół {team.id_} dojechał z pacjentem {transported_victim.id_} na miejsce, które nie jest "
@@ -342,3 +346,11 @@ class Simulation:
             if incident.address == address:
                 return incident
         return None
+
+    def SimulationResults(self):
+        if self.AnyRemainingAliveAssessedVictims():
+            raise RuntimeError("Wciąż są obecni żywi ocenieni poszkodowani")
+        n_dead_victims: int = len(self.assessed_victims)
+        average_RPM: int = ...  # TODO
+        average_help_time: int = ...  # TODO
+        return n_dead_victims, average_RPM, self.elapsed_simulation_time, average_help_time

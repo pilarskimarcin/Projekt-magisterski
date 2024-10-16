@@ -8,7 +8,6 @@ from Skrypty import sor_classes as sor
 from Skrypty import utilities as util
 from Skrypty import victim_classes as victim
 from Skrypty import zrm_classes as zrm
-from Testy import tests_scenario_classes as tests_scenario
 from Testy import tests_sor_classes as tests_sor
 from Testy import tests_utilities as tests_util
 from Testy import tests_victim_classes as tests_victim
@@ -277,7 +276,7 @@ class TestSimulation(unittest.TestCase):
     def TeamStartDrivingWithVictim(self, hospital_target: bool = False) -> Tuple[zrm.ZRM, victim.Victim]:
         sample_victim: victim.Victim = self.RandomAliveVictimFromList(self.simulation.all_victims)
         if hospital_target:
-            sample_destination: sor.Hospital = tests_scenario.CreateSampleHospital()
+            sample_destination: sor.Hospital = self.simulation.all_hospitals[0]
             sample_victim = self.EnsureThatVictimCanBeAdmittedToHospital(
                 sample_victim, sample_destination
             )
@@ -305,12 +304,43 @@ class TestSimulation(unittest.TestCase):
     def testMoveTeamFinishedInHospital(self):
         sample_team, sample_victim = self.TeamStartDrivingWithVictim(hospital_target=True)
         sample_team.time_until_destination_in_minutes = 2
+        prev_hospital_beds: int = self.GetHospitalCurrentBedsCount(
+            self.simulation.FindAppropriateAvailableHospital(sample_victim)
+        )
         self.simulation.MoveTeam(sample_team)
         self.simulation.MoveTeam(sample_team)
 
         self.assertIsNone(sample_team.time_until_destination_in_minutes)
         self.assertIsNotNone(sample_victim.hospital_admittance_time)
         self.assertTrue(sample_victim not in self.simulation.transport_ready_victims)
+        self.assertEqual(
+            self.GetHospitalCurrentBedsCount(self.simulation.FindAppropriateAvailableHospital(sample_victim)),
+            prev_hospital_beds - 1
+        )
+
+    @staticmethod
+    def GetHospitalCurrentBedsCount(hospital: sor.Hospital) -> int:
+        return sum([department.current_beds_count for department in hospital.departments])
+
+    def testMoveTeamFinishedInHospitalDead(self):
+        sample_team, sample_victim = self.TeamStartDrivingWithVictim(hospital_target=True)
+        sample_team.time_until_destination_in_minutes = 2
+        prev_hospital_beds: int = self.GetHospitalCurrentBedsCount(
+            self.simulation.FindAppropriateAvailableHospital(sample_victim)
+        )
+        sample_victim.current_RPM_number = 0
+        sample_victim.current_state.triage_colour = victim.TriageColour.BLACK
+        self.simulation.MoveTeam(sample_team)
+        self.simulation.MoveTeam(sample_team)
+
+        self.assertIsNone(sample_team.time_until_destination_in_minutes)
+        self.assertIsNone(sample_victim.hospital_admittance_time)
+        self.assertTrue(sample_victim not in self.simulation.transport_ready_victims)
+        self.assertTrue(sample_victim in self.simulation.assessed_victims)
+        self.assertEqual(
+            self.GetHospitalCurrentBedsCount(self.simulation.FindAppropriateAvailableHospital(sample_victim)),
+            prev_hospital_beds
+        )
 
     def testMoveTeamFinishedNotInHospitalError(self):
         sample_team, sample_victim = self.TeamStartDrivingWithVictim(hospital_target=False)
@@ -485,14 +515,14 @@ class TestSimulation(unittest.TestCase):
         chosen_victims: List[victim.Victim] = self.GetNAssessedVictimsWithDifferentRPM(n_chosen_victims)
         self.PrepareForTransportAllVictims()
         self.simulation.transport_ready_victims = chosen_victims
+        sample_hospital: sor.Hospital = self.simulation.FindAppropriateAvailableHospital(chosen_victims[0])
+        sample_hospital.incoming_victims.clear()
         self.simulation.HandleTransportReadyVictims(sample_team)
 
         self.assertEqual(sample_team.are_specialists_outside, False)
         self.assertEqual(sample_team.transported_victim, chosen_victims[0])
-        self.assertEqual(
-            sample_team.target_location,
-            self.simulation.FindAppropriateAvailableHospital(chosen_victims[0])
-        )
+        self.assertEqual(sample_team.target_location, sample_hospital)
+        self.assertTrue([chosen_victims[0]] in sample_hospital.incoming_victims.values())
 
     def GetNAssessedVictimsWithDifferentRPM(self, n_victims: int, target_highest_RPM: bool = False) \
             -> List[victim.Victim]:
@@ -519,6 +549,8 @@ class TestSimulation(unittest.TestCase):
         prev_unknown_status_victims_count: int = len(self.simulation.unknown_status_victims)
         prev_assessed_victims_count: int = len(self.simulation.assessed_victims)
         prev_transport_ready_victims_count: int = len(self.simulation.transport_ready_victims)
+        sample_hospital: sor.Hospital = self.simulation.FindAppropriateAvailableHospital(chosen_victims[0])
+        sample_hospital.incoming_victims.clear()
         self.simulation.HandleTransportReadyVictims(sample_team)
 
         self.assertEqual(len(self.simulation.unknown_status_victims), prev_unknown_status_victims_count)
@@ -530,10 +562,8 @@ class TestSimulation(unittest.TestCase):
         )
         self.assertEqual(sample_team.are_specialists_outside, False)
         self.assertEqual(sample_team.transported_victim, chosen_victims[0])
-        self.assertEqual(
-            sample_team.target_location,
-            self.simulation.FindAppropriateAvailableHospital(chosen_victims[0])
-        )
+        self.assertEqual(sample_team.target_location, sample_hospital)
+        self.assertTrue([chosen_victims[0]] in sample_hospital.incoming_victims.values())
 
     def GetNDeadVictims(self, n_victims: int) -> List[victim.Victim]:
         chosen_victims: List[victim.Victim] = []
@@ -562,6 +592,7 @@ class TestSimulation(unittest.TestCase):
         target_victim.current_state.health_problems.remove(victim.HealthProblem(15, 1))
 
         self.assertEqual(self.simulation.FindAppropriateAvailableHospital(target_victim), fitting_hospital)
+        self.assertTrue([target_victim] in fitting_hospital.incoming_victims.values())
 
     def FindHospitalById(self, hospital_id: int) -> Optional[sor.Hospital]:
         for hospital in self.simulation.all_hospitals:
@@ -1137,6 +1168,14 @@ class TestSimulation(unittest.TestCase):
         driving_team: zrm.ZRM = self.simulation.idle_teams[0]
 
         self.assertIsNone(self.simulation.GetIncidentPlaceFromAddress(driving_team.origin_location_address))
+
+    def testSimulationResultsAliveAssessedRemainingError(self):
+        # TODO
+        raise NotImplementedError
+
+    def testSimulationResultsCorrect(self):
+        # TODO
+        raise NotImplementedError
 
 
 if __name__ == "__main__":

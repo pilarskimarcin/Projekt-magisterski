@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-import itertools
 import math
 import random
-from typing import List, Optional, Set
+from typing import Dict, List, Optional
 
 from Skrypty.utilities import PlaceAddress, TargetDestination
 from Skrypty.victim_classes import Victim
@@ -70,12 +69,14 @@ class Hospital(TargetDestination):
     id_: int
     name: str
     departments: List[Department]
+    incoming_victims: Dict[int, List[Victim]]
 
     def __init__(self, id_: int, name: str, address: PlaceAddress, departments: List[Department]):
         super().__init__(address)
         self.id_ = id_
         self.name = name
         self.departments = departments
+        self.incoming_victims = {}
 
     def __eq__(self, other):
         if not isinstance(other, Hospital):
@@ -95,14 +96,26 @@ class Hospital(TargetDestination):
 
     def TryGetDepartment(self, medicine_discipline_id: int) -> Optional[Department]:
         for department in self.departments:
-            if medicine_discipline_id in department.medical_categories:
+            if (medicine_discipline_id in department.medical_categories and
+                    self.AvailableBedsInDepartment(department) > 0):
                 return department
         return None
 
+    def AvailableBedsInDepartment(self, department: Department) -> int:
+        return department.current_beds_count - len(self.incoming_victims.get(department.id_, []))
+
     def CanVictimBeTakenIn(self, target_victim: Victim) -> bool:
-        all_medical_categories: Set[int] = set(itertools.chain.from_iterable(
-            [department.medical_categories for department in self.departments]
-        ))
-        target_victim_medical_categories: Set[int] = target_victim.GetCurrentHealthProblemDisciplines()
-        common_medical_categories: Set[int] = all_medical_categories.intersection(target_victim_medical_categories)
-        return len(common_medical_categories) != 0
+        for medicine_discipline_id in target_victim.GetCurrentHealthProblemDisciplines():
+            department: Department = self.TryGetDepartment(medicine_discipline_id)
+            if department:
+                self.incoming_victims.setdefault(department.id_, []).append(target_victim)
+                return True
+        return False
+
+    def RemoveVictimFromIncoming(self, transported_victim: Victim):
+        for department_id, victim_list in self.incoming_victims.items():
+            if transported_victim in victim_list:
+                self.incoming_victims[department_id].remove(transported_victim)
+                if not self.incoming_victims[department_id]:
+                    self.incoming_victims.pop(department_id)
+                return

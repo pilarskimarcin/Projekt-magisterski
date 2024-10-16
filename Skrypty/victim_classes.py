@@ -171,9 +171,11 @@ class Victim:
         if time_from_simulation_start % RPM_DETERIORATION_INTERVAL_MINUTES == 0:
             index_of_time_interval: int = time_from_simulation_start // RPM_DETERIORATION_INTERVAL_MINUTES - 1
             self.current_RPM_number = RPM_DETERIORATION_TABLE[self.initial_RPM_number][index_of_time_interval]
-        if self.current_state.timed_next_state_transition:
-            if time_from_simulation_start >= self.current_state.GetTimeOfDeterioration():
-                self.ChangeState(self.current_state.GetDeterioratedStateNumber())
+            if self.current_state.timed_next_state_transition:
+                if time_from_simulation_start >= self.current_state.GetTimeOfDeterioration():
+                    self.ChangeState(self.current_state.GetDeterioratedStateNumber())
+            if self.current_RPM_number == 0:
+                self.current_state.triage_colour = TriageColour.BLACK
 
     def ChangeState(self, new_state_number: StateNumber):
         for state in self.states:

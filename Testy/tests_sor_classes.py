@@ -5,7 +5,6 @@ import unittest
 from Skrypty import sor_classes as sor
 from Skrypty import victim_classes as victim
 from Testy import tests_utilities as tests_util
-from Testy import tests_victim_classes as tests_victim
 
 
 def CreateSampleIncidentPlace() -> sor.IncidentPlace:
@@ -91,8 +90,7 @@ class DepartmentTests(unittest.TestCase):
 
     def setUp(self):
         self.sample_department = CreateSampleDepartment()
-        sample_state: victim.State = tests_victim.CreateSampleState()
-        self.sample_victim = victim.Victim(1, [sample_state])
+        self.sample_victim = CreateSampleVictims()[0]
         self.sample_time = 65
 
     def testInit(self):
@@ -159,12 +157,23 @@ class HospitalTests(unittest.TestCase):
     def testTryGetDepartment(self):
         self.assertEqual(self.sample_hospital.TryGetDepartment(15), self.sample_hospital.departments[2])
 
-    def testTryGetDepartmentFailed(self):
+    def testTryGetDepartmentNoFreeBeds(self):
+        self.sample_hospital.TryGetDepartment(15).current_beds_count = 0
+
+        self.assertIsNone(self.sample_hospital.TryGetDepartment(15))
+
+    def testTryGetDepartmentNoFreeBedsBecauseIncoming(self):
+        sample_department: sor.Department = self.sample_hospital.TryGetDepartment(15)
+        sample_department.current_beds_count = 1
+        self.sample_hospital.incoming_victims.setdefault(sample_department.id_, []).append(CreateSampleVictims()[0])
+
+        self.assertIsNone(self.sample_hospital.TryGetDepartment(15))
+
+    def testTryGetDepartmentWrongDiscipline(self):
         self.assertIsNone(self.sample_hospital.TryGetDepartment(1))
 
     def testTakeInVictimToOneOfDepartments(self):
-        sample_state: victim.State = tests_victim.CreateSampleState()
-        sample_victim: victim.Victim = victim.Victim(1, [sample_state])
+        sample_victim: victim.Victim = CreateSampleVictims()[0]
         sample_department: sor.Department = self.sample_hospital.TryGetDepartment(
             sample_victim.GetCurrentHealthProblemDisciplines().pop()
         )
@@ -178,10 +187,8 @@ class HospitalTests(unittest.TestCase):
         )
 
     def testTakeInVictimToOneOfDepartmentsNoFittingDepartments(self):
-        sample_state: victim.State = tests_victim.CreateSampleState()
-        sample_victim: victim.Victim = victim.Victim(1, [sample_state])
+        sample_victim: victim.Victim = CreateSampleVictims()[0]
         sample_time: float = 65.0
-        self.sample_hospital.departments.pop()
         self.sample_hospital.departments.pop(0)
 
         self.assertRaises(
@@ -189,19 +196,84 @@ class HospitalTests(unittest.TestCase):
             self.sample_hospital.TakeInVictimToOneOfDepartments, sample_victim, sample_time
         )
 
-    def testCanVictimBeTakenInTrue(self):
-        sample_state: victim.State = tests_victim.CreateSampleState()
-        sample_victim: victim.Victim = victim.Victim(1, [sample_state])
+    def testAvailableBedsInDepartmentNoIncomingVictims(self):
+        sample_department: sor.Department = self.sample_hospital.departments[0]
+
+        self.assertEqual(
+            self.sample_hospital.AvailableBedsInDepartment(sample_department),
+            sample_department.current_beds_count
+        )
+
+    def testAvailableBedsInDepartmentSomeIncomingVictims(self):
+        sample_department: sor.Department = self.sample_hospital.departments[0]
+        n_incoming_victims: int = 2  # max 4 - tyle zwraca CreateSampleVictims
+        self.sample_hospital.incoming_victims[sample_department.id_] = CreateSampleVictims()[:n_incoming_victims]
+
+        self.assertEqual(
+            self.sample_hospital.AvailableBedsInDepartment(sample_department),
+            sample_department.current_beds_count - n_incoming_victims
+        )
+
+    def testCanVictimBeTakenInTrueNoIncomingVictimsBefore(self):
+        sample_victim: victim.Victim = CreateSampleVictims()[0]
+        self.sample_hospital.departments.pop()
+        sample_department_id: int = self.sample_hospital.departments[0].id_
 
         self.assertEqual(self.sample_hospital.CanVictimBeTakenIn(sample_victim), True)
+        self.assertEqual(self.sample_hospital.incoming_victims[sample_department_id], [sample_victim])
 
-    def testCanVictimBeTakenInFalse(self):
-        sample_state: victim.State = tests_victim.CreateSampleState()
-        sample_victim: victim.Victim = victim.Victim(1, [sample_state])
+    def testCanVictimBeTakenInTrueOneIncomingVictimBefore(self):
+        sample_victim, sample_victim_2 = CreateSampleVictims()[:2]
         self.sample_hospital.departments.pop()
+        sample_department_id: int = self.sample_hospital.departments[0].id_
+        self.sample_hospital.incoming_victims[sample_department_id] = [sample_victim]
+
+        self.assertEqual(self.sample_hospital.CanVictimBeTakenIn(sample_victim_2), True)
+        self.assertEqual(
+            self.sample_hospital.incoming_victims[sample_department_id],
+            [sample_victim, sample_victim_2]
+        )
+
+    def testCanVictimBeTakenInNoDepartmentFalse(self):
+        sample_victim: victim.Victim = CreateSampleVictims()[0]
         self.sample_hospital.departments.pop(0)
 
         self.assertEqual(self.sample_hospital.CanVictimBeTakenIn(sample_victim), False)
+
+    def testCanVictimBeTakenInNoAvailableBedsFalse(self):
+        sample_victim: victim.Victim = CreateSampleVictims()[0]
+        self.sample_hospital.departments.pop()
+        self.sample_hospital.departments[0].current_beds_count = 0
+
+        self.assertEqual(self.sample_hospital.CanVictimBeTakenIn(sample_victim), False)
+
+    def testRemoveVictimFromIncomingNoSuchVictim(self):
+        sample_victim, sample_victim_2 = CreateSampleVictims()[:2]
+        prev_incoming_victims = self.sample_hospital.incoming_victims = {
+            self.sample_departments[0].id_: [sample_victim]
+        }
+        self.sample_hospital.RemoveVictimFromIncoming(sample_victim_2)
+
+        self.assertEqual(self.sample_hospital.incoming_victims, prev_incoming_victims)
+
+    def testRemoveVictimFromIncomingOnlyOneIncomingForDepartment(self):
+        sample_victim: victim.Victim = CreateSampleVictims()[0]
+        self.sample_hospital.incoming_victims = {self.sample_departments[0].id_: [sample_victim]}
+        self.sample_hospital.RemoveVictimFromIncoming(sample_victim)
+
+        self.assertEqual(self.sample_hospital.incoming_victims, {})
+
+    def testRemoveVictimFromIncomingManyVictimsIncomingForDepartment(self):
+        sample_victim, sample_victim_2 = CreateSampleVictims()[:2]
+        self.sample_hospital.incoming_victims = {
+            self.sample_departments[0].id_: [sample_victim, sample_victim_2]
+        }
+        self.sample_hospital.RemoveVictimFromIncoming(sample_victim_2)
+
+        self.assertEqual(
+            self.sample_hospital.incoming_victims,
+            {self.sample_departments[0].id_: [sample_victim]}
+        )
 
 
 if __name__ == "__main__":
