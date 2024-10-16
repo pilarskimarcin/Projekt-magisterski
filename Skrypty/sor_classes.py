@@ -86,12 +86,12 @@ class Hospital(TargetDestination):
     def __repr__(self):
         return str(self.__dict__)
 
-    def TakeInVictimToOneOfDepartments(self, victim: Victim, current_time: int):
+    def TakeInVictimToOneOfDepartments(self, victim: Victim, current_time: int) -> Department:
         for medicine_discipline_id in victim.GetCurrentHealthProblemDisciplines():
             department: Department = self.TryGetDepartment(medicine_discipline_id)
             if department:
                 department.TakeInVictim(victim, current_time)
-                return
+                return department
         raise RuntimeError(f"Brak pasującego oddziału w szpitalu {self.name}")
 
     def TryGetDepartment(self, medicine_discipline_id: int) -> Optional[Department]:

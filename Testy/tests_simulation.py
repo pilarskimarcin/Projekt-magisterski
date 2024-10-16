@@ -34,6 +34,7 @@ class TestSimulation(unittest.TestCase):
             self.simulation.incidents[0].address.address_for_places_data, "Głowackiego 91 32-540 Trzebinia"
         )
         self.assertEqual(len(self.simulation.available_procedures), 15)
+        self.assertEqual(self.simulation.solution, [])
 
     def testLoadProcedures(self):
         disciplines_numbers_times: List[Tuple[int, int]] = [
@@ -304,9 +305,8 @@ class TestSimulation(unittest.TestCase):
     def testMoveTeamFinishedInHospital(self):
         sample_team, sample_victim = self.TeamStartDrivingWithVictim(hospital_target=True)
         sample_team.time_until_destination_in_minutes = 2
-        prev_hospital_beds: int = self.GetHospitalCurrentBedsCount(
-            self.simulation.FindAppropriateAvailableHospital(sample_victim)
-        )
+        sample_hospital: sor.Hospital = self.simulation.FindAppropriateAvailableHospital(sample_victim)
+        prev_hospital_beds: int = self.GetHospitalCurrentBedsCount(sample_hospital)
         self.simulation.MoveTeam(sample_team)
         self.simulation.MoveTeam(sample_team)
 
@@ -314,9 +314,12 @@ class TestSimulation(unittest.TestCase):
         self.assertIsNotNone(sample_victim.hospital_admittance_time)
         self.assertTrue(sample_victim not in self.simulation.transport_ready_victims)
         self.assertEqual(
-            self.GetHospitalCurrentBedsCount(self.simulation.FindAppropriateAvailableHospital(sample_victim)),
-            prev_hospital_beds - 1
+            self.simulation.solution,
+            [(
+                1, sample_victim.id_, sample_team.id_, "1-1", self.simulation.elapsed_simulation_time
+            )]
         )
+        self.assertEqual(self.GetHospitalCurrentBedsCount(sample_hospital), prev_hospital_beds - 1)
 
     @staticmethod
     def GetHospitalCurrentBedsCount(hospital: sor.Hospital) -> int:
@@ -349,6 +352,15 @@ class TestSimulation(unittest.TestCase):
         self.assertRaises(
             RuntimeError,
             self.simulation.MoveTeam, sample_team
+        )
+
+    def testHospitalAndDepartmentId(self):
+        sample_hospital: sor.Hospital = self.simulation.all_hospitals[0]
+        sample_department: sor.Department = sample_hospital.departments[0]
+
+        self.assertEqual(
+            self.simulation.HospitalAndDepartmentId(sample_hospital, sample_department),
+            "1-1"
         )
 
     def testTryHandleReconnaissanceFalse(self):

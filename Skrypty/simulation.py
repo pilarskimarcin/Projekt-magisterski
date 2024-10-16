@@ -3,7 +3,7 @@ import random
 from typing import List, Optional, Set, Tuple
 
 from Skrypty.scenario_classes import Scenario
-from Skrypty.sor_classes import Hospital, IncidentPlace
+from Skrypty.sor_classes import Department, Hospital, IncidentPlace
 from Skrypty.utilities import PlaceAddress, TargetDestination
 from Skrypty.victim_classes import HealthProblem, Procedure, TriageColour, Victim
 from Skrypty.zrm_classes import ZRM
@@ -26,6 +26,8 @@ class Simulation:
     transport_ready_victims: List[Victim]
     available_procedures: List[Procedure]
     elapsed_simulation_time: int
+    solution: List[Tuple[int, int, str, str, int]]
+    current_solution_index: int
 
     def __init__(self, main_scenario_path: str):  # , additional_scenarios_paths: List[str]):
         main_scenario: Scenario = Scenario(main_scenario_path)
@@ -44,6 +46,8 @@ class Simulation:
         self.transport_ready_victims = []
         self.available_procedures = self.LoadProcedures()
         self.elapsed_simulation_time = 0
+        self.solution = []
+        self.current_solution_index = 1
 
     def __repr__(self):
         return str(self.__dict__)
@@ -160,14 +164,23 @@ class Simulation:
                 if transported_victim.IsDead():
                     self.assessed_victims.append(transported_victim)
                     return
-                target_location.TakeInVictimToOneOfDepartments(
+                chosen_department: Department = target_location.TakeInVictimToOneOfDepartments(
                     transported_victim, self.elapsed_simulation_time
                 )
+                self.solution.append(
+                    (self.current_solution_index, transported_victim.id_, team.id_,
+                     self.HospitalAndDepartmentId(target_location, chosen_department), self.elapsed_simulation_time)
+                )
+                self.current_solution_index += 1
             else:
                 raise RuntimeError(
                     f"Zespół {team.id_} dojechał z pacjentem {transported_victim.id_} na miejsce, które nie jest "
                     f"szpitalem"
                 )
+
+    @staticmethod
+    def HospitalAndDepartmentId(hospital: Hospital, department: Department) -> str:
+        return str(hospital.id_)+"-"+str(department.id_)
 
     def TryHandleReconnaissance(self, first_team: ZRM, incident_place: IncidentPlace):
         if incident_place.NeedsReconnaissance():

@@ -179,8 +179,11 @@ class HospitalTests(unittest.TestCase):
         )
         sample_time: int = 65
         sample_beds_amount: int = sample_department.current_beds_count
-        self.sample_hospital.TakeInVictimToOneOfDepartments(sample_victim, sample_time)
 
+        self.assertEqual(
+            self.sample_hospital.TakeInVictimToOneOfDepartments(sample_victim, sample_time),
+            sample_department
+        )
         AssertDepartmentTookInVictim(
             test_case=self, department=sample_department, sample_victim=sample_victim, sample_time=sample_time,
             sample_beds_amount=sample_beds_amount
