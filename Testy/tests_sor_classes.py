@@ -250,6 +250,36 @@ class HospitalTests(unittest.TestCase):
 
         self.assertEqual(self.sample_hospital.CanVictimBeTakenIn(sample_victim), False)
 
+    def testCanVictimBeTakenInIsAlreadyIncomingError(self):
+        sample_victim: victim.Victim = CreateSampleVictims()[0]
+        self.sample_hospital.incoming_victims[self.sample_departments[0].id_] = [sample_victim]
+
+        self.assertRaises(RuntimeError, self.sample_hospital.CanVictimBeTakenIn, sample_victim)
+
+    def testIsVictimInIncomingVictimsIsInFirstItem(self):
+        sample_victims: List[victim.Victim] = CreateSampleVictims()
+        self.sample_hospital.incoming_victims[self.sample_departments[0].id_] = [sample_victims[0]]
+        self.sample_hospital.incoming_victims[self.sample_departments[1].id_] = [sample_victims[1]]
+        self.sample_hospital.incoming_victims[self.sample_departments[1].id_].append(sample_victims[2])
+
+        self.assertEqual(self.sample_hospital.IsVictimInIncomingVictims(sample_victims[0]), True)
+
+    def testIsVictimInIncomingVictimsIsInSecondItem(self):
+        sample_victims: List[victim.Victim] = CreateSampleVictims()
+        self.sample_hospital.incoming_victims[self.sample_departments[0].id_] = [sample_victims[0]]
+        self.sample_hospital.incoming_victims[self.sample_departments[1].id_] = [sample_victims[1]]
+        self.sample_hospital.incoming_victims[self.sample_departments[1].id_].append(sample_victims[2])
+
+        self.assertEqual(self.sample_hospital.IsVictimInIncomingVictims(sample_victims[1]), True)
+
+    def testIsVictimInIncomingVictimsFalse(self):
+        sample_victims: List[victim.Victim] = CreateSampleVictims()
+        self.sample_hospital.incoming_victims[self.sample_departments[0].id_] = [sample_victims[0]]
+        self.sample_hospital.incoming_victims[self.sample_departments[1].id_] = [sample_victims[1]]
+        self.sample_hospital.incoming_victims[self.sample_departments[1].id_].append(sample_victims[2])
+
+        self.assertEqual(self.sample_hospital.IsVictimInIncomingVictims(sample_victims[3]), False)
+
     def testRemoveVictimFromIncomingNoSuchVictim(self):
         sample_victim, sample_victim_2 = CreateSampleVictims()[:2]
         prev_incoming_victims = self.sample_hospital.incoming_victims = {

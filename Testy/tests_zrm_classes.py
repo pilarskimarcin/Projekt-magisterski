@@ -182,17 +182,25 @@ class ZRMTests(unittest.TestCase):
             math.ceil(0.64*tests_util.CreateSampleDistanceAndDurationData()[1])
         )
 
-    def testDrive(self):
+    def testDriveDecreasingTravelDuration(self):
+        self.sample_zrm.StartDriving(self.sample_target_location)
         self.sample_zrm.time_until_destination_in_minutes = 10
         self.sample_zrm.DriveOrFinishDrivingAndReturnVictim()
 
         self.assertEqual(self.sample_zrm.time_until_destination_in_minutes, 9)
 
-    def testDriveNotDriving(self):
+    def testDriveNotDrivingCurrently(self):
         self.sample_zrm.time_until_destination_in_minutes = None
 
-        self.assertIsNone(self.sample_zrm.DriveOrFinishDrivingAndReturnVictim())
-        self.assertIsNone(self.sample_zrm.time_until_destination_in_minutes)
+        self.assertEqual(self.sample_zrm.DriveOrFinishDrivingAndReturnVictim(), None)
+        self.assertEqual(self.sample_zrm.time_until_destination_in_minutes, None)
+
+    def testDriveAlreadyFinished(self):
+        self.sample_zrm.StartDriving(self.sample_target_location)
+        self.sample_zrm.time_until_destination_in_minutes = 0
+        self.sample_zrm.DriveOrFinishDrivingAndReturnVictim()
+
+        self.assertEqual(self.sample_zrm.time_until_destination_in_minutes, None)
 
     def testFinishDrivingAndReturnVictimNoQueue(self):
         self.sample_zrm.StartTransportingAVictim(self.sample_victim, self.sample_target_location)

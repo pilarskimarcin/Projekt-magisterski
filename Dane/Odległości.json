@@ -11,6 +11,14 @@
     "Lipowiecka 3, 32-551 Wygiełzów": {
       "odległość [km]": 9.932,
       "czas podróży [min]": 12.783333333333333
+    },
+    "J. Chełmońskiego 28, 43-600 Jaworzno": {
+      "odległość [km]": 17.727,
+      "czas podróży [min]": 19.6
+    },
+    "Plac Medyków 1, 41-200 Sosnowiec": {
+      "odległość [km]": 44.759,
+      "czas podróży [min]": 34.81666666666667
     }
   },
   "Tadeusza Kościuszki 50, 32-540 Trzebinia": {
@@ -175,6 +183,64 @@
     "Topolowa 16, 32-500 Chrzanów": {
       "odległość [km]": 2.09,
       "czas podróży [min]": 4.8
+    },
+    "J. Chełmońskiego 28, 43-600 Jaworzno": {
+      "odległość [km]": 18.357,
+      "czas podróży [min]": 20.95
+    },
+    "Wysokie Brzegi 4, 32-600 Oświęcim": {
+      "odległość [km]": 23.892,
+      "czas podróży [min]": 34.11666666666667
+    },
+    "Aleja Tysiąclecia 13, 32-300 Olkusz": {
+      "odległość [km]": 24.931,
+      "czas podróży [min]": 33.75
+    },
+    "Karmelicka 5, 34-100 Wadowice": {
+      "odległość [km]": 37.072,
+      "czas podróży [min]": 50.46666666666667
+    },
+    "Prądnicka 35, 31-202 Kraków": {
+      "odległość [km]": 45.645,
+      "czas podróży [min]": 40.28333333333333
+    },
+    "Wielicka 265, 30-663 Kraków": {
+      "odległość [km]": 59.137,
+      "czas podróży [min]": 43.18333333333333
+    },
+    "Bytomska 41, 41-400 Mysłowice": {
+      "odległość [km]": 31.523,
+      "czas podróży [min]": 28.366666666666667
+    },
+    "Plac Medyków 1, 41-200 Sosnowiec": {
+      "odległość [km]": 45.389,
+      "czas podróży [min]": 36.18333333333333
+    },
+    "Medyków 16, 40-752 Katowice": {
+      "odległość [km]": 44.097,
+      "czas podróży [min]": 39.95
+    }
+  },
+  "J. Chełmońskiego 28, 43-600 Jaworzno": {
+    "Głowackiego 91, 32-540 Trzebinia": {
+      "odległość [km]": 18.372,
+      "czas podróży [min]": 21.566666666666666
+    },
+    "Topolowa 16, 32-500 Chrzanów": {
+      "odległość [km]": 17.115,
+      "czas podróży [min]": 20.816666666666666
+    }
+  },
+  "Plac Medyków 1, 41-200 Sosnowiec": {
+    "Głowackiego 91, 32-540 Trzebinia": {
+      "odległość [km]": 46.988,
+      "czas podróży [min]": 39.2
+    }
+  },
+  "Magnoliowa 10, 32-500 Chrzanów": {
+    "Topolowa 16, 32-500 Chrzanów": {
+      "odległość [km]": 1.495,
+      "czas podróży [min]": 3.4833333333333334
     }
   }
 }

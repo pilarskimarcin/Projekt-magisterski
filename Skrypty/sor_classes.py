@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import itertools
 import math
 import random
 from typing import Dict, List, Optional
@@ -105,12 +106,18 @@ class Hospital(TargetDestination):
         return department.current_beds_count - len(self.incoming_victims.get(department.id_, []))
 
     def CanVictimBeTakenIn(self, target_victim: Victim) -> bool:
+        if self.IsVictimInIncomingVictims(target_victim):
+            raise RuntimeError(f"Ten poszkodowany (id={target_victim.id_}) już jest w drodze do tego szpitala")
         for medicine_discipline_id in target_victim.GetCurrentHealthProblemDisciplines():
             department: Department = self.TryGetDepartment(medicine_discipline_id)
             if department:
                 self.incoming_victims.setdefault(department.id_, []).append(target_victim)
                 return True
         return False
+
+    def IsVictimInIncomingVictims(self, victim: Victim) -> bool:
+        all_incoming_victims: List[Victim] = list(itertools.chain.from_iterable(self.incoming_victims.values()))
+        return victim in all_incoming_victims
 
     def RemoveVictimFromIncoming(self, transported_victim: Victim):
         for department_id, victim_list in self.incoming_victims.items():

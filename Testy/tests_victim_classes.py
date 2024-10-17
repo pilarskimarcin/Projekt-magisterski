@@ -272,7 +272,7 @@ class VictimClassTests(unittest.TestCase):
 
         self.assertEqual(self.sample_victim.IsDead(), True)
 
-    def testPerformProcedureOnMeAllNeededOnes(self):
+    def testPerformProcedureOnMeAllCriticalOnes(self):
         health_problems = SampleCriticalHealthProblems()
         self.sample_victim.PerformProcedureOnMe(victim.Procedure(health_problems[0], 1))
         self.sample_victim.PerformProcedureOnMe(victim.Procedure(health_problems[1], 1))
@@ -280,9 +280,18 @@ class VictimClassTests(unittest.TestCase):
         self.assertEqual(self.sample_victim.current_state.number, 3)
         self.assertEqual(self.sample_victim.under_procedure, False)
 
-    def testPerformProcedureOnMeOnlyOneProcedure(self):
+    def testPerformProcedureOnMeOnlyOneCriticalProcedure(self):
         health_problems = SampleCriticalHealthProblems()
         sample_procedure: victim.Procedure = victim.Procedure(health_problems[0], 1)
+        self.sample_victim.PerformProcedureOnMe(sample_procedure)
+
+        self.assertEqual(self.sample_victim.procedures_performed_so_far, [sample_procedure])
+        self.assertEqual(self.sample_victim.current_state.number, 1)
+        self.assertEqual(self.sample_victim.under_procedure, False)
+
+    def testPerformProcedureOnMeOneNonCriticalProcedure(self):
+        sample_procedure: victim.Procedure = victim.Procedure.FromDisciplineAndNumber(
+            25, 2, 1)
         self.sample_victim.PerformProcedureOnMe(sample_procedure)
 
         self.assertEqual(self.sample_victim.procedures_performed_so_far, [sample_procedure])

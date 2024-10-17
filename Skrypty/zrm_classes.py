@@ -120,9 +120,9 @@ class ZRM:
         if not self.IsDriving():
             return None
         self.time_until_destination_in_minutes -= 1
-        if self.time_until_destination_in_minutes == 0:
+        if self.time_until_destination_in_minutes <= 0:
             return self.FinishDrivingAndReturnVictim()
-        return
+        return None
 
     def FinishDrivingAndReturnVictim(self) -> Optional[Victim]:
         victim_to_return: Optional[Victim] = self.transported_victim

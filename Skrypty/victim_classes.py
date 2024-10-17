@@ -185,7 +185,7 @@ class Victim:
                 self.current_RPM_number = self.initial_RPM_number = self.CalculateRPM()
                 return
         else:
-            raise ValueError("Brak stanu o takim numerze")
+            raise ValueError(f"Brak stanu o numerze {new_state_number}")
 
     def PerformProcedureOnMe(self, procedure: Procedure):
         self.under_procedure = False
@@ -193,6 +193,8 @@ class Victim:
             self.procedures_performed_so_far.append(procedure)
             if len(self.GetCurrentCriticalHealthProblems()) == 0:
                 self.ChangeState(self.current_state.GetImprovedStateNumber())
+        elif procedure.health_problem in self.current_state.health_problems:
+            self.procedures_performed_so_far.append(procedure)
         else:
             raise RuntimeError(f"Zła procedura {procedure.health_problem} użyta na poszkodowanym {self.id_}")
 

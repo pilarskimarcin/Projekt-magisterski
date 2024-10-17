@@ -37,6 +37,7 @@ class Simulation:
         main_incident: IncidentPlace = IncidentPlace(main_scenario.address, main_scenario.victims)
         self.incidents = [main_incident]
         self.all_hospitals = main_scenario.hospitals
+        self.SortHospitals()
         self.idle_teams = main_scenario.teams
         self.teams_in_action = []
         self.all_victims = main_scenario.victims
@@ -51,6 +52,17 @@ class Simulation:
 
     def __repr__(self):
         return str(self.__dict__)
+
+    def SortHospitals(self):
+        hospitals_times_to_incident: List[float] = []
+        for hospital in self.all_hospitals:
+            hospitals_times_to_incident.append(
+                self.incidents[0].address.GetDistanceAndDurationToOtherPlace(hospital.address)[1]
+            )
+        hospitals_and_times: List[Tuple[Hospital, float]] = list(zip(self.all_hospitals, hospitals_times_to_incident))
+        hospitals_and_times.sort(key=lambda x: x[1])
+        hospitals_tuple, _ = list(zip(*hospitals_and_times))
+        self.all_hospitals = list(hospitals_tuple)
 
     @staticmethod
     def LoadProcedures() -> List[Procedure]:
@@ -159,7 +171,6 @@ class Simulation:
         transported_victim: Optional[Victim] = team.DriveOrFinishDrivingAndReturnVictim()
         if transported_victim:
             if isinstance(target_location, Hospital):
-                self.transport_ready_victims.remove(transported_victim)
                 target_location.RemoveVictimFromIncoming(transported_victim)
                 if transported_victim.IsDead():
                     self.assessed_victims.append(transported_victim)
@@ -227,6 +238,7 @@ class Simulation:
             if not target_hospital:
                 raise RuntimeError("Nie ma szpitala, mogącego przyjąć tego pacjenta")
             team.StartTransportingAVictim(victim, target_hospital)
+            self.transport_ready_victims.remove(victim)
             break
 
     def FindAppropriateAvailableHospital(self, target_victim: Victim) -> Optional[Hospital]:
@@ -360,10 +372,20 @@ class Simulation:
                 return incident
         return None
 
-    def SimulationResults(self):
-        if self.AnyRemainingAliveAssessedVictims():
-            raise RuntimeError("Wciąż są obecni żywi ocenieni poszkodowani")
+    def SimulationResults(self) -> Tuple[int, float, int, float]:
+        if not self.CheckIfSimulationEndReached():
+            raise RuntimeError("Symulacja jeszcze nie została zakończona")
         n_dead_victims: int = len(self.assessed_victims)
-        average_RPM: int = ...  # TODO
-        average_help_time: int = ...  # TODO
+        average_RPM: float = self.CalculateAverageRPM()
+        average_help_time: float = self.CalculateAverageHelpTime()
         return n_dead_victims, average_RPM, self.elapsed_simulation_time, average_help_time
+
+    def CalculateAverageRPM(self):
+        return sum(victim.current_RPM_number for victim in self.all_victims) / len(self.all_victims)
+
+    def CalculateAverageHelpTime(self) -> float:
+        admitted_to_hospital_victims: List[Victim] = [
+            victim for victim in self.all_victims if victim.hospital_admittance_time
+        ]
+        return (sum(victim.hospital_admittance_time for victim in admitted_to_hospital_victims) /
+                len(admitted_to_hospital_victims)) if admitted_to_hospital_victims else 0
