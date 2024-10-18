@@ -14,8 +14,12 @@ from Testy import tests_victim_classes as tests_victim
 from Testy import tests_zrm_classes as tests_zrm
 
 
-def SampleSimulationResultsBeginning() -> Tuple[int, float, int, float]:
-    return 10, 7.47, 0, 0
+def SampleSimulationResultsBeginning() -> sim.SimulationResults:
+    return sim.SimulationResults(10, 7.47, 0, 0)
+
+
+def SampleSimulationResultsBest() -> sim.SimulationResults:
+    return sim.SimulationResults(10, 8.06, 0, 0)
 
 
 class TestSimulation(unittest.TestCase):
@@ -62,24 +66,32 @@ class TestSimulation(unittest.TestCase):
     def testPerformSimulationSkipped(self):
         self.SimulationEndSetup()
 
-        self.AssertSimulationResultsEqual(
-            self.simulation.PerformSimulation(), SampleSimulationResultsBeginning()
-        )
-
-    def AssertSimulationResultsEqual(self, results, expected_results):
-        self.assertEqual(results[0], expected_results[0])
-        self.assertAlmostEqual(results[1],  expected_results[1], places=2)
-        self.assertEqual(results[2], expected_results[2])
-        self.assertEqual(results[3], expected_results[3])
+        self.assertEqual(self.simulation.PerformSimulation(), SampleSimulationResultsBeginning())
 
     def testPerformSimulation(self):
-        pass
-        # print(self.simulation.PerformSimulation())
+        results = self.simulation.PerformSimulation()
+        print(results)
+        # ok. (12, 7.722222222222222, 64, 42.11538461538461)
+        print(self.simulation.solution)
+
+        self.assertEqual(
+            len(self.simulation.solution) + results.dead_victims_count,
+            len(self.simulation.all_victims)
+        )
+        self.assertTrue(results.victims_average_RPM < SampleSimulationResultsBest().victims_average_RPM)
 
     def testPerformSimulationSmall(self):
         simulation = sim.Simulation("../Scenariusze/Scenariusz 1.txt")
-        print(simulation.PerformSimulation())  # TODO przeanalizować krok po kroku
-        # (0, 10.5, 11, 9.5) - a jakie rozwiązanie?
+        results = simulation.PerformSimulation()
+        print(results)
+        print(simulation.solution)
+        possible_results = (
+            sim.SimulationResults(0, 10.5, 13, 11.0),  # Jeśli zostanie wysłana do zgłoszenia tylko 1 karetka
+            sim.SimulationResults(0, 10.5, 14, 13.5)  # Jeśli zostaną naraz wysłane do zgłoszenia 2 karetki
+        )
+
+        self.assertTrue(results in possible_results)
+        self.assertEqual(len(simulation.solution) + results.dead_victims_count, len(simulation.all_victims))
 
     def testSendOutNTeamsToTheIncidentReturnFirstLessThanMaxTeams(self):
         sample_reported_victims_count: int = 15
@@ -210,7 +222,9 @@ class TestSimulation(unittest.TestCase):
             self.simulation.MoveVictimFromUnknownStatusToAssessed(victim_)
             if not victim_.IsDead():
                 self.simulation.MoveVictimFromAssessedToTransportReady(victim_)
-        self.simulation.transport_ready_victims.clear()
+        for victim_ in self.simulation.transport_ready_victims[:]:
+            self.simulation.solution.append(sim.SolutionRecord(1, victim_.id_, 'K01 47', '1-1', 13))
+            self.simulation.transport_ready_victims.remove(victim_)
 
     def testCheckIfSimulationEndReachedNotAssessed(self):
         self.SimulationEndSetup()
@@ -234,6 +248,12 @@ class TestSimulation(unittest.TestCase):
     def testCheckIfSimulationEndReachedNotDeadLeftInAssessed(self):
         self.SimulationEndSetup()
         self.simulation.assessed_victims.append(self.RandomAliveVictimFromList(self.simulation.all_victims))
+
+        self.assertEqual(self.simulation.CheckIfSimulationEndReached(), False)
+
+    def testCheckIfSimulationEndReachedNotAllInSolution(self):
+        self.SimulationEndSetup()
+        self.simulation.solution.pop()
 
         self.assertEqual(self.simulation.CheckIfSimulationEndReached(), False)
 
@@ -350,7 +370,7 @@ class TestSimulation(unittest.TestCase):
         self.assertTrue(sample_victim not in self.simulation.transport_ready_victims)
         self.assertEqual(
             self.simulation.solution,
-            [(
+            [sim.SolutionRecord(
                 1, sample_victim.id_, sample_team.id_, f"{sample_hospital.id_}-{sample_department.id_}",
                 self.simulation.elapsed_simulation_time
             )]
@@ -1225,10 +1245,21 @@ class TestSimulation(unittest.TestCase):
 
     def testSimulationResultsCorrectBaseSituation(self):
         self.SimulationEndSetup()
-        sample_results = SampleSimulationResultsBeginning()
-        results = self.simulation.SimulationResults()
+        sample_results: sim.SimulationResults = SampleSimulationResultsBeginning()
+        results: sim.SimulationResults = self.simulation.SimulationResults()
 
-        self.AssertSimulationResultsEqual(results, sample_results)
+        self.assertEqual(results, sample_results)
+
+    def testSimulationResultsCorrectBestCase(self):
+        self.SimulationEndSetup()
+        for victim_ in self.simulation.all_victims:
+            best_state: Optional[int] = victim_.current_state.GetImprovedStateNumber()
+            if best_state:
+                victim_.ChangeState(best_state)
+        sample_results: sim.SimulationResults = SampleSimulationResultsBest()
+        results: sim.SimulationResults = self.simulation.SimulationResults()
+
+        self.assertEqual(results, sample_results)
 
     def testCalculateAverageRPMBeginning(self):
         self.assertAlmostEqual(self.simulation.CalculateAverageRPM(), 7.47, places=2)

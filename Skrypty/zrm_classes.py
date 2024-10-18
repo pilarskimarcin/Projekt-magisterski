@@ -132,8 +132,11 @@ class ZRM:
         if not self.queue_of_next_targets:
             self.target_location = None
         else:
-            self.target_location = self.queue_of_next_targets.pop(0)
-            if isinstance(self.target_location, IncidentPlace):
+            queued_location: TargetDestination = self.queue_of_next_targets.pop(0)
+            if queued_location.address == self.origin_location_address:
+                self.target_location = None
+            else:
+                self.target_location = queued_location
                 self.StartDriving()
         return victim_to_return
 

@@ -1,6 +1,7 @@
+from __future__ import annotations
 import pandas as pd
 import random
-from typing import List, Optional, Set, Tuple
+from typing import List, NamedTuple, Optional, Set, Tuple
 
 from Skrypty.scenario_classes import Scenario
 from Skrypty.sor_classes import Department, Hospital, IncidentPlace
@@ -16,7 +17,7 @@ PROCEDURES_CSV_PROCEDURE_COLUMN_NAME: str = "Procedura medyczna"
 
 class Simulation:
     # additional_scenarios: List[Scenario]
-    incidents: List[IncidentPlace]  # TODO: czy zmienić na tylko jedno miejsce?
+    incidents: List[IncidentPlace]  # czy zmienić na tylko jedno miejsce?
     all_hospitals: List[Hospital]
     idle_teams: List[ZRM]
     teams_in_action: List[ZRM]
@@ -26,7 +27,7 @@ class Simulation:
     transport_ready_victims: List[Victim]
     available_procedures: List[Procedure]
     elapsed_simulation_time: int
-    solution: List[Tuple[int, int, str, str, int]]
+    solution: List[SolutionRecord]
     current_solution_index: int
 
     def __init__(self, main_scenario_path: str):  # , additional_scenarios_paths: List[str]):
@@ -79,7 +80,7 @@ class Simulation:
             for procedure_string, time in zip(procedure_symbols.values, times.values)
         ]
 
-    def PerformSimulation(self):
+    def PerformSimulation(self) -> SimulationResults:
         main_incident: IncidentPlace = self.incidents[0]
         first_team: ZRM = self.SendOutNTeamsToTheIncidentReturnFirst(
             main_incident, main_incident.reported_victims_count
@@ -151,9 +152,9 @@ class Simulation:
         self.teams_in_action.append(team)
 
     def CheckIfSimulationEndReached(self) -> bool:
-        if self.unknown_status_victims or self.transport_ready_victims:
+        if self.unknown_status_victims or self.transport_ready_victims or self.AnyRemainingAliveAssessedVictims():
             return False
-        return not self.AnyRemainingAliveAssessedVictims()
+        return len([victim.IsDead() for victim in self.assessed_victims]) + len(self.solution) == len(self.all_victims)
 
     def AnyRemainingAliveAssessedVictims(self) -> bool:
         return any([not victim.IsDead() for victim in self.assessed_victims])
@@ -178,10 +179,11 @@ class Simulation:
                 chosen_department: Department = target_location.TakeInVictimToOneOfDepartments(
                     transported_victim, self.elapsed_simulation_time
                 )
-                self.solution.append(
-                    (self.current_solution_index, transported_victim.id_, team.id_,
-                     self.HospitalAndDepartmentId(target_location, chosen_department), self.elapsed_simulation_time)
-                )
+                self.solution.append(SolutionRecord(
+                    self.current_solution_index, transported_victim.id_, team.id_,
+                    self.HospitalAndDepartmentId(target_location, chosen_department),
+                    self.elapsed_simulation_time
+                ))
                 self.current_solution_index += 1
             else:
                 raise RuntimeError(
@@ -372,13 +374,15 @@ class Simulation:
                 return incident
         return None
 
-    def SimulationResults(self) -> Tuple[int, float, int, float]:
+    def SimulationResults(self) -> SimulationResults:
         if not self.CheckIfSimulationEndReached():
             raise RuntimeError("Symulacja jeszcze nie została zakończona")
         n_dead_victims: int = len(self.assessed_victims)
         average_RPM: float = self.CalculateAverageRPM()
         average_help_time: float = self.CalculateAverageHelpTime()
-        return n_dead_victims, average_RPM, self.elapsed_simulation_time, average_help_time
+        return SimulationResults(
+            n_dead_victims, round(average_RPM, 2), self.elapsed_simulation_time, round(average_help_time, 2)
+        )
 
     def CalculateAverageRPM(self):
         return sum(victim.current_RPM_number for victim in self.all_victims) / len(self.all_victims)
@@ -389,3 +393,18 @@ class Simulation:
         ]
         return (sum(victim.hospital_admittance_time for victim in admitted_to_hospital_victims) /
                 len(admitted_to_hospital_victims)) if admitted_to_hospital_victims else 0
+
+
+class SolutionRecord(NamedTuple):
+    number: int
+    victim_id: int
+    team_id: str
+    hospital_department_id: str
+    elapsed_simulation_time: int
+
+
+class SimulationResults(NamedTuple):
+    dead_victims_count: int
+    victims_average_RPM: float
+    total_simulation_time_minutes: int
+    average_help_time_minutes: float

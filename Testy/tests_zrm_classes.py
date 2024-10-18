@@ -204,24 +204,35 @@ class ZRMTests(unittest.TestCase):
 
     def testFinishDrivingAndReturnVictimNoQueue(self):
         self.sample_zrm.StartTransportingAVictim(self.sample_victim, self.sample_target_location)
-        self.sample_zrm.time_until_destination_in_minutes = 1
 
-        self.assertIsNotNone(self.sample_zrm.DriveOrFinishDrivingAndReturnVictim())
+        self.assertIsNotNone(self.sample_zrm.FinishDrivingAndReturnVictim())
         self.assertEqual(self.sample_zrm.transported_victim, None)
         self.assertEqual(self.sample_zrm.origin_location_address, self.sample_target_location.address)
         self.assertEqual(self.sample_zrm.target_location, None)
         self.assertEqual(self.sample_zrm.time_until_destination_in_minutes, None)
 
-    def testFinishDrivingAndReturnVictimWithQueue(self):
+    def testFinishDrivingAndReturnVictimWithQueueButAlreadyReached(self):
         self.sample_zrm.StartTransportingAVictim(self.sample_victim, self.sample_target_location)
         self.sample_zrm.QueueNewTargetLocation(self.sample_target_location)
-        self.sample_zrm.time_until_destination_in_minutes = 1
 
-        self.assertIsNotNone(self.sample_zrm.DriveOrFinishDrivingAndReturnVictim())
+        self.assertIsNotNone(self.sample_zrm.FinishDrivingAndReturnVictim())
         self.assertEqual(self.sample_zrm.transported_victim, None)
         self.assertEqual(self.sample_zrm.origin_location_address, self.sample_target_location.address)
-        self.assertEqual(self.sample_zrm.target_location, self.sample_target_location)
-        self.assertEqual(self.sample_zrm.time_until_destination_in_minutes, 0)
+        self.assertEqual(self.sample_zrm.target_location, None)
+        self.assertEqual(self.sample_zrm.time_until_destination_in_minutes, None)
+        self.assertEqual(self.sample_zrm.queue_of_next_targets, [])
+
+    def testFinishDrivingAndReturnVictimWithQueueNewLocation(self):
+        self.sample_zrm.StartTransportingAVictim(self.sample_victim, self.sample_target_location)
+        new_target_location = sor.TargetDestination(tests_util.CreateSampleAddressHospital())
+        self.sample_zrm.QueueNewTargetLocation(new_target_location)
+
+        self.assertIsNotNone(self.sample_zrm.FinishDrivingAndReturnVictim())
+        self.assertEqual(self.sample_zrm.transported_victim, None)
+        self.assertEqual(self.sample_zrm.origin_location_address, self.sample_target_location.address)
+        self.assertEqual(self.sample_zrm.target_location, new_target_location)
+        self.assertEqual(self.sample_zrm.time_until_destination_in_minutes, 3)
+        self.assertEqual(self.sample_zrm.queue_of_next_targets, [])
 
     def testQueueNewTargetLocation(self):
         self.sample_zrm.QueueNewTargetLocation(self.sample_target_location)
