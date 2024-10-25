@@ -1,0 +1,8 @@
+Scenariusz 1 - testowy, prosty przypadek, 4 ofiary, 2 karetki, 1 szpital
+Scenariusz 2 - wszystkie szpitale i karetki, 90 ofiar, inspirowane wydarzeniem z MAYDAY '23
+Scenariusz 3 - 50% miejsc szpitali, wszystkie karetki
+Scenariusz 4 - 25% miejsc szpitali, wszystkie karetki
+Scenariusz 5 - 25% miejsc szpitali, 75% karetek
+Scenariusz 6 - 25% miejsc szpitali, 50% karetek
+Scenariusz 7 - 25% miejsc szpitali, 25% karetek
+Scenariusz 8 - 250 ofiar

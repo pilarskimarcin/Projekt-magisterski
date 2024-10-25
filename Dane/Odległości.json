@@ -19,6 +19,22 @@
     "Plac Medyków 1, 41-200 Sosnowiec": {
       "odległość [km]": 44.759,
       "czas podróży [min]": 34.81666666666667
+    },
+    "Bytomska 41, 41-400 Mysłowice": {
+      "odległość [km]": 30.892,
+      "czas podróży [min]": 27.0
+    },
+    "Wysokie Brzegi 4, 32-600 Oświęcim": {
+      "odległość [km]": 22.347,
+      "czas podróży [min]": 31.983333333333334
+    },
+    "Medyków 16, 40-752 Katowice": {
+      "odległość [km]": 43.465,
+      "czas podróży [min]": 38.6
+    },
+    "Topolowa 16, 32-500 Chrzanów": {
+      "odległość [km]": 0.0,
+      "czas podróży [min]": 0.0
     }
   },
   "Tadeusza Kościuszki 50, 32-540 Trzebinia": {
@@ -93,6 +109,22 @@
     "Topolowa 16, 32-500 Chrzanów": {
       "odległość [km]": 24.161,
       "czas podróży [min]": 32.4
+    },
+    "Plac Medyków 1, 41-200 Sosnowiec": {
+      "odległość [km]": 45.601,
+      "czas podróży [min]": 47.63333333333333
+    },
+    "J. Chełmońskiego 28, 43-600 Jaworzno": {
+      "odległość [km]": 24.352,
+      "czas podróży [min]": 34.1
+    },
+    "Medyków 16, 40-752 Katowice": {
+      "odległość [km]": 35.552,
+      "czas podróży [min]": 49.833333333333336
+    },
+    "Bytomska 41, 41-400 Mysłowice": {
+      "odległość [km]": 33.302,
+      "czas podróży [min]": 40.63333333333333
     }
   },
   "Palimąki 2, 32-640 Zator": {
@@ -229,6 +261,26 @@
     "Topolowa 16, 32-500 Chrzanów": {
       "odległość [km]": 17.115,
       "czas podróży [min]": 20.816666666666666
+    },
+    "Bytomska 41, 41-400 Mysłowice": {
+      "odległość [km]": 15.021,
+      "czas podróży [min]": 22.05
+    },
+    "Wysokie Brzegi 4, 32-600 Oświęcim": {
+      "odległość [km]": 25.043,
+      "czas podróży [min]": 34.083333333333336
+    },
+    "Aleja Tysiąclecia 13, 32-300 Olkusz": {
+      "odległość [km]": 29.926,
+      "czas podróży [min]": 38.45
+    },
+    "Medyków 16, 40-752 Katowice": {
+      "odległość [km]": 37.278,
+      "czas podróży [min]": 39.3
+    },
+    "Plac Medyków 1, 41-200 Sosnowiec": {
+      "odległość [km]": 22.954,
+      "czas podróży [min]": 35.88333333333333
     }
   },
   "Plac Medyków 1, 41-200 Sosnowiec": {
@@ -243,12 +295,94 @@
     "Topolowa 16, 32-500 Chrzanów": {
       "odległość [km]": 45.732,
       "czas podróży [min]": 38.46666666666667
+    },
+    "Aleja Tysiąclecia 13, 32-300 Olkusz": {
+      "odległość [km]": 37.441,
+      "czas podróży [min]": 38.06666666666667
+    },
+    "Wysokie Brzegi 4, 32-600 Oświęcim": {
+      "odległość [km]": 47.571,
+      "czas podróży [min]": 50.78333333333333
+    },
+    "Bytomska 41, 41-400 Mysłowice": {
+      "odległość [km]": 8.939,
+      "czas podróży [min]": 18.45
+    },
+    "Medyków 16, 40-752 Katowice": {
+      "odległość [km]": 21.927,
+      "czas podróży [min]": 27.466666666666665
     }
   },
   "Magnoliowa 10, 32-500 Chrzanów": {
     "Topolowa 16, 32-500 Chrzanów": {
       "odległość [km]": 1.495,
       "czas podróży [min]": 3.4833333333333334
+    }
+  },
+  "Bytomska 41, 41-400 Mysłowice": {
+    "Głowackiego 91, 32-540 Trzebinia": {
+      "odległość [km]": 31.857,
+      "czas podróży [min]": 28.583333333333332
+    },
+    "J. Chełmońskiego 28, 43-600 Jaworzno": {
+      "odległość [km]": 15.159,
+      "czas podróży [min]": 21.933333333333334
+    },
+    "Wysokie Brzegi 4, 32-600 Oświęcim": {
+      "odległość [km]": 34.001,
+      "czas podróży [min]": 40.25
+    },
+    "Plac Medyków 1, 41-200 Sosnowiec": {
+      "odległość [km]": 14.995,
+      "czas podróży [min]": 16.633333333333333
+    },
+    "Medyków 16, 40-752 Katowice": {
+      "odległość [km]": 18.788,
+      "czas podróży [min]": 25.183333333333334
+    },
+    "Topolowa 16, 32-500 Chrzanów": {
+      "odległość [km]": 30.6,
+      "czas podróży [min]": 27.85
+    },
+    "Aleja Tysiąclecia 13, 32-300 Olkusz": {
+      "odległość [km]": 43.393,
+      "czas podróży [min]": 42.333333333333336
+    }
+  },
+  "Aleja Tysiąclecia 13, 32-300 Olkusz": {
+    "Głowackiego 91, 32-540 Trzebinia": {
+      "odległość [km]": 24.106,
+      "czas podróży [min]": 35.05
+    },
+    "Plac Medyków 1, 41-200 Sosnowiec": {
+      "odległość [km]": 36.056,
+      "czas podróży [min]": 37.13333333333333
+    }
+  },
+  "Medyków 16, 40-752 Katowice": {
+    "Plac Medyków 1, 41-200 Sosnowiec": {
+      "odległość [km]": 20.627,
+      "czas podróży [min]": 25.15
+    },
+    "Wysokie Brzegi 4, 32-600 Oświęcim": {
+      "odległość [km]": 36.315,
+      "czas podróży [min]": 50.016666666666666
+    },
+    "Głowackiego 91, 32-540 Trzebinia": {
+      "odległość [km]": 43.195,
+      "czas podróży [min]": 39.31666666666667
+    },
+    "Aleja Tysiąclecia 13, 32-300 Olkusz": {
+      "odległość [km]": 54.949,
+      "czas podróży [min]": 54.5
+    },
+    "Bytomska 41, 41-400 Mysłowice": {
+      "odległość [km]": 18.424,
+      "czas podróży [min]": 24.866666666666667
+    },
+    "Topolowa 16, 32-500 Chrzanów": {
+      "odległość [km]": 41.937,
+      "czas podróży [min]": 38.583333333333336
     }
   }
 }
