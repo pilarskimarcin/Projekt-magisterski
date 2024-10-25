@@ -6,7 +6,6 @@ import PyQt6.QtCore as Qc
 import PyQt6.QtGui as Qg
 import PyQt6.QtWidgets as Qt
 import sys
-import traceback
 from typing import Dict, List, Optional, Union
 
 # Parametry dla Qt
@@ -17,15 +16,11 @@ MIN_WIDTH: int = 500
 # Stałe
 SOR_COLUMN_BEDS: str = "Liczba łóżek"
 PROFILES_PATH: str = "../Profile pacjentów"
+SCENARIOS_PATH: str = "../Scenariusze"
 TABLE_COLUMN_SCALE_FACTOR: float = 1.8
 TITLE: str = "Edytor scenariuszy - "
 TITLE_OFFSET_IN_SCENARIO: int = 1
 ZRM_DATA_TITLE: str = "ZRM: "
-
-# Włączenie Qt
-app = Qt.QApplication(sys.argv)
-sys.excepthook = lambda *args: (traceback.print_exception(*args, file=sys.stdout))
-app.setFont(Qg.QFont("Arial", FONT_SIZE))
 
 
 def CreateTableFromDataFrame(data: pd.DataFrame) -> Qt.QTableWidget:
@@ -83,6 +78,7 @@ class MainApp(Qt.QMainWindow):
     open_scenario_button: Qt.QPushButton
 
     # Inne pola
+    address: Optional[str]
     chosen_SOR_departments: Dict[int, int]
     chosen_ZRM_teams: List[int]
     chosen_profiles: Dict[str, int]
@@ -106,6 +102,7 @@ class MainApp(Qt.QMainWindow):
         self.victims_number = 0
         self.tab3_spin_boxes = []
         self.current_file = ""
+        self.address = None
         self.is_saved = False
         self.SetWindowTitle()
 
@@ -248,6 +245,7 @@ class MainApp(Qt.QMainWindow):
         row: Qt.QHBoxLayout = Qt.QHBoxLayout()
         row.addWidget(Qt.QLabel("Sumaryczna liczba ofiar: "))
         spin_box: Qt.QSpinBox = self.CreateSpinBox(self.victims_number)
+        spin_box.setRange(1, 1000)
         row.addWidget(spin_box)
         self.tab3_spin_boxes.append(spin_box)
         self.tab3_layout.addLayout(row, 1)
@@ -380,14 +378,15 @@ class MainApp(Qt.QMainWindow):
         self.SaveFileChoice()
         if self.current_file == "":  # Anulowano
             return
-        address: Optional[str] = self.GetAddressOfTheIncident()
-        if address is None:  # Anulowano
-            return
+        if self.address is None:
+            self.address = self.GetAddressOfTheIncident()
+            if self.address is None:  # Anulowano
+                return
         saved_contents: str = ""
         saved_contents += self.SaveSORData()
         saved_contents += self.SaveZRMData()
         saved_contents += self.SaveProfilesData()
-        saved_contents += f"\nAdres: {address}"
+        saved_contents += f"\nAdres: {self.address}"
         self.SaveContentsIntoFile(saved_contents)
 
     def CheckIfNotEnoughData(self) -> bool:
@@ -417,7 +416,7 @@ class MainApp(Qt.QMainWindow):
     def SaveFileChoice(self):
         if self.current_file == "":
             self.current_file, _ = Qt.QFileDialog.getSaveFileName(
-                self, "Zapisz scenariusz", "Scenariusze", "Pliki tekstowe (*.txt)"
+                self, "Zapisz scenariusz", SCENARIOS_PATH, "Pliki tekstowe (*.txt)"
             )
 
     def GetAddressOfTheIncident(self):
@@ -462,7 +461,7 @@ class MainApp(Qt.QMainWindow):
         self.EmergencySaveScenario()
         self.ClearEverything()
         self.current_file, _ = Qt.QFileDialog.getOpenFileName(
-            self, "Otwórz scenariusz", "Scenariusze", "Pliki tekstowe (*.txt)"
+            self, "Otwórz scenariusz", SCENARIOS_PATH, "Pliki tekstowe (*.txt)"
         )
         if self.current_file == "":  # Cancelled
             return
@@ -471,11 +470,12 @@ class MainApp(Qt.QMainWindow):
             teams_part: str
             victims_part: str
             total_victims_part: str
-            departments_part, teams_part, victims_part, total_victims_part = f.read().split("\n\n")
+            departments_part, teams_part, victims_part, total_victims_part, address_part = f.read().split("\n\n")
             self.ParseDepartments(departments_part)
             self.ParseTeams(teams_part)
             self.ParseProfiles(victims_part)
             self.ParseTotalVictimsCount(total_victims_part)
+            self.ParseAddress(address_part)
         self.is_saved = True
         self.SetWindowTitle()
         self.UpdateThreeTabs()
@@ -496,6 +496,9 @@ class MainApp(Qt.QMainWindow):
 
     def ParseTotalVictimsCount(self, total_victims_data: str):
         self.victims_number = int(total_victims_data.split()[-1])
+
+    def ParseAddress(self, address_data: str):
+        self.address = address_data.split(" ", 1)[1]
 
 
 def LoadSOR() -> pd.DataFrame:
@@ -521,7 +524,16 @@ def RemoveExtensionFromFile(file_name: str) -> str:
     return file_name[:-4]
 
 
-if __name__ == '__main__':
-    window = MainApp()
+def RunGUIApp(app_class: Qt.QMainWindow.__class__):
+    # Włączenie Qt
+    app = Qt.QApplication(sys.argv)
+    # sys.excepthook = lambda *args: (traceback.print_exception(*args, file=sys.stdout))
+    app.setFont(Qg.QFont("Arial", FONT_SIZE))
+
+    window = app_class()
     window.show()
     app.exec()
+
+
+if __name__ == '__main__':
+    RunGUIApp(MainApp)
