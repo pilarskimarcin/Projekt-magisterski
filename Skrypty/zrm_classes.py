@@ -4,9 +4,8 @@ import enum
 import math
 from typing import List, Optional
 
-from Skrypty.sor_classes import IncidentPlace
-from Skrypty.victim_classes import Procedure, Victim
-from Skrypty.utilities import PlaceAddress, TargetDestination
+from victim_classes import Procedure, Victim
+from utilities import PlaceAddress, TargetDestination
 
 
 class Specialist:
@@ -42,15 +41,21 @@ class Specialist:
 
     def ContinuePerformingProcedure(self):
         if self.time_until_procedure_is_finished is not None:
+            if self.target_victim and self.target_victim.IsDead():
+                self.ClearAfterProcedure()
+                return
             self.time_until_procedure_is_finished -= 1
             if self.time_until_procedure_is_finished == 0:
                 self.FinishProcedure()
 
+    def ClearAfterProcedure(self):
+        self.time_until_procedure_is_finished = self.target_victim = self.stored_procedure = None
+        self.is_idle = True
+
     def FinishProcedure(self):
         if self.target_victim:
             self.target_victim.PerformProcedureOnMe(self.stored_procedure)
-        self.time_until_procedure_is_finished = self.target_victim = self.stored_procedure = None
-        self.is_idle = True
+        self.ClearAfterProcedure()
 
 
 class ZRM:

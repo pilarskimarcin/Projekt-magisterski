@@ -2,12 +2,12 @@
 import math
 import unittest
 
-from Skrypty import sor_classes as sor
-from Skrypty import utilities as util
-from Skrypty import victim_classes as victim
-from Skrypty import zrm_classes as zrm
-from Testy import tests_utilities as tests_util
-from Testy import tests_victim_classes as tests_victim
+import sor_classes as sor
+import utilities as util
+import victim_classes as victim
+import zrm_classes as zrm
+import tests_utilities as tests_util
+import tests_victim_classes as tests_victim
 
 
 class SpecialistTests(unittest.TestCase):
@@ -78,6 +78,29 @@ class SpecialistTests(unittest.TestCase):
         self.assertEqual(self.sample_specialist.stored_procedure, None)
         self.assertEqual(self.sample_specialist.target_victim, None)
         self.assertEqual(self.sample_specialist.time_until_procedure_is_finished, None)
+        self.assertEqual(self.sample_specialist.is_idle, True)
+
+    def testClearAfterProcedure(self):
+        sample_procedure: victim.Procedure = tests_victim.CreateSampleProcedure()
+        sample_victim: victim.Victim = tests_victim.CreateSampleVictim()
+        self.sample_specialist.StartPerformingProcedure(sample_procedure, sample_victim)
+        self.sample_specialist.ClearAfterProcedure()
+
+        self.assertEqual(self.sample_specialist.time_until_procedure_is_finished, None)
+        self.assertEqual(self.sample_specialist.target_victim, None)
+        self.assertEqual(self.sample_specialist.stored_procedure, None)
+        self.assertEqual(self.sample_specialist.is_idle, True)
+
+    def testClearAfterProcedureVictimDiedDuringProcedure(self):
+        sample_procedure: victim.Procedure = tests_victim.CreateSampleProcedure()
+        sample_victim: victim.Victim = tests_victim.CreateSampleVictim()
+        self.sample_specialist.StartPerformingProcedure(sample_procedure, sample_victim)
+        sample_victim.ChangeState(2)
+        self.sample_specialist.ContinuePerformingProcedure()
+
+        self.assertEqual(self.sample_specialist.time_until_procedure_is_finished, None)
+        self.assertEqual(self.sample_specialist.target_victim, None)
+        self.assertEqual(self.sample_specialist.stored_procedure, None)
         self.assertEqual(self.sample_specialist.is_idle, True)
 
     def testFinishProcedure(self):
