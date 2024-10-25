@@ -5,7 +5,7 @@ import enum
 import sys
 from typing import Dict, List, Literal, NamedTuple, Optional, Set, Tuple
 
-from Skrypty.profiles_editor import DESCRIPTION_START, N_FIRST_LINES_TO_OMIT, STATE_TITLE, TIME_UNIT
+from profiles_editor import DESCRIPTION_START, N_FIRST_LINES_TO_OMIT, STATE_TITLE, TIME_UNIT
 
 # Własne typy
 StateNumber = int

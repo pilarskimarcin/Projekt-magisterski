@@ -2,9 +2,9 @@
 from typing import List
 import unittest
 
-from Skrypty import sor_classes as sor
-from Skrypty import victim_classes as victim
-from Testy import tests_utilities as tests_util
+import sor_classes as sor
+import victim_classes as victim
+import tests_utilities as tests_util
 
 
 def CreateSampleIncidentPlace() -> sor.IncidentPlace:

@@ -2,7 +2,7 @@
 from typing import List, Set, Tuple
 import unittest
 
-from Skrypty import victim_classes as victim
+import victim_classes as victim
 
 SAMPLE_DESCRIPTION: str = (u"Przygnieciony konstrukcją przytomny, logiczny pacjent z duża krwawiąca rana okolicy "
                            u"czołowej i ciemieniowej i dusznością. Złamanie zamknięte obu kości udowych ( zasinienie, "

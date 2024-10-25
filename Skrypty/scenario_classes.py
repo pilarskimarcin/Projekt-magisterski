@@ -2,10 +2,10 @@
 import pandas as pd
 from typing import Dict, List, Tuple
 
-from Skrypty.sor_classes import Hospital, Department
-from Skrypty.utilities import PlaceAddress
-from Skrypty.victim_classes import Victim
-from Skrypty.zrm_classes import ZRM, ZRMType
+from sor_classes import Hospital, Department
+from utilities import PlaceAddress
+from victim_classes import Victim
+from zrm_classes import ZRM, ZRMType
 
 DATA_TITLE_OFFSET: int = 1
 ZRM_DATA_TITLE: str = "ZRM: "

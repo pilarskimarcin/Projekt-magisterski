@@ -4,8 +4,8 @@ import math
 import random
 from typing import Dict, List, Optional
 
-from Skrypty.utilities import PlaceAddress, TargetDestination
-from Skrypty.victim_classes import Victim
+from utilities import PlaceAddress, TargetDestination
+from victim_classes import Victim
 
 
 class IncidentPlace(TargetDestination):

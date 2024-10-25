@@ -4,7 +4,7 @@ import pandas as pd
 import unittest
 from typing import Dict, Tuple
 
-from Skrypty import utilities
+import utilities
 
 
 def CreateSampleDataFrameWithPlacesCoordinates() -> pd.DataFrame:

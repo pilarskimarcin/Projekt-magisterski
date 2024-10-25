@@ -3,13 +3,13 @@ import pandas as pd
 from typing import Dict, List, Tuple
 import unittest
 
-from Skrypty import scenario_classes as scenario
-from Skrypty import sor_classes as sor
-from Skrypty import utilities as util
-from Skrypty import victim_classes as victim
-from Skrypty import zrm_classes as zrm
-from Testy import tests_sor_classes as tests_sor
-from Testy import tests_utilities as tests_util
+import scenario_classes as scenario
+import sor_classes as sor
+import utilities as util
+import victim_classes as victim
+import zrm_classes as zrm
+import tests_sor_classes as tests_sor
+import tests_utilities as tests_util
 
 
 def CreateSampleScenarioData() -> Tuple[sor.Hospital, list[zrm.ZRM], list[victim.Victim], util.PlaceAddress]:
