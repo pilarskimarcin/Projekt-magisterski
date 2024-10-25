@@ -3,23 +3,23 @@ import random
 from typing import List, Optional, Tuple
 import unittest
 
-from Skrypty import simulation as sim
-from Skrypty import sor_classes as sor
-from Skrypty import utilities as util
-from Skrypty import victim_classes as victim
-from Skrypty import zrm_classes as zrm
-from Testy import tests_sor_classes as tests_sor
-from Testy import tests_utilities as tests_util
-from Testy import tests_victim_classes as tests_victim
-from Testy import tests_zrm_classes as tests_zrm
+import simulation as sim
+import sor_classes as sor
+import utilities as util
+import victim_classes as victim
+import zrm_classes as zrm
+import tests_sor_classes as tests_sor
+import tests_utilities as tests_util
+import tests_victim_classes as tests_victim
+import tests_zrm_classes as tests_zrm
 
 
-def SampleSimulationResultsBeginning() -> sim.SimulationResults:
-    return sim.SimulationResults(10, 7.47, 0, 0)
+def SampleSimulationResultsBeginning() -> sim.SimulationResultsTuple:
+    return sim.SimulationResultsTuple(10, 7.47, 0, 0)
 
 
-def SampleSimulationResultsBest() -> sim.SimulationResults:
-    return sim.SimulationResults(10, 8.06, 0, 0)
+def SampleSimulationResultsBest() -> sim.SimulationResultsTuple:
+    return sim.SimulationResultsTuple(10, 8.06, 0, 0)
 
 
 class TestSimulation(unittest.TestCase):
@@ -86,8 +86,8 @@ class TestSimulation(unittest.TestCase):
         print(results)
         print(simulation.solution)
         possible_results = (
-            sim.SimulationResults(0, 10.5, 13, 11.0),  # Jeśli zostanie wysłana do zgłoszenia tylko 1 karetka
-            sim.SimulationResults(0, 10.5, 14, 13.5)  # Jeśli zostaną naraz wysłane do zgłoszenia 2 karetki
+            sim.SimulationResultsTuple(0, 10.5, 13, 11.0),  # Jeśli zostanie wysłana do zgłoszenia tylko 1 karetka
+            sim.SimulationResultsTuple(0, 10.5, 14, 13.5)  # Jeśli zostaną naraz wysłane do zgłoszenia 2 karetki
         )
 
         self.assertTrue(results in possible_results)
@@ -1245,8 +1245,8 @@ class TestSimulation(unittest.TestCase):
 
     def testSimulationResultsCorrectBaseSituation(self):
         self.SimulationEndSetup()
-        sample_results: sim.SimulationResults = SampleSimulationResultsBeginning()
-        results: sim.SimulationResults = self.simulation.SimulationResults()
+        sample_results: sim.SimulationResultsTuple = SampleSimulationResultsBeginning()
+        results: sim.SimulationResultsTuple = self.simulation.SimulationResults()
 
         self.assertEqual(results, sample_results)
 
@@ -1256,8 +1256,8 @@ class TestSimulation(unittest.TestCase):
             best_state: Optional[int] = victim_.current_state.GetImprovedStateNumber()
             if best_state:
                 victim_.ChangeState(best_state)
-        sample_results: sim.SimulationResults = SampleSimulationResultsBest()
-        results: sim.SimulationResults = self.simulation.SimulationResults()
+        sample_results: sim.SimulationResultsTuple = SampleSimulationResultsBest()
+        results: sim.SimulationResultsTuple = self.simulation.SimulationResults()
 
         self.assertEqual(results, sample_results)
 

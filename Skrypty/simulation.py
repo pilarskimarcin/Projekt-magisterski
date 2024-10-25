@@ -3,12 +3,11 @@ import pandas as pd
 import random
 from typing import List, NamedTuple, Optional, Set, Tuple
 
-from Skrypty.scenario_classes import Scenario
-from Skrypty.sor_classes import Department, Hospital, IncidentPlace
-from Skrypty.utilities import PlaceAddress, TargetDestination
-from Skrypty.victim_classes import HealthProblem, Procedure, TriageColour, Victim
-from Skrypty.zrm_classes import ZRM
-from zrm_classes import Specialist
+from scenario_classes import Scenario
+from sor_classes import Department, Hospital, IncidentPlace
+from utilities import PlaceAddress, TargetDestination
+from victim_classes import HealthProblem, Procedure, TriageColour, Victim
+from zrm_classes import Specialist, ZRM
 
 # Stałe
 PROCEDURES_CSV_TIME_COLUMN_NAME: str = "Czas wykonania przez ratowników [min]"
@@ -80,7 +79,7 @@ class Simulation:
             for procedure_string, time in zip(procedure_symbols.values, times.values)
         ]
 
-    def PerformSimulation(self) -> SimulationResults:
+    def PerformSimulation(self) -> SimulationResultsTuple:
         main_incident: IncidentPlace = self.incidents[0]
         first_team: ZRM = self.SendOutNTeamsToTheIncidentReturnFirst(
             main_incident, main_incident.reported_victims_count
@@ -374,13 +373,13 @@ class Simulation:
                 return incident
         return None
 
-    def SimulationResults(self) -> SimulationResults:
+    def SimulationResults(self) -> SimulationResultsTuple:
         if not self.CheckIfSimulationEndReached():
             raise RuntimeError("Symulacja jeszcze nie została zakończona")
         n_dead_victims: int = len(self.assessed_victims)
         average_RPM: float = self.CalculateAverageRPM()
         average_help_time: float = self.CalculateAverageHelpTime()
-        return SimulationResults(
+        return SimulationResultsTuple(
             n_dead_victims, round(average_RPM, 2), self.elapsed_simulation_time, round(average_help_time, 2)
         )
 
@@ -402,9 +401,19 @@ class SolutionRecord(NamedTuple):
     hospital_department_id: str
     elapsed_simulation_time: int
 
+    def __repr__(self):
+        return (f"{self.number}. (id poszkodowanego: {self.victim_id}, id zespołu: {self.team_id}, "
+                f"id oddziału szpitalnego: {self.hospital_department_id}, "
+                f"czas przyjęcia do szpitala: {self.elapsed_simulation_time})")
 
-class SimulationResults(NamedTuple):
+
+class SimulationResultsTuple(NamedTuple):
     dead_victims_count: int
     victims_average_RPM: float
     total_simulation_time_minutes: int
     average_help_time_minutes: float
+
+
+if __name__ == '__main__':
+    scenario_path: str = "../Scenariusze/Scenariusz 6.txt"
+    print(Simulation(scenario_path).PerformSimulation())
