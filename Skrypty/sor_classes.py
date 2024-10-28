@@ -9,7 +9,6 @@ from victim_classes import Victim
 
 
 class IncidentPlace(TargetDestination):
-    address: PlaceAddress
     victims: List[Victim]
     reported_victims_count: int
 

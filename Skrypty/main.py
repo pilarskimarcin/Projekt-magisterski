@@ -91,7 +91,7 @@ class MainApp(Qt.QMainWindow):
         )
         message_lines.append(f"Obliczona wartość funkcji celu: {objective_function_value:.2f}")
         results_window.setText("\n".join(message_lines))
-        solution_as_strings: List[str] = ["\n\nRozwiązanie"] + [str(item) for item in simulation.solution]
+        solution_as_strings: List[str] = ["Rozwiązanie"] + [str(item) for item in simulation.solution]
         results_window.scroll_area_content.setText("\n".join(solution_as_strings))
         results_window.exec()
         file_name_format: str = '%Y%m%d-%H%M%S'
