@@ -1,0 +1,231 @@
+@startuml classes
+set namespaceSeparator none
+skinparam linetype polyline
+skinparam linetype ortho
+
+class "Simulation" as simulation.Simulation {
+  all_hospitals : List[Hospital]
+  assessed_victims : List[Victim]
+  available_procedures : List[Procedure]
+  elapsed_simulation_time : int
+  idle_teams : List[ZRM]
+  incidents : List[IncidentPlace]
+  solution : List[SolutionRecord]
+  teams_in_action : List[ZRM]
+  transport_ready_victims : List[Victim]
+  unknown_status_victims : List[Victim]
+  CheckIfSimulationEndReached() -> bool
+  FindAppropriateAvailableHospital(target_victim: Victim) -> Optional[Hospital]
+  HandleTransportReadyVictims(team: ZRM)
+  HelpAssessedVictimOrPrepareForTransport(specialist: Specialist, team: ZRM)
+  MoveTeam(team: ZRM)
+  OrderIdleSpecialists(team: ZRM)
+  OrderIdleTeamInAction(team: ZRM)
+  PerformReconnaissance(first_team: ZRM)
+  PerformSimulation() -> SimulationResultsTuple
+  PerformTriage(specialist: Specialist)
+  SimulationResults() -> SimulationResultsTuple
+  SimulationTimeProgresses()
+}
+
+simulation.Simulation "1" *-- "1..*" sor_classes.Hospital : all_hospitals
+
+class "Hospital" as sor_classes.Hospital {
+  departments : List[Department]
+  id_ : int
+  name : str
+  AvailableBedsInDepartment(department: Department) -> int
+  CanVictimBeTakenIn(target_victim: Victim) -> bool
+  TakeInVictimToOneOfDepartments(victim: Victim, current_time: int) -> Department
+  TryGetDepartment(medicine_discipline_id: int) -> Optional[Department]
+}
+
+sor_classes.Hospital --|> utilities.TargetDestination
+
+class "TargetDestination" as utilities.TargetDestination {
+  address: PlaceAddress
+}
+
+utilities.TargetDestination *-- utilities.PlaceAddress : address
+
+class "PlaceAddress" as utilities.PlaceAddress {
+  address_for_api_requests : str
+  latitude : Optional[float]
+  longitude : Optional[float]
+  AreCoordinatesPresent() -> bool
+  Geocoding()
+  GetDistanceAndDurationToOtherPlace(other: PlaceAddress) -> Tuple[float, float]
+  SaveDistanceAndDurationToFile(distance: float, duration: float, other: PlaceAddress, target_json_file: str)
+  SavePlaceCoordinatesToFile(target_csv_file: str)
+}
+
+sor_classes.Hospital "1" *-- "1..*" sor_classes.Department : departments
+
+class "Department" as sor_classes.Department {
+  admitted_victims : List[Victim]
+  current_beds_count : int
+  id_ : int
+  medical_categories : List[int]
+  name : str
+  TakeInVictim(victim: Victim, current_time: int)
+}
+
+sor_classes.Department "1" o-- "0..*" victim_classes.Victim : admitted_victims
+
+class "Victim" as victim_classes.Victim {
+  current_RPM_number : int
+  current_state: State
+  hospital_admittance_time : Optional[int]
+  id_ : int
+  initial_RPM_number : int
+  states : List[State]
+  AdmitToHospital(time: int)
+  CalculateRPM() -> int
+  ChangeState(new_state_number: StateNumber)
+  GetCurrentCriticalHealthProblems() -> Set[HealthProblem]
+  GetCurrentHealthProblemDisciplines() -> Set[int]
+  HasBeenAdmittedToHospital() -> bool
+  IsDead() -> bool
+  LowerRPM(time_from_simulation_start: int)
+  PerformProcedureOnMe(procedure: Procedure)
+}
+
+victim_classes.Victim --- victim_classes.Procedure : "używa >"
+
+class "Procedure" as victim_classes.Procedure {
+  health_problem : HealthProblem
+  time_needed_to_perform : int
+}
+
+victim_classes.Procedure o-- victim_classes.HealthProblem : health_problem
+
+class "HealthProblem" as victim_classes.HealthProblem {
+  discipline : int
+  number : int
+}
+
+victim_classes.Victim "1" *-- "1..*" victim_classes.State : "states, current_state"
+
+class "State" as victim_classes.State {
+  description : str
+  health_problems : List[HealthProblem]
+  intervention_next_state_transition : Optional[Tuple[List[HealthProblem], StateNumber]]
+  is_victim_following_orders : bool
+  is_victim_walking : bool
+  number : int
+  pulse_rate : int
+  respiratory_rate : int
+  timed_next_state_transition : Optional[Tuple[int, StateNumber]]
+  triage_colour: TriageColour
+  GetDeterioratedStateNumber() -> Optional[StateNumber]
+  GetImprovedStateNumber() -> Optional[StateNumber]
+  GetTimeOfDeterioration() -> Optional[int]
+}
+
+victim_classes.State "1" *-- "1..*" victim_classes.HealthProblem : health_problem
+
+victim_classes.State *-- victim_classes.TriageColour : triage_colour
+
+enum "TriageColour" as victim_classes.TriageColour {
+  name
+}
+
+simulation.Simulation "1" *-- "1..*" victim_classes.Victim : "assessed_victims, transport_ready_victims, unknown_status_victims"
+simulation.Simulation "1" *-- "1..*" zrm_classes.ZRM : "idle_teams, teams_in_action"
+
+class "ZRM" as zrm_classes.ZRM {
+  are_specialists_outside : bool
+  dispatch : str
+  id_ : str
+  origin_location_address : PlaceAddress
+  queue_of_next_targets : List[TargetDestination]
+  specialists : List[Specialist]
+  target_location : Optional[TargetDestination]
+  time_until_destination_in_minutes : Optional[int]
+  transported_victim : Optional[Victim]
+  type : ZRMType
+  DriveOrFinishDrivingAndReturnVictim() -> Optional[Victim]
+  IsDriving() -> bool
+  QueueNewTargetLocation(new_target: TargetDestination)
+  SpecialistsLeaveTheVehicle()
+  StartDriving(target_location: Optional[TargetDestination])
+  StartTransportingAVictim(victim: Victim, target_location: TargetDestination)
+  TrySpecialistsComeBackToTheVehicle() -> bool
+}
+
+zrm_classes.ZRM *-- utilities.PlaceAddress : origin_location_address
+zrm_classes.ZRM "1" o-- "1..*" utilities.TargetDestination : "queue_of_next_targets, target_location"
+zrm_classes.ZRM o-- victim_classes.Victim : transported_victim
+zrm_classes.ZRM "1" *-- "2..*" zrm_classes.Specialist : specialists
+
+class "Specialist" as zrm_classes.Specialist {
+  id_ : int
+  is_idle : bool
+  origin_zrm_id : str
+  stored_procedure : Optional[Procedure]
+  target_victim : Optional[Victim]
+  time_until_procedure_is_finished : Optional[int]
+  ContinuePerformingProcedure()
+  FinishProcedure()
+  StartPerformingProcedure(procedure: Procedure, target_victim: Optional[Victim])
+}
+
+zrm_classes.Specialist o-- victim_classes.Procedure : stored_procedure
+
+zrm_classes.ZRM *-- zrm_classes.ZRMType : type
+
+enum "ZRMType" as zrm_classes.ZRMType {
+  name
+}
+
+simulation.Simulation "1" *-- "0..*" victim_classes.Procedure : available_procedures
+simulation.Simulation "1" *-- "1..*" sor_classes.IncidentPlace : incidents
+
+class "IncidentPlace" as sor_classes.IncidentPlace {
+  reported_victims_count : int
+  victims : List[Victim]
+  GetStartingAmountOfVictims() -> int
+  NeedsReconnaissance()
+  TryTakeVictim(victim_id: int) -> Optional[Victim]
+}
+
+sor_classes.IncidentPlace --|> utilities.TargetDestination
+sor_classes.IncidentPlace "1" o-- "1..*" victim_classes.Victim : victims
+
+simulation.Simulation "1" *-- "0..*" simulation.SolutionRecord : solution
+
+class "SolutionRecord" as simulation.SolutionRecord {
+  elapsed_simulation_time : int
+  hospital_department_id : str
+  number : int
+  team_id : str
+  victim_id : int
+}
+
+simulation.Simulation --- scenario_classes.Scenario : "jest utworzona z >"
+
+class "Scenario" as scenario_classes.Scenario {
+  address: PlaceAddress
+  hospitals : List[Hospital]
+  teams : List[ZRM]
+  victims : List[Victim]
+  ParseAddress(address_part: str)
+  ParseDepartments(departments_string: str)
+  ParseTeams(teams_part: str)
+  ParseVictims(victims_part: str, total_victims_part: str)
+}
+
+scenario_classes.Scenario o-- utilities.PlaceAddress : address
+scenario_classes.Scenario "1" o-- "1..*" sor_classes.Hospital : hospitals
+scenario_classes.Scenario "1" o-- "1..*" zrm_classes.ZRM : teams
+scenario_classes.Scenario "1" o-- "1..*" victim_classes.Victim : victims
+
+simulation.Simulation --- simulation.SimulationResultsTuple : "zwraca >"
+
+class "SimulationResultsTuple" as simulation.SimulationResultsTuple {
+  average_help_time_minutes : float
+  dead_victims_count : int
+  total_simulation_time_minutes : int
+  victims_average_RPM : float
+}
+@enduml
