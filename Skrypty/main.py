@@ -102,6 +102,7 @@ class MainApp(Qt.QMainWindow):
                 "w", encoding="utf-8"
         ) as f:
             f.write("\n".join(message_lines))
+            f.write("\n\n")
             f.write("\n".join(solution_as_strings))
 
     def Layout(self):
