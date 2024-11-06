@@ -60,12 +60,13 @@ class MainApp(Qt.QMainWindow):
         self.simulate_button.clicked.connect(self.Simulate)
 
     def OpenScenario(self):
-        self.ClearVariables()
-        self.current_scenario, _ = Qt.QFileDialog.getOpenFileName(
+        new_scenario, _ = Qt.QFileDialog.getOpenFileName(
             self, "Otwórz scenariusz", "../Scenariusze", "Pliki tekstowe (*.txt)"
         )
-        if self.current_scenario == "":  # Anulowano
+        if new_scenario == "":  # Anulowano
             return
+        self.ClearVariables()
+        self.current_scenario = new_scenario
         self.ReloadScenario()
 
     def Simulate(self):

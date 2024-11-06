@@ -35,6 +35,10 @@
     "Topolowa 16, 32-500 Chrzanów": {
       "odległość [km]": 0.0,
       "czas podróży [min]": 0.0
+    },
+    "Aleja Tysiąclecia 13, 32-300 Olkusz": {
+      "odległość [km]": 26.54,
+      "czas podróży [min]": 35.416666666666664
     }
   },
   "Tadeusza Kościuszki 50, 32-540 Trzebinia": {
@@ -125,6 +129,10 @@
     "Bytomska 41, 41-400 Mysłowice": {
       "odległość [km]": 33.302,
       "czas podróży [min]": 40.63333333333333
+    },
+    "Aleja Tysiąclecia 13, 32-300 Olkusz": {
+      "odległość [km]": 46.913,
+      "czas podróży [min]": 59.483333333333334
     }
   },
   "Palimąki 2, 32-640 Zator": {
@@ -357,6 +365,14 @@
     "Plac Medyków 1, 41-200 Sosnowiec": {
       "odległość [km]": 36.056,
       "czas podróży [min]": 37.13333333333333
+    },
+    "Medyków 16, 40-752 Katowice": {
+      "odległość [km]": 53.213,
+      "czas podróży [min]": 54.81666666666667
+    },
+    "Wysokie Brzegi 4, 32-600 Oświęcim": {
+      "odległość [km]": 45.42,
+      "czas podróży [min]": 60.71666666666667
     }
   },
   "Medyków 16, 40-752 Katowice": {
@@ -383,6 +399,10 @@
     "Topolowa 16, 32-500 Chrzanów": {
       "odległość [km]": 41.937,
       "czas podróży [min]": 38.583333333333336
+    },
+    "J. Chełmońskiego 28, 43-600 Jaworzno": {
+      "odległość [km]": 31.965,
+      "czas podróży [min]": 36.7
     }
   }
 }

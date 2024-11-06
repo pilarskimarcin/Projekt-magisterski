@@ -93,7 +93,6 @@ class Simulation:
                     self.OrderIdleTeamInAction(team)
                 if team.are_specialists_outside and team.AreSpecialistsIdle():
                     self.OrderIdleSpecialists(team)
-            # czy nowy wypadek z additional_scenarios?
         return self.SimulationResults()
 
     def SendOutNTeamsToTheIncidentReturnFirst(self, incident_place: IncidentPlace, n_teams_to_send: int) -> ZRM:
