@@ -86,8 +86,8 @@ class TestSimulation(unittest.TestCase):
         print(results)
         print(simulation.solution)
         possible_results = (
-            sim.SimulationResultsTuple(0, 10.5, 13, 11.0),  # Jeśli zostanie wysłana do zgłoszenia tylko 1 karetka
-            sim.SimulationResultsTuple(0, 10.5, 14, 13.5)  # Jeśli zostaną naraz wysłane do zgłoszenia 2 karetki
+            sim.SimulationResultsTuple(0, 10.5, 16, 12.0),  # Jeśli zostaną naraz wysłane do zgłoszenia 2 karetki
+            sim.SimulationResultsTuple(0, 10.5, 18, 15.5)  # Jeśli zostanie wysłana do zgłoszenia tylko 1 karetka
         )
 
         self.assertTrue(results in possible_results)
@@ -571,6 +571,50 @@ class TestSimulation(unittest.TestCase):
         self.assertEqual(len(self.simulation.unknown_status_victims), prev_unknown_status_victims_count)
         self.assertEqual(len(self.simulation.assessed_victims), prev_assessed_victims_count)
         self.assertEqual(len(self.simulation.transport_ready_victims), prev_transport_ready_victims_count)
+
+    def testOrderIdleTeamInActionVictimTeleportedToHospitalBug(self):
+        """
+        Błąd: gdy ZRM dojedzie z pacjentem i zostawi go w szpitalu, w tej samej turze sprawdza dostępne opcje, widzi, że
+        są transport_ready_victims, więc zaczyna "jechać" z kolejnym, mimo, że jest obecnie przy szpitalu -> co skutkuje
+        dojazdem pacjenta do szpitala w kolejnej turze.
+        Jak powinno działać: ZRM powinien natychmiast wracać na miejsce zdarzenia, i dopiero tam sprawdzić czy jest ktoś
+        do transportu
+         """
+        sample_team: zrm.ZRM = tests_zrm.CreateSampleZRM()
+        self.simulation.TeamIntoAction(sample_team)
+        sample_team.origin_location_address = self.simulation.incidents[0].address
+        self.AssessAllVictims()
+        target_victim: victim.Victim = self.simulation.GetTargetVictimForProcedure()
+        hospital_target: sor.Hospital = self.simulation.FindAppropriateAvailableHospital(target_victim)
+        hospital_target.incoming_victims.clear()
+        for victim_ in self.simulation.all_victims:
+            if victim_.current_RPM_number == target_victim.current_RPM_number:
+                self.simulation.assessed_victims.remove(victim_)
+        self.PrepareForTransportAllVictims()
+        self.simulation.transport_ready_victims.append(target_victim)
+        # Drugi docelowy poszkodowany, aby spowodować sytuację z błędu - wówczas na pewno w transport_ready będzie
+        # ofiara, która powinna trafić do tego samego szpitala, w którym będzie ZRM
+        self.simulation.transport_ready_victims.append(target_victim)
+        n_dead_victims: int = len([victim_ for victim_ in self.simulation.transport_ready_victims if victim_.IsDead()])
+        prev_unknown_status_victims_count: int = len(self.simulation.unknown_status_victims)
+        prev_assessed_victims_count: int = len(self.simulation.assessed_victims)
+        prev_transport_ready_victims_count: int = len(self.simulation.transport_ready_victims)
+        self.simulation.OrderIdleTeamInAction(sample_team)
+        sample_team.time_until_destination_in_minutes = 1
+        self.simulation.SimulationTimeProgresses()  # ZRM dojeżdża do szpitala i zostawia pacjenta
+        self.simulation.OrderIdleTeamInAction(sample_team)  # ZRM próbuje wieźć pacjenta do szpitala
+
+        self.assertEqual(sample_team.are_specialists_outside, False)
+        self.assertEqual(sample_team.queue_of_next_targets, [])
+        self.assertEqual(sample_team.target_location, self.simulation.incidents[0])
+        self.assertEqual(sample_team.time_until_destination_in_minutes, 3)
+        self.assertEqual(sample_team.transported_victim, None)
+        self.assertEqual(hospital_target.incoming_victims, {})
+        self.assertEqual(len(self.simulation.unknown_status_victims), prev_unknown_status_victims_count)
+        self.assertEqual(len(self.simulation.assessed_victims), prev_assessed_victims_count + n_dead_victims)
+        self.assertEqual(
+            len(self.simulation.transport_ready_victims), prev_transport_ready_victims_count - n_dead_victims - 1
+        )
 
     def testHandleTransportReadyVictimsNoDeadAndVictimsToTransport(self):
         sample_team: zrm.ZRM = tests_zrm.CreateSampleZRM()

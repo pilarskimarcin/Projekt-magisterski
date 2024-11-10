@@ -221,12 +221,12 @@ class Simulation:
     def OrderIdleTeamInAction(self, team: ZRM):
         if team.queue_of_next_targets:
             team.StartDriving(team.queue_of_next_targets.pop())
+        elif team.origin_location_address != self.incidents[0].address:
+            team.StartDriving(self.incidents[0])
         elif self.transport_ready_victims:
             self.HandleTransportReadyVictims(team)
-        elif team.origin_location_address == self.incidents[0].address:
-            team.SpecialistsLeaveTheVehicle()
         else:
-            team.StartDriving(self.incidents[0])
+            team.SpecialistsLeaveTheVehicle()
 
     def HandleTransportReadyVictims(self, team: ZRM):
         self.SortVictimsListByRPM(self.transport_ready_victims)

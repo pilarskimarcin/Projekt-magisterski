@@ -6,6 +6,8 @@ from typing import List, Tuple
 def main():
     results_dir: str = "../Wyniki"
     for directory in ListDirectoriesAndFilesInDirectory(results_dir)[0]:
+        if not directory.startswith("S"):
+            continue
         dir_path: str = f"{results_dir}/{directory}"
         print("=========================================")
         print(directory)
@@ -69,25 +71,25 @@ if __name__ == '__main__':
 
 # =========================================
 # S3
-# Średnia liczba zmarłych: 12.18
-# Średnia ocena RPM poszkodowanych: 7.683600000000007
-# Średni czas symulacji: 85.09
-# Średni czas pomocy: 48.71060000000001
-# Średnia wartość funkcji celu: -17.3311
-# Wartość funkcji celu dla średnich wartości: -17.33127999999997
+# Średnia liczba zmarłych: 12.21
+# Średnia ocena RPM poszkodowanych: 7.4348
+# Średni czas symulacji: 105.44
+# Średni czas pomocy: 59.41569999999999
+# Średnia wartość funkcji celu: -26.655299999999997
+# Wartość funkcji celu dla średnich wartości: -26.655509999999996
 # =========================================
 # S7
-# Średnia liczba zmarłych: 16.78
-# Średnia ocena RPM poszkodowanych: 5.965599999999998
-# Średni czas symulacji: 272.14
-# Średni czas pomocy: 131.9699
-# Średnia wartość funkcji celu: -100.54359999999996
-# Wartość funkcji celu dla średnich wartości: -100.54357
+# Średnia liczba zmarłych: 16.62
+# Średnia ocena RPM poszkodowanych: 5.7257
+# Średni czas symulacji: 320.02
+# Średni czas pomocy: 150.65060000000003
+# Średnia wartość funkcji celu: -118.917
+# Wartość funkcji celu dla średnich wartości: -118.91738000000001
 # =========================================
 # S8
-# Średnia liczba zmarłych: 57.36
-# Średnia ocena RPM poszkodowanych: 5.8508
-# Średni czas symulacji: 223.07
-# Średni czas pomocy: 108.99650000000005
-# Średnia wartość funkcji celu: -122.42299999999999
-# Wartość funkcji celu dla średnich wartości: -122.42325000000002
+# Średnia liczba zmarłych: 57.45
+# Średnia ocena RPM poszkodowanych: 5.514999999999999
+# Średni czas symulacji: 274.86
+# Średni czas pomocy: 130.51629999999997
+# Średnia wartość funkcji celu: -143.2599
+# Wartość funkcji celu dla średnich wartości: -143.25989
